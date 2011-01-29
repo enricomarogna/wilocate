@@ -8,9 +8,9 @@ def which(program, moredirs = []):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
     fpath, fname = os.path.split(program)
-    
+
     dirs = os.environ["PATH"].split(os.pathsep) + moredirs
-    
+
     if fpath:
 	if is_exe(program):
             return program
@@ -23,29 +23,29 @@ def which(program, moredirs = []):
     return None
 
 class scanHandler:
-  
+
   command=''
   pout=None
   pin=None
-  
+
   def __init__(self,pout,pin,delay=5):
-    
+
     self.pout=pout
     self.pin=pin
-    
+
     bin = 'iwlist'
     path = which(bin, ['/sbin/', '/usr/sbin/'])
     if not path:
-      print '! Error, no', bin, 'founded in $PATH' 
-      
-    self.command = path 
-    
+      print '! Error, no', bin, 'founded in $PATH'
+
+    self.command = path
+
     while 1:
       self.getScan()
       time.sleep(delay)
 
   def getScan(self):
-	
+
     data = {}
     lastcell=''
     lastauth=''
@@ -54,16 +54,16 @@ class scanHandler:
     pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
 
     for l in pop.stdout.read().split('\n'):
-      
+
       p = l.strip()
       spa = [x.strip() for x in p.split(' ')]
       sp = [x.strip(':') for x in spa]
-      
+
       # If Cell i create new key with mac address
       if sp[0] == 'Cell' and sp[3] == 'Address':
 	lastcell=sp[4]
 	data[lastcell]={}
-	
+
       elif sp[0].startswith('Channel') or sp[0].startswith('Frequency') or sp[0].startswith('Mode') or sp[0].startswith('ESSID'):
 	splitted = sp[0].split(':') + sp[1:]
 	data[lastcell][splitted[0]]=splitted[1].strip('"') # For ESSID
@@ -82,7 +82,7 @@ class scanHandler:
 	if sp[1].split(':')[1] == 'on':
 	  if 'Encryption' not in data[lastcell]:
 	    data[lastcell]['Encryption']= {}
-	    
+
 	    #Traceback (most recent call last):
 	    #File "wilocate.py", line 486, in <module>
 	      #main()
@@ -103,14 +103,13 @@ class scanHandler:
 	if '' in sp:
 	  where = sp.index('')
 	  value=' '.join(sp[where:]).strip()
-	
+
 	if 'Encryption' not in data[lastcell]:
 	  data[lastcell]['Encryption']= {}
 	data[lastcell]['Encryption'][lastauth][sp[0]]=value
-	
+
     self.sendData(data)
-  
-  
+
+
   def sendData(self,data):
     os.write(self.pout,json.dumps(data) + '\n%%WILOCATE%%\n')
-      
