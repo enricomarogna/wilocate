@@ -1,23 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, core.privilege, signal, pprint, re, sys
+import os, core.privilege, signal, pprint, re, sys, webbrowser
 from core.scanHandler import *
 from core.locationHandler import *
 from core.dataHandler import *
 from core.httpHandler import *
 
 pid=-1
-options={}
+options={ 'web' : True, 'browser' : True, 'port' : 8000}
 
 banner = "+ WiLocate		Version 0.1"
 
 usagemsg = """
 Usage:
 
- ./wilocate.py				Locate current position scanning wifi networks
- ./wilocate.py -s <MAC address>	Locate given MAC address position
- ./wilocate.py --help|-h		This help
+ ./wilocate.py [options]			Locate current position scanning wifi networks
+ ./wilocate.py [options] -s <MAC address>	Locate given MAC address position
+
+Options:
+
+ -h|--help	This help
+ -w|--web	Disable web HTTP interface daemon run on start (default: Enabled)
+ -b|--browser	Disable web browser run on start (default: Enabled)
+ -p|--port
 
 """
 
@@ -43,7 +49,7 @@ def parseOptions():
   import getopt
 
   try:
-      opts, args = getopt.getopt(sys.argv[1:], 'hws:', ['help','web','single'])
+      opts, args = getopt.getopt(sys.argv[1:], 'hwbs:p:', ['help','web', 'browser', 'single', 'port'])
   except getopt.error, msg:
       print "! Error:", msg
       print usagemsg
@@ -64,11 +70,32 @@ def parseOptions():
 
 	    options['single'] = a.split(',')
       elif o in ('-w', '--web'):
-	  pass
+	  options['web']=False
+      elif o in ('-b', '--browser'):
+	  options['browser']=False
+      elif o in ('-p', '--port'):
+	  options['port']=int(a)
 
       else:
 	  print usagemsg
 	  sys.exit(1)
+
+
+def webInterfaceStart(data):
+
+  if options['web']:
+    try:
+      httpd = httpHandler(data,options['port'])
+      httpd.start()
+    except Exception, e:
+      print '! Error creating new thread.', e
+
+  if options['browser']:
+    # webbrowser.open() fails on KDE with kfmclient http://portland.freedesktop.org/wiki/TaskOpenURL
+    webbrowser.get('x-www-browser').open('http://localhost:' + str(options['port']))
+
+  if httpd:
+    return httpd
 
 def mainSingle():
 
@@ -110,15 +137,8 @@ def mainScan():
     uid, gid = getUserId()
     core.privilege.drop_privileges_permanently(uid, gid, [1])
 
-
   data = dataHandler()
-
-  try:
-    httpd = httpHandler(data,8000)
-    httpd.start()
-  except Exception, e:
-    print '! Error creating new thread.', e
-
+  httpd = webInterfaceStart(data)
 
   scantext=''
   buf=''
@@ -155,8 +175,9 @@ def mainScan():
       time.sleep(5)
 
   except (KeyboardInterrupt, SystemExit):
+    if httpd:
       httpd.stop()
-      raise
+    raise
 
 if __name__ == "__main__":
 
