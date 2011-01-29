@@ -60,6 +60,7 @@ class httpHandler ( Thread ):
    port = -1
 
    def __init__(self,jsondata, port):
+
      global data
      data=jsondata
      self.port=port
@@ -67,14 +68,19 @@ class httpHandler ( Thread ):
      Thread.__init__ ( self )
 
    def stop(self):
+
+     print "+ Trying to quit interface."
      global http_running
      http_running=False
-     try:
-	urllib.urlopen('http://localhost:' + port + '/')
-     except Exception, e:
-	pass
+     while 1:
+	try:
+	    urllib.urlopen('http://localhost:' + port + '/')
+	except Exception, e:
+	    break
 
-     print "+ Quitting web interface."
+   def isRunning(self):
+     global http_running
+     return http_running
 
    def run ( self ):
       global http_running
@@ -91,3 +97,4 @@ class httpHandler ( Thread ):
 	sa = httpd.socket.getsockname()
 	print "+ Running web interface. Point browser to http://" + str(sa[0]) + ":" + str(sa[1])
 	httpd.serve_forever()
+	print "+ Quitting web interface."

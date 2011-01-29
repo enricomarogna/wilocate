@@ -121,12 +121,12 @@ def mainScan():
     print '! Error creating new thread.', e
 
 
-
   scantext=''
   buf=''
 
   try:
     while 1:
+
       buf=''
       while 1:
 	buf+=os.read(pin,1)
@@ -153,7 +153,7 @@ def mainScan():
 
   except (KeyboardInterrupt, SystemExit):
       httpd.stop()
-      sys.exit(0)
+      raise
 
 if __name__ == "__main__":
 
@@ -167,5 +167,5 @@ if __name__ == "__main__":
     else:
       mainScan()
 
-  except (KeyboardInterrupt):
+  except (KeyboardInterrupt, SystemExit):
     sys.exit(0)
