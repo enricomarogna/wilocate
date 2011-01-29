@@ -80,6 +80,9 @@ def parseOptions():
 	  print usagemsg
 	  sys.exit(1)
 
+  if os.getuid() != 0:
+    print '+ Warning: triggered scan needs root privileges. Restart with \'sudo -E ' + sys.argv[0] + '\' to get more results.'
+
 
 def webInterfaceStart(data):
 
@@ -89,13 +92,15 @@ def webInterfaceStart(data):
       httpd.start()
     except Exception, e:
       print '! Error creating new thread.', e
+    else:
+      if options['browser']:
+	if os.getenv("SUDO_UID") and os.getenv("SUDO_GID") and 'root' in os.getenv("HOME"):
+	  print '! Webbrowser disabled with unpreserved enviroinment variables. Restart with \'sudo -E ' + sys.argv[0] + '\''
+	else:
+	  # webbrowser.open() fails on KDE with kfmclient http://portland.freedesktop.org/wiki/TaskOpenURL
+	  webbrowser.get('x-www-browser').open('http://localhost:' + str(options['port']))
 
-  if options['browser']:
-    # webbrowser.open() fails on KDE with kfmclient http://portland.freedesktop.org/wiki/TaskOpenURL
-    webbrowser.get('x-www-browser').open('http://localhost:' + str(options['port']))
-
-  if httpd:
-    return httpd
+      return httpd
 
 def mainSingle():
 

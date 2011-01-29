@@ -89,8 +89,8 @@ class httpHandler ( Thread ):
 	httpd = StoppableHttpServer(('127.0.0.1', self.port), httpRequestHandler)
 	httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
       except Exception, e:
-	print '! HTTP web interface disabled:', e
-	print '! Port', str(self.port), 'seems used. Stop this session, wait few seconds and restart.'
+	print '! HTTP web interface and browser opening disabled, error:', e
+	print '! If port', str(self.port), 'isn\'t used by another program kill this session, wait few seconds and rerun it.'
 
       else:
 	http_running=True

@@ -77,7 +77,7 @@ def calcPosition(scan):
 
 
     if scan[a]['location']['accuracy'] > 22000:
-      print 'Ho rifiutato', a, 'con', scan[a]['location']['accuracy']
+      print a + ' (' + scan[a]['location']['accuracy'] + ') rejected.'
       scan[a]['location']['reliable']=0
 
     #self.pprint(scan[a]['location'],a)
