@@ -40,9 +40,13 @@ class scanHandler:
 
     self.command = path
 
-    while 1:
-      self.getScan()
-      time.sleep(delay)
+    try:
+      while 1:
+	self.getScan()
+	time.sleep(delay)
+    except (KeyboardInterrupt, SystemExit):
+      print '! Quitting scan subprocess.'
+      sys.exit(0)
 
   def getScan(self):
 

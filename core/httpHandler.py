@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from threading import Thread, Lock
-import SimpleHTTPServer, SocketServer, os, sys, urllib,json, socket
+import SimpleHTTPServer, SocketServer, os, sys, urllib2,json, socket
 
 http_running=False
 data = None
@@ -59,7 +59,7 @@ class httpHandler ( Thread ):
 
    port = -1
 
-   def __init__(self,jsondata, port):
+   def __init__(self,jsondata, port=8000):
 
      global data
      data=jsondata
@@ -73,7 +73,8 @@ class httpHandler ( Thread ):
      http_running=False
      while 1:
 	try:
-	    urllib.urlopen('http://localhost:' + port + '/')
+	    #print "+ Try to quit web interface on port", self.port
+	    urllib2.urlopen('http://localhost:' + str(self.port) + '/', timeout=1)
 	except Exception, e:
 	    break
 
@@ -96,4 +97,4 @@ class httpHandler ( Thread ):
 	sa = httpd.socket.getsockname()
 	print "+ Running web interface. Point browser to http://" + str(sa[0]) + ":" + str(sa[1])
 	httpd.serve_forever()
-	print "+ Quitting web interface."
+	print "! Quitting web interface."

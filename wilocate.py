@@ -100,7 +100,6 @@ def mainScan():
     if pid == 0:
       # child
       scanHandler(pout,pin,5)
-
       sys.exit(0)
 
   except OSError, e:
@@ -141,12 +140,16 @@ def mainScan():
 	continue
 
       print '+', str(len(scan)), 'APs founded,',
+      sys.stdout.flush()
       nl = addLocation(scan)
       print str(nl), 'locations recovered,',
+      sys.stdout.flush()
       pos = calcPosition(scan)
       print 'Current position:', pos[0], pos[1] , '.',
+      sys.stdout.flush()
       ns,nb = data.saveScan(scan, pos)
       print '+' + str(ns) + ' (' + str(nb) + ')'
+      sys.stdout.flush()
       data.jsonDump()
 
       time.sleep(5)
