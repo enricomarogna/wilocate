@@ -69,7 +69,6 @@ class httpHandler ( Thread ):
 
    def stop(self):
 
-     print "+ Trying to quit interface."
      global http_running
      http_running=False
      while 1:

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, privilege, signal, pprint, re, sys
-from scanHandler import *
-from locationHandler import *
-from dataHandler import *
-from httpHandler import *
+import os, core.privilege, signal, pprint, re, sys
+from core.scanHandler import *
+from core.locationHandler import *
+from core.dataHandler import *
+from core.httpHandler import *
 
 pid=-1
 options={}
@@ -74,7 +74,7 @@ def mainSingle():
 
   if os.geteuid() == 0:
     uid, gid = getUserId()
-    privilege.drop_privileges_permanently(uid, gid, [1])
+    core.privilege.drop_privileges_permanently(uid, gid, [1])
 
   data = dataHandler()
 
@@ -109,7 +109,7 @@ def mainScan():
 
   if os.geteuid() == 0:
     uid, gid = getUserId()
-    privilege.drop_privileges_permanently(uid, gid, [1])
+    core.privilege.drop_privileges_permanently(uid, gid, [1])
 
 
   data = dataHandler()
