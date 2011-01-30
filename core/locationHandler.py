@@ -82,9 +82,9 @@ def calcPosition(scan):
 
     #self.pprint(scan[a]['location'],a)
 
-  latavg=sum_lat/summ_num
-  lngavg=sum_lng/summ_num
-  if summ_num > 0 and latavg and lngavg:
+  if summ_num > 0:
+    latavg=sum_lat/summ_num
+    lngavg=sum_lng/summ_num
     return [ summ_num, latavg , lngavg ]
 
   return []

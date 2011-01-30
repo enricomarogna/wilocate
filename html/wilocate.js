@@ -2,8 +2,8 @@
 
     //risolvere che zooma sempre
 
-    var json={};
-    var json2={};
+    var locs={};
+    var wifi={};
     var aplist={};
     var poslist={};
     var lastpos;
@@ -13,6 +13,8 @@
     var geoXml;
     var toggleState = 1;
 
+    var zoomed = false;
+
     function distance(X,Y) {
 
       var lat_diff=X.lat()-Y.lat();
@@ -21,6 +23,8 @@
       return Math.sqrt(Math.pow(lat_diff,2)+Math.pow(lng_diff,2))
 
     }
+
+
 
     function autozoom() {
 
@@ -36,15 +40,14 @@
 
 
 	if(toZoom) {
-// 	  document.getElementById('marker_info').innerHTML = "ZOOOMO"
  	  map.fitBounds (bounds);
 	}
     }
 
     function htmlify(m,b) {
 
-	j=json[b]['APs'][m]
-	j2=json2[m]
+	j=locs[b]['APs'][m]
+	j2=wifi[m]
 
 	var blockprint = '<h3>' + j2['ESSID'] + '</h3>' + m + '<br/>';
 
@@ -103,12 +106,12 @@
     function updateMarker(m) {
 
 
-	var pos = new google.maps.LatLng(json2[m]['location']['latitude'],json2[m]['location']['longitude']);
+	var pos = new google.maps.LatLng(wifi[m]['location']['latitude'],wifi[m]['location']['longitude']);
 
 	var marker = new google.maps.Marker({
 	    position: pos,
 	    map: map,
-	    title:json2[m]['ESSID'] + '\n' + m,
+	    title:wifi[m]['ESSID'] + '\n' + m,
 	    icon:'img/wifi.png'
 	});
 
@@ -125,26 +128,26 @@
 
     function update(text) {
 	j=eval("(" + text + ")");
-	json=j['locations'];
-	json2=j['wifi'];
+	locs=j['locations'];
+	wifi=j['wifi'];
 
-	if(json) {
+	if(locs) {
 	  document.getElementById('marker_info').innerHTML = "APs datas loaded.";
 
-	  for (b in json) {
+	  for (b in locs) {
 
 	    if(b>lasttime) {
 
 	      lasttime=b
 
-	      if('APs' in json[b]) {
+	      if('APs' in locs[b]) {
 
-		  for (m in json[b]['APs']) {
+		  for (m in locs[b]['APs']) {
 
 		      if(m in aplist) {
 
 		      }
-		      else if(b in json && 'APs' in json[b] && m in json[b]['APs'] && json[b]['APs'][m]==1) {
+		      else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && locs[b]['APs'][m]==1) {
 			    updateMarker(m);
 
 		      }
@@ -153,9 +156,9 @@
 		  }
 	      }
 
-	      if('position' in json[b]) {
+	      if('position' in locs[b]) {
 
-		    var actual_pos = new google.maps.LatLng(json[b]['position'][0],json[b]['position'][1]);
+		    var actual_pos = new google.maps.LatLng(locs[b]['position'][0],locs[b]['position'][1]);
 		    map.setCenter(actual_pos, 20);
 
 		    if(!lastpos) {
@@ -164,7 +167,7 @@
 			var marker = new google.maps.Marker({
 			    position: actual_pos,
 			    map: map,
-			    title:"Actual position"
+			    title:"Current position"
 			});
 
 		      lastpos=marker;
@@ -182,7 +185,9 @@
 
 	      }
 
-	      autozoom();
+	      if (!zoomed) {
+		autozoom();
+	      }
 
 	    }
 
@@ -231,6 +236,11 @@
 	mapTypeId: google.maps.MapTypeId.HYBRID
       };
       map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
+
+      google.maps.event.addListener(map, 'bounds_changed', function() {
+// 	document.getElementById('marker_info').innerHTML = 'YEEEEEEEEEEEEEEEEEEEEEEEEEEEE'
+	zoomed=true;
+      });
 
     }
 
