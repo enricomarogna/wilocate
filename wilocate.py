@@ -95,7 +95,7 @@ def webInterfaceStart(data):
     else:
       if options['browser']:
 	if os.getenv("SUDO_UID") and os.getenv("SUDO_GID") and 'root' in os.getenv("HOME"):
-	  print '! Webbrowser disabled with unpreserved enviroinment variables. Restart with \'sudo -E ' + sys.argv[0] + '\''
+	  print '! Webbrowser autorun disabled. Run using \'sudo -E ' + sys.argv[0] + '\''
 	else:
 	  # webbrowser.open() fails on KDE with kfmclient http://portland.freedesktop.org/wiki/TaskOpenURL
 	  webbrowser.get('x-www-browser').open('http://localhost:' + str(options['port']))

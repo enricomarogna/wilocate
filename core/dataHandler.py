@@ -24,13 +24,13 @@ class dataHandler:
 
     n=0
     b=0
-    self.locations[timestamp]={'APs' : []}
+    self.locations[timestamp]={'APs' : {}}
 
     for s in scan:
 
       rel=False
       try:
-	if(self.wifi[s]['location']['realiable'] > scan[s]['location']['realiable']):
+	if(self.wifi[s]['location']['reliable'] > scan[s]['location']['reliable']):
 	  rel = True
 	  b+=1
       except KeyError:
@@ -48,7 +48,11 @@ class dataHandler:
 	self.wifi[s]=scan[s].copy()
 	n+=1
 
-      self.locations[timestamp]['APs'].append(s)
+      self.locations[timestamp]['APs'][s]=0
+      try:
+	self.locations[timestamp]['APs'][s]=self.wifi[s]['location']['reliable']
+      except KeyError:
+	pass
 
     if pos:
       self.locations[timestamp]['position'] = pos

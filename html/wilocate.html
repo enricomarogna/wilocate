@@ -1,13 +1,13 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" 
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:v="urn:schemas-microsoft-com:vml">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>Google Maps API Example: GGeoXml KML Overlay</title>
 
-<script type="text/javascript" src="http://www.google.com/jsapi"></script> 
-<script type="text/javascript"> 
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">
     google.load("maps", "3",  {other_params:"sensor=false"});
 
     //risolvere che zooma sempre
@@ -20,7 +20,7 @@
     var lasttime=0;
 
     var map;
-    var geoXml; 
+    var geoXml;
     var toggleState = 1;
 
     function distance(X,Y) {
@@ -75,11 +75,11 @@
 	if('address' in j2) {
 
 	  if ('country' in j2['address'])
-	    blockprint += j2['address']['country'] + ' '; 
-	    
+	    blockprint += j2['address']['country'] + ' ';
+
 	  if ('country_code' in j2['address'])
 	    blockprint +=  '(' + j2['address']['country_code'] + ') ';
-	    
+
 	  if('region' in j2['address'])
 	    blockprint +=  j2['address']['region'] + ' ';
 
@@ -88,7 +88,7 @@
 
 	  if('county' in j2['address'])
 	    county = j2['address']['county'] + ' ';
-		  
+
 	  if('city' in j2['address'])
 	    city = j2['address']['city'] + ' ';
 
@@ -104,7 +104,7 @@
 
 	  if('street_number' in j2['address'])
 	    blockprint +=  j2['address']['street_number'] + ' ';
-	    
+
 	  }
 	blockprint += '(' + j2['accuracy'] + ') ';
 	return blockprint
@@ -116,11 +116,11 @@
 	var pos = new google.maps.LatLng(json2[m]['location']['latitude'],json2[m]['location']['longitude']);
 
 	var marker = new google.maps.Marker({
-	    position: pos, 
-	    map: map, 
+	    position: pos,
+	    map: map,
 	    title:json2[m]['ESSID'] + '\n' + m,
 	    icon:'ap.png'
-	});   
+	});
 
 	aplist[m]=marker;
 
@@ -137,11 +137,11 @@
 	j=eval("(" + text + ")");
 	json=j['locations'];
 	json2=j['wifi'];
-	
+
 	if(json) {
 	  document.getElementById('marker_info').innerHTML = "APs datas loaded.";
 
-	  for (b in json) { 
+	  for (b in json) {
 
 	    if(b>lasttime) {
 
@@ -151,15 +151,12 @@
 
 		  for (m in json[b]['APs']) {
 
-
-		      m=json[b]['APs'][m];
-		      
 		      if(m in aplist) {
-			  
+
 		      }
-		      else if(m in json2 && 'location' in json2[m] && 'reliable' in json2[m]['location'] && json2[m]['location']['reliable']==1) {
+		      else if(m in json2 && 'location' in json2[m] && 'reliable' in json2[m]['location'] && json[b]['APs'][m]==1) {
 			    updateMarker(m);
-	
+
 		      }
 
 
@@ -169,17 +166,17 @@
 	      if('position' in json[b]) {
 
 		    var actual_pos = new google.maps.LatLng(json[b]['position'][0],json[b]['position'][1]);
-		    map.setCenter(actual_pos, 20); 
+		    map.setCenter(actual_pos, 20);
 
 		    if(!lastpos) {
-			
-			map.setCenter(actual_pos, 15); 
+
+			map.setCenter(actual_pos, 15);
 			var marker = new google.maps.Marker({
-			    position: actual_pos, 
-			    map: map, 
+			    position: actual_pos,
+			    map: map,
 			    title:"Actual position"
 			});
-			
+
 		      lastpos=marker;
 
 		    }
@@ -196,7 +193,7 @@
 	      }
 
 	      autozoom();
-	    
+
 	    }
 
  	  }
@@ -228,7 +225,7 @@
 
       client.onreadystatechange = handler;
       client.open("GET", "http://localhost:8000/wilocate.json", true);
-      client.send();   
+      client.send();
 
     }
 
@@ -245,7 +242,7 @@
       };
       map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
 
-    } 
+    }
 
 
 	</script>
