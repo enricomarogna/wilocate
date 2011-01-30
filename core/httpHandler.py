@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from threading import Thread, Lock
-import SimpleHTTPServer, SocketServer, os, sys, urllib2,json, socket
+import SimpleHTTPServer, SocketServer, os, sys, urllib2,json, socket, mimetypes
 
 http_running=False
 data = None
@@ -31,30 +31,14 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	self.wfile.write(json.dumps(data.getJson()))
 	return
 
-      elif self.path=='/' or self.path.endswith(".html"):
-	f = open(os.curdir + os.sep + 'html' + os.sep + 'wilocate.html')
+      else:
+	if self.path=='/':
+	  self.path='/wilocate.html'
+
+	self.path = os.curdir + os.sep + 'html' + self.path
+	f = open(self.path)
 	self.send_response(200)
-	self.send_header('Content-type','text/html')
-	self.end_headers()
-	self.wfile.write(f.read())
-	f.close()
-	return
-
-      elif self.path.endswith(".png"):
-	f = open(os.curdir + os.sep + 'html' + self.path)
-
-	self.send_response(200)
-	self.send_header('Content-type','image/png')
-	self.end_headers()
-	self.wfile.write(f.read())
-	f.close()
-	return
-
-      elif self.path.endswith(".js"):
-	f = open(os.curdir + os.sep + 'html' + self.path)
-
-	self.send_response(200)
-	self.send_header('Content-type','application/javascript')
+	self.send_header('Content-type',mimetypes.guess_type(self.path))
 	self.end_headers()
 	self.wfile.write(f.read())
 	f.close()
