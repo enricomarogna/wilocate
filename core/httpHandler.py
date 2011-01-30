@@ -50,6 +50,16 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	f.close()
 	return
 
+      elif self.path.endswith(".js"):
+	f = open(os.curdir + os.sep + 'html' + self.path)
+
+	self.send_response(200)
+	self.send_header('Content-type','application/javascript')
+	self.end_headers()
+	self.wfile.write(f.read())
+	f.close()
+	return
+
     except IOError:
       self.send_error(404, 'File not found: %s' % self.path)
 
