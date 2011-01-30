@@ -24,7 +24,7 @@ def addLocation(scan):
       try:
 	j = json.loads(response.read())
       except ValueError, e:
-	print '! Error decoding JSON: (%s)' % (e.strerror)
+	print '! Error decoding JSON:', e
 	continue
 
       if 'location' in j:
@@ -77,7 +77,7 @@ def calcPosition(scan):
 
 
     if scan[a]['location']['accuracy'] > 22000:
-      print a + ' (' + int(scan[a]['location']['accuracy']) + ') rejected, low accuracy.'
+      print a + ' (' + str(scan[a]['location']['accuracy']) + ') rejected, low accuracy.'
       scan[a]['location']['reliable']=0
 
     #self.pprint(scan[a]['location'],a)

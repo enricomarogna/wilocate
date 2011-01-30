@@ -109,7 +109,7 @@
 	    position: pos,
 	    map: map,
 	    title:json2[m]['ESSID'] + '\n' + m,
-	    icon:'ap.png'
+	    icon:'img/wifi.png'
 	});
 
 	aplist[m]=marker;
