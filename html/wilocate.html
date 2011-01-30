@@ -154,7 +154,7 @@
 		      if(m in aplist) {
 
 		      }
-		      else if(m in json2 && 'location' in json2[m] && 'reliable' in json2[m]['location'] && json[b]['APs'][m]==1) {
+		      else if(b in json && 'APs' in json[b] && m in json[b]['APs'] && json[b]['APs'][m]==1) {
 			    updateMarker(m);
 
 		      }

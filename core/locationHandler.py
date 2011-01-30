@@ -54,7 +54,7 @@ def calcPosition(scan):
 	tot_lng.append(scan[a]['location']['longitude'])
 
   if not (tot_lat and tot_lng):
-    return [ 0, 0 ]
+    return []
 
   sd_lat=standard_deviation(tot_lat)*1.2
   sd_lng=standard_deviation(tot_lng)*1.2
@@ -77,13 +77,17 @@ def calcPosition(scan):
 
 
     if scan[a]['location']['accuracy'] > 22000:
-      print a + ' (' + scan[a]['location']['accuracy'] + ') rejected.'
+      print a + ' (' + int(scan[a]['location']['accuracy']) + ') rejected, low accuracy.'
       scan[a]['location']['reliable']=0
 
     #self.pprint(scan[a]['location'],a)
 
-  if summ_num>0 and sum_lat>0 and sum_lng>0:
-    #print  '+ Position: http://maps.google.it/maps?q=' + str(sum_lat/summ_num) + ',' + str(sum_lng/summ_num)
+  latavg=sum_lat/summ_num
+  lngavg=sum_lng/summ_num
+  if summ_num > 0 and latavg and lngavg:
+    return [ summ_num, latavg , lngavg ]
 
-    return [ sum_lat/summ_num, sum_lng/summ_num ]
+  return []
+
+
 

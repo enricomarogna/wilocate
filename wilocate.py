@@ -93,12 +93,22 @@ def webInterfaceStart(data):
     except Exception, e:
       print '! Error creating new thread.', e
     else:
-      if options['browser']:
+
+      r=False
+      for i in range(2):
+	if httpd.isRunning():
+	  r=True
+	  break
+	time.sleep(1)
+
+
+      if options['browser'] and r:
 	if os.getenv("SUDO_UID") and os.getenv("SUDO_GID") and 'root' in os.getenv("HOME"):
-	  print '! Webbrowser autorun disabled. Run using \'sudo -E ' + sys.argv[0] + '\''
+	  print '! Webbrowser autorun disabled. Enable enviroinment variables using \'sudo -E ' + sys.argv[0] + '\''
 	else:
 	  # webbrowser.open() fails on KDE with kfmclient http://portland.freedesktop.org/wiki/TaskOpenURL
 	  webbrowser.get('x-www-browser').open('http://localhost:' + str(options['port']))
+	  print '! Webbrowser autorun enabled. Point browser to http://localhost:' + str(options['port'])
 
       return httpd
 
@@ -164,16 +174,23 @@ def mainScan():
 	print '! Error decoding JSON: (%s)' % (e.strerror)
 	continue
 
-      print '+', str(len(scan)), 'APs founded,',
+
+      print '+', str(len(scan)), 'APs,',
       sys.stdout.flush()
       nl = addLocation(scan)
-      print str(nl), 'locations recovered,',
+      print str(nl), 'located,',
       sys.stdout.flush()
       pos = calcPosition(scan)
-      print 'Current position:', pos[0], pos[1] , '.',
+      if not pos:
+	print 'no reliable locations found.',
+      else:
+	print pos[0], 'reliable, current position:', pos[1], pos[2], '.',
+
+
       sys.stdout.flush()
-      ns,nb = data.saveScan(scan, pos)
-      print '+' + str(ns) + ' (' + str(nb) + ')'
+
+      newscanned,newreliable,newbest = data.saveScan(scan, pos[1:])
+      print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
       sys.stdout.flush()
       data.jsonDump()
 

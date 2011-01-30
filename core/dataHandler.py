@@ -24,6 +24,7 @@ class dataHandler:
 
     n=0
     b=0
+    r=0
     self.locations[timestamp]={'APs' : {}}
 
     for s in scan:
@@ -48,16 +49,18 @@ class dataHandler:
 	self.wifi[s]=scan[s].copy()
 	n+=1
 
-      self.locations[timestamp]['APs'][s]=0
-      try:
-	self.locations[timestamp]['APs'][s]=self.wifi[s]['location']['reliable']
-      except KeyError:
-	pass
+	self.locations[timestamp]['APs'][s]=0
+	try:
+	  self.locations[timestamp]['APs'][s]=self.wifi[s]['location']['reliable']
+	  if not self.wifi[s]['location']['reliable'] == 0:
+	    r+=1
+	except KeyError:
+	  pass
 
     if pos:
       self.locations[timestamp]['position'] = pos
 
-    return n,b
+    return n,r,b
 
   def jsonDump(self):
     toret = self.getJson()
