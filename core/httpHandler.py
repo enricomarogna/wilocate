@@ -17,6 +17,9 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
   def log_request(self, code='-', size='-'):
     pass
 
+  def log_error(self, *args):
+    pass
+
   def do_GET(self):
 
     global http_running
