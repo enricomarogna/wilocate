@@ -92,6 +92,6 @@ class httpHandler ( Thread ):
       else:
 	http_running=True
 	sa = httpd.socket.getsockname()
-	print "+ Web interface is running on port ", self.port
+	print "+ Web interface is running on port", self.port
 	httpd.serve_forever()
 	print "! Quitting web interface."

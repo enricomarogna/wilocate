@@ -67,6 +67,7 @@ class scanHandler:
       if sp[0] == 'Cell' and sp[3] == 'Address':
 	lastcell=sp[4]
 	data[lastcell]={}
+	lastauth=''
 
       elif sp[0].startswith('Channel') or sp[0].startswith('Frequency') or sp[0].startswith('Mode') or sp[0].startswith('ESSID'):
 	splitted = sp[0].split(':') + sp[1:]
@@ -75,6 +76,9 @@ class scanHandler:
 	if sp[0].startswith('Frequency') and len(splitted)==5 and splitted[3]=='(Channel':
 	  data[lastcell][splitted[0]]+=splitted[2]
 	  data[lastcell]['Channel']=splitted[4][0]
+	if sp[0].startswith('ESSID') and not data[lastcell][splitted[0]]:
+	  data[lastcell][splitted[0]] = '<hidden>'
+
       elif sp[0].startswith('Quality') and sp[2] == 'Signal':
 	if '=' in sp[0] and len(sp[0])==2:
 	  quality = sp[0].split('=')[1]
@@ -85,21 +89,22 @@ class scanHandler:
       elif sp[0] == 'Encryption' and sp[1].startswith('key'):
 	if sp[1].split(':')[1] == 'on':
 	  if 'Encryption' not in data[lastcell]:
-	    data[lastcell]['Encryption']= {}
+	    data[lastcell]['Encryption']= { 'WEP' : {} }
+	if sp[1].split(':')[1] == 'off':
+	  if 'Encryption' not in data[lastcell]:
+	    data[lastcell]['Encryption']= { 'open' : {} }
 
-	    #Traceback (most recent call last):
-	    #File "wilocate.py", line 486, in <module>
-	      #main()
-	    #File "wilocate.py", line 464, in main
-	      #aps = machandler.getScan()
-	    #File "wilocate.py", line 348, in getScan
-	      #data[lastcell]['Encryption'][lastauth][sp[0]]=value
-	  #KeyError: 'WPA Version 1'
+
 
       elif sp[0] == 'IE' and sp[1] != 'Unknown':
-	lastauth=' '.join(sp[1:])
-	if 'Encryption' not in data[lastcell]:
-	  data[lastcell]['Encryption']= {}
+	lastauth=self.encodeAuth(' '.join(sp[1:]))
+	#if 'Encryption' not in data[lastcell]:
+	  #data[lastcell]['Encryption']= {}
+	if lastauth and 'WEP' in data[lastcell]['Encryption']:
+	  del data[lastcell]['Encryption']['WEP']
+	if lastauth and 'open' in data[lastcell]['Encryption']:
+	  del data[lastcell]['Encryption']['open']
+
 	data[lastcell]['Encryption'][lastauth]={}
       elif sp[0] == 'Group' or sp[0] == 'Pairwise' or sp[0] == 'Authentication':
 	# The separator is '' (void array slot), because i stripped out :
@@ -117,3 +122,9 @@ class scanHandler:
 
   def sendData(self,data):
     os.write(self.pout,json.dumps(data) + '\n%%WILOCATE%%\n')
+
+  def encodeAuth(self,string):
+    if 'WPA ' in string and string.endswith('1'):
+      return 'WPA1'
+    if 'WPA2' in string:
+      return 'WPA2'

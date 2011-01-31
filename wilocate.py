@@ -184,7 +184,7 @@ def mainScan():
       if not pos:
 	print 'no reliable locations found.',
       else:
-	print pos[0], 'reliable, current position:', pos[1], pos[2], '.',
+	print str(pos[0]) + ' reliable, current position: ' + str(pos[1]) + ',' + str(pos[2]) + ' .',
 
 
       sys.stdout.flush()

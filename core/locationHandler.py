@@ -56,8 +56,8 @@ def calcPosition(scan):
   if not (tot_lat and tot_lng):
     return []
 
-  sd_lat=standard_deviation(tot_lat)*1.2
-  sd_lng=standard_deviation(tot_lng)*1.2
+  sd_lat=standard_deviation(tot_lat)*1.5
+  sd_lng=standard_deviation(tot_lng)*1.5
   media_lat = sum(tot_lat) / len(tot_lat)
   media_lng = sum(tot_lng) / len(tot_lng)
   sum_lat=0

@@ -24,6 +24,15 @@
 
     }
 
+  // Strip out malicious tags from wilocate scan json
+  function htmlEncode(s)
+  {
+    var el = document.createElement("div");
+    el.innerText = el.textContent = s;
+    s = el.innerHTML;
+    delete el;
+    return s;
+  }
 
 
     function autozoom() {
@@ -46,26 +55,39 @@
 
     function htmlify(m,b) {
 
-	j=locs[b]['APs'][m]
-	j2=wifi[m]
+	lc=locs[b]['APs'][m]
+	wf=wifi[m]
 
-	var blockprint = '<h3>' + j2['ESSID'] + '</h3>' + m + '<br/>';
+	var blockprint = '<table id="marker_info_table">';
+// 	blockprint += '<tr><td></td><td></td></tr>';
+// 	blockprint += '</table>';
 
-
-	if('Encryption' in j2) {
-	    for (e in j2['Encryption']) {
-	      blockprint += e + ' ';
-	      for (c in j2['Encryption'][e]) {
-		blockprint += j2['Encryption'][e][c] + ' ';
+	blockprint += '<tr><td>' + htmlEncode(wf['ESSID']) + '</td><td>' + m  + '</td></tr>';
+	if('Encryption' in wf) {
+	    for (e in wf['Encryption']) {
+	      blockprint += '<tr><td>' + e + '</td><td>';
+	      for (c in wf['Encryption'][e]) {
+		blockprint += wf['Encryption'][e][c] + ' ';
 		}
+		blockprint += '<td></tr>';
 	    }
 	}
 
-	blockprint += '<br/>';
 
-	j2=j2['location']
+	j2=wf['location'];
 
 	if('address' in j2) {
+
+
+	  blockprint += '<tr><td>Address</td><td>';
+
+	  if('street' in j2['address'])
+	    blockprint +=  j2['address']['street'] + ' ';
+
+	  if('street_number' in j2['address'])
+	    blockprint +=  j2['address']['street_number'] + ' ';
+
+	  blockprint+='</td></tr><tr><td>City</td><td>';
 
 	  if ('country' in j2['address'])
 	    blockprint += j2['address']['country'] + ' ';
@@ -92,14 +114,18 @@
 	  else
 	    blockprint +=  city + ' ';
 
-	  if('street' in j2['address'])
-	    blockprint +=  j2['address']['street'] + ' ';
-
-	  if('street_number' in j2['address'])
-	    blockprint +=  j2['address']['street_number'] + ' ';
 
 	  }
-	blockprint += '(' + j2['accuracy'] + ') ';
+
+
+	  if ('latitude' in j2 && 'longitude' in j2) {
+	    blockprint += '<tr><td>Coordinate</td><td>' + j2['latitude'] + ',' + j2['longitude'] + '</td></tr>';
+
+
+	  }
+
+
+	blockprint += '</table>';
 	return blockprint
     }
 
@@ -132,7 +158,7 @@
 	wifi=j['wifi'];
 
 	if(locs) {
-	  document.getElementById('marker_info').innerHTML = "APs datas loaded.";
+// 	  document.getElementById('marker_info').innerHTML = "APs datas loaded.";
 
 	  for (b in locs) {
 
@@ -238,7 +264,6 @@
       map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
 
       google.maps.event.addListener(map, 'bounds_changed', function() {
-// 	document.getElementById('marker_info').innerHTML = 'YEEEEEEEEEEEEEEEEEEEEEEEEEEEE'
 	zoomed=true;
       });
 
