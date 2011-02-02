@@ -53,10 +53,9 @@
 	}
     }
 
-    function htmlify(m,b) {
+    function updateBoxInfo(m,b) {
 
-	lc=locs[b]['APs'][m]
-	wf=wifi[m]
+	wf=wifi[m];
 
 	var blockprint = '<table id="marker_info_table">';
 // 	blockprint += '<tr><td></td><td></td></tr>';
@@ -145,12 +144,119 @@
 
 	google.maps.event.addListener(marker, 'mouseover', function(event) {
 // 	    alert(marker.getTitle());
-	    document.getElementById('marker_info').innerHTML = htmlify(m,b);
+	    document.getElementById('marker_info').innerHTML = updateBoxInfo(m,b);
 	});
 
 
 
     }
+
+
+
+    function updateList(m) {
+
+	wf=wifi[m];
+
+	blockprint = '<tr><td>' + htmlEncode(wf['ESSID']) + '</td><td>' + m  + '</td>';
+
+	blockprint+='<td>';
+	if('Encryption' in wf) {
+	   for (e in wf['Encryption']) {
+	      blockprint += e + ' ';
+	      if(wf['Encryption'][e]) {
+		blockprint += '(';
+		for (c in wf['Encryption'][e]) {
+		  blockprint += wf['Encryption'][e][c] + ' ';
+		  }
+		blockprint+=')';
+	      }
+	      blockprint+='<br/>'
+	    }
+
+	}
+	blockprint += '</td>';
+
+
+	blockprint+='<td>';
+	if('Channel' in wf) {
+	  blockprint+= wf['Channel'];
+	}
+
+	blockprint+='</td>';
+
+	j2=wf['location'];
+
+
+	blockprint+='<td>';
+	if('address' in j2) {
+
+	  if('street' in j2['address'])
+	    blockprint +=  j2['address']['street'] + ' ';
+
+	  if('street_number' in j2['address'])
+	    blockprint +=  j2['address']['street_number'] + ' ';
+	}
+
+
+	blockprint+='</td><td>';
+
+
+
+	  if('county' in j2['address'])
+	    county = j2['address']['county'] + ' ';
+
+	  if('city' in j2['address'])
+	    city = j2['address']['city'] + ' ';
+
+	  if (county != city)
+	    blockprint +=  city + ' ' + county + ' ';
+	  else if (!city)
+	    blockprint +=  county + ' ';
+	  else
+	    blockprint +=  city + ' ';
+
+
+	if('address' in j2) {
+	  if ('country' in j2['address'])
+	    blockprint += j2['address']['country'] + ' ';
+
+	  if ('country_code' in j2['address'])
+	    blockprint +=  '(' + j2['address']['country_code'] + ') ';
+
+	  if('region' in j2['address'])
+	    blockprint +=  j2['address']['region'] + ' ';
+
+	  if('postal_code' in j2['address'])
+	    blockprint +=  j2['address']['postal_code'] + ' ';
+
+	}
+
+	blockprint+='</td><td>';
+
+	  if ('latitude' in j2 && 'longitude' in j2) {
+	    blockprint += j2['latitude'] + ',' + j2['longitude'];
+
+
+	  }
+
+	blockprint+='</td><td>';
+
+	  if ('reliable' in j2) {
+	    if (j2['reliable'] == 1) {
+	      blockprint += 'Yes';
+	    }
+	    else {
+		blockprint += 'No';
+	    }
+
+	  }
+
+	  blockprint+='</td>'
+	return blockprint
+    }
+
+
+
 
     function update(text) {
 	j=eval("(" + text + ")");
@@ -173,8 +279,12 @@
 		      if(m in aplist) {
 
 		      }
-		      else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && locs[b]['APs'][m] == 1 && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+		      else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+
+			if (locs[b]['APs'][m] == 1) {
 			    updateMarker(m);
+			}
+			$("table/tbody:first").append(updateList(m));
 
 		      }
 
@@ -218,6 +328,10 @@
 	    }
 
  	  }
+
+
+	  $("table").trigger('update');
+
 	}
 
     }

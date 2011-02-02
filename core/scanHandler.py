@@ -96,8 +96,8 @@ class scanHandler:
 
       elif sp[0] == 'IE' and sp[1] != 'Unknown':
 	lastauth=self.encodeAuth(' '.join(sp[1:]))
-	#if 'Encryption' not in data[lastcell]:
-	  #data[lastcell]['Encryption']= {}
+	if 'Encryption' not in data[lastcell]:
+	  data[lastcell]['Encryption']= {}
 	if lastauth and 'WEP' in data[lastcell]['Encryption']:
 	  del data[lastcell]['Encryption']['WEP']
 	if lastauth and 'open' in data[lastcell]['Encryption']:
