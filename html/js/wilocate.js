@@ -15,6 +15,8 @@
 
     var zoomed = false;
 
+
+
     function distance(X,Y) {
 
       var lat_diff=X.lat()-Y.lat();
@@ -363,6 +365,21 @@
       client.send();
 
     }
+
+
+
+    function appendData() {
+
+	    $("table").trigger('update');
+	    return false;
+    }
+
+    $(function() {
+	    $("table").tablesorter({debug: true})
+	    $("a.append").click(appendData);
+
+
+    });
 
 
     function initialize() {
