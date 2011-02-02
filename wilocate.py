@@ -23,7 +23,7 @@ Options:
  -h|--help	This help
  -w|--web	Disable web HTTP interface daemon run on start (default: Enabled)
  -b|--browser	Disable web browser run on start (default: Enabled)
- -p|--port
+ -p|--port <#>	Open web HTTP interface to port # (default: 8000)
 
 """
 
@@ -118,19 +118,28 @@ def mainSingle():
     uid, gid = getUserId()
     core.privilege.drop_privileges_permanently(uid, gid, [1])
 
-  data = dataHandler()
+  try:
+    data = dataHandler()
+    httpd = webInterfaceStart(data)
 
-  scan={}
-  for a in options['single']:
-    scan[a]={}
+    scan={}
+    for a in options['single']:
+      scan[a]={}
 
-  print '+', str(len(scan)), 'MAC to localize,',
-  nl = addLocation(scan)
-  print str(nl), 'locations recovered,',
-  ns,nb = data.saveScan(scan)
-  print '+' + str(ns) + ' (' + str(nb) + ')'
-  data.jsonDump()
+    print '+', str(len(scan)), 'MAC to localize,',
+    nl = addLocation(scan,10)
+    print str(nl), 'locations recovered,',
+    newscanned,newreliable,newbest = data.saveScan(scan)
+    print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+    data.jsonDump()
 
+    while 1:
+      time.sleep(100)
+
+  except (KeyboardInterrupt, SystemExit):
+    if httpd:
+      httpd.stop()
+    raise
 
 def mainScan():
 

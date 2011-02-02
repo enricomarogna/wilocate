@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 import sys, httplib, json, math
 
-def addLocation(scan):
+def addLocation(scan,retry=3):
 
   jsons={}
   locnum=0
 
   for a in scan:
 
-    for r in range(3):
+    for r in range(retry):
 
       params = "{ \"version\": \"1.1.0\", \"host\": \"maps.google.com\", \"request_address\": \"true\", \"address_language\":\"en_GB\", \"wifi_towers\": [ { \"mac_address\": " + a.replace(':','-') + ", \"signal_strength\": 8, \"age\": 0 } ] }"
       headers = { "Pragma" : "no-cache", "Cache-control" : "no-cache" }

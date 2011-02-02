@@ -94,8 +94,6 @@ class scanHandler:
 	  if 'Encryption' not in data[lastcell]:
 	    data[lastcell]['Encryption']= { 'open' : {} }
 
-
-
       elif sp[0] == 'IE' and sp[1] != 'Unknown':
 	lastauth=self.encodeAuth(' '.join(sp[1:]))
 	#if 'Encryption' not in data[lastcell]:
@@ -117,7 +115,8 @@ class scanHandler:
 	  data[lastcell]['Encryption']= {}
 	data[lastcell]['Encryption'][lastauth][sp[0]]=value
 
-    self.sendData(data)
+    if data:
+      self.sendData(data)
 
 
   def sendData(self,data):
