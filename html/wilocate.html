@@ -124,6 +124,7 @@ img.wilocate_icon_img{
 .wilocate_info1{
 	background-color: #D8D8D8;
 	width: 43%;
+	height:257px;
 	float:left;
 	border-top: 3px solid #606060;
 	border-bottom: 0px solid #606060;
@@ -147,6 +148,20 @@ img.wilocate_icon_img{
 }
 /*fine stili Break2*/
 
+/*stili Status -----------------------------------------*/
+.status1{
+	background-color: #D8D8D8;
+	width: 43%;
+	height: 30px;
+	float:left;
+	border-top: 3px solid #606060;
+	border-bottom: 0px solid #606060;
+	border-left: 0px solid #606060;
+	border-right: 0px solid #606060;
+	padding:5px;
+}
+/*fine stili Status*/
+
 /*stili Marker Info -----------------------------------------*/
 .marker_info1{
 	background-color: #D8D8D8;
@@ -158,7 +173,6 @@ img.wilocate_icon_img{
 	border-left: 0px solid #606060;
 	border-right: 0px solid #606060;
 	padding:5px;
-	/*margin:10px 0 0 0;*/
 }
 /*fine stili Marker Info*/
 
@@ -212,7 +226,7 @@ background-color: #8dbdd8;
 
   </head>
 
-  <body onload="initialize()">
+  <body onload="initialize()" style="background: url(img/w_m6.jpg);">
 
 <div>
 <div>
@@ -232,10 +246,16 @@ background-color: #8dbdd8;
 	</div>
 
 
-	<div class="marker_info1" id="marker_info">Loading APs 		positions...
+	<div class="status1">Status: 
 	</div>
 
-	<div class="break2" id="marker_info">
+	<div class="break2">
+	</div>
+
+	<div class="marker_info1" id="marker_info" >Loading APs 		positions...
+	</div>
+
+	<div class="break2">
 	</div>
 
 	<div class="wilocate_info1" id="wilocate_info">
@@ -244,7 +264,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 
 
     	<br clear="all"/>
-    	<br/>
+
 
 	<div class="tabella_elenco">
 		<table id="myTable" class="tablesorter"  style="width:100%;text-align:left;">
