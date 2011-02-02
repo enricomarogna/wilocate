@@ -173,7 +173,7 @@
 		      if(m in aplist) {
 
 		      }
-		      else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+		      else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && locs[b]['APs'][m] == 1 && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
 			    updateMarker(m);
 
 		      }
