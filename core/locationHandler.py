@@ -18,7 +18,6 @@ def addLocation(scan,retry=3):
 	response = conn.getresponse()
       except Exception, e:
 	print '! Error querying Google about ' + a + ': (%s)' % (e.strerror)
-	errnum+=1
 	continue
 
       try:

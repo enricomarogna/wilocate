@@ -368,20 +368,6 @@
 
 
 
-    function appendData() {
-
-	    $("table").trigger('update');
-	    return false;
-    }
-
-    $(function() {
-	    $("table").tablesorter({debug: true})
-	    $("a.append").click(appendData);
-
-
-    });
-
-
     function initialize() {
 
       request()
@@ -397,6 +383,14 @@
       google.maps.event.addListener(map, 'bounds_changed', function() {
 	zoomed=true;
       });
+
+      $("#myTable")
+      .tablesorter({debug: false, widgets: ['zebra'], sortList: [[0,0]]})
+      .tablesorterFilter({filterContainer: $("#filter-box"),
+                          filterClearContainer: $("#filter-clear-button"),
+                          filterColumns: [0],
+                          filterCaseSensitive: false});
+
 
     }
 
