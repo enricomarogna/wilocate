@@ -59,6 +59,7 @@
 
     function parseWifi(m,b) {
 	wf=wifi[m];
+// 	loc=loc
 
 	var blockprint = '<table id="marker_info_table">';
 	var blocklist = []
@@ -137,10 +138,13 @@
 	blocklist.push(latprint);
 
 	relprint='';
-	if ('reliable' in j2 && j2['reliable'] == 1) {
+	if (locs[b]['APs'][m] == 1) {
 	  relprint += 'Yes';
 	}
-	blocklist.push('Yes');
+	else {
+	  relprint += 'No';
+	}
+	blocklist.push(relprint);
 
 	blockprint += '</table>';
 
@@ -167,6 +171,9 @@
 	});
 
 
+	google.maps.event.addListener(marker, 'dblclick', function(event) {
+	  wifiTable.fnFilter(m);
+	});
 
     }
 
@@ -177,7 +184,8 @@
 	wifi=j['wifi'];
 
 	if(locs) {
-// 	  document.getElementById('marker_info').innerHTML = "APs datas loaded.";
+
+ 	  $('#status').html("Loaded new APs.");
 
 	  for (b in locs) {
 
@@ -260,12 +268,12 @@
 
 	  }
 	  else {
-	    toprint = 'Error getting json (null) ' + client.readyState + ' ' + client.status;
-	    document.getElementById('marker_info').innerHTML = toprint;
+	    toprint = 'Error parsing APs datas from wilocate (null). ' + client.readyState + ' ' + client.status;
+	    $('#status').html(toprint);
 	  }
 	} else if (client.readyState == 4 && client.status != 200) {
-	  toprint = 'Error getting json (!=200)';
-	  document.getElementById('marker_info').innerHTML = toprint;
+	  toprint = 'Connection error while requesting APs data. Please restart wilocate application.';
+	  $('#status').html(toprint);
 	}
       }
 

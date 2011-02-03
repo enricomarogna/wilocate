@@ -17,13 +17,13 @@ def addLocation(scan,retry=3):
 	conn.request("POST", "/loc/json", params, headers)
 	response = conn.getresponse()
       except Exception, e:
-	print '! Error querying Google about ' + a + ': (%s)' % (e.strerror)
+	print '! Error querying Google Maps about ' + a + ': (%s)' % (e.strerror)
 	continue
 
       try:
 	j = json.loads(response.read())
       except ValueError, e:
-	print '! Error decoding JSON:', e
+	print '! Error parsing Google Maps JSON data:', e
 	continue
 
       if 'location' in j:
