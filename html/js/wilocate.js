@@ -15,6 +15,8 @@
 
     var zoomed = false;
 
+    var wifiTable;
+
 
 
     function distance(X,Y) {
@@ -55,52 +57,59 @@
 	}
     }
 
-    function updateBoxInfo(m,b) {
-
+    function parseWifi(m,b) {
 	wf=wifi[m];
 
 	var blockprint = '<table id="marker_info_table">';
-// 	blockprint += '<tr><td></td><td></td></tr>';
-// 	blockprint += '</table>';
+	var blocklist = []
 
 	blockprint += '<tr><td>' + htmlEncode(wf['ESSID']) + '</td><td>' + m  + '</td></tr>';
+	blocklist.push(htmlEncode(wf['ESSID']),m);
+
+	encrstring='';
 	if('Encryption' in wf) {
 	    for (e in wf['Encryption']) {
-	      blockprint += '<tr><td>' + e + '</td><td>';
+	      encrstring += e + ' (';
 	      for (c in wf['Encryption'][e]) {
-		blockprint += wf['Encryption'][e][c] + ' ';
-		}
-		blockprint += '<td></tr>';
+		encrstring += wf['Encryption'][e][c] + ' ';
+	      }
+	      encrstring += ')<br>';
 	    }
 	}
+	blockprint += '<tr><td> Encryption: </td><td>' + encrstring + '</td></tr>';
+	blocklist.push(encrstring);
 
+
+	channelprint=''
+	if('Channel' in wf) {
+	  channelprint+= wf['Channel'];
+	}
+	blockprint+='<tr><td> Channel </td><td>' + channelprint + '</td></tr>';
+	blocklist.push(channelprint);
 
 	j2=wf['location'];
-
+	streetprint='';
+	cityprint='';
 	if('address' in j2) {
 
-
-	  blockprint += '<tr><td>Address</td><td>';
-
 	  if('street' in j2['address'])
-	    blockprint +=  j2['address']['street'] + ' ';
+	    streetprint +=  j2['address']['street'] + ' ';
 
 	  if('street_number' in j2['address'])
-	    blockprint +=  j2['address']['street_number'] + ' ';
+	    streetprint +=  j2['address']['street_number'] + ' ';
 
-	  blockprint+='</td></tr><tr><td>City</td><td>';
 
 	  if ('country' in j2['address'])
-	    blockprint += j2['address']['country'] + ' ';
+	    cityprint += j2['address']['country'] + ' ';
 
 	  if ('country_code' in j2['address'])
-	    blockprint +=  '(' + j2['address']['country_code'] + ') ';
+	    cityprint +=  '(' + j2['address']['country_code'] + ') ';
 
 	  if('region' in j2['address'])
-	    blockprint +=  j2['address']['region'] + ' ';
+	    cityprint +=  j2['address']['region'] + ' ';
 
 	  if('postal_code' in j2['address'])
-	    blockprint +=  j2['address']['postal_code'] + ' ';
+	    cityprint +=  j2['address']['postal_code'] + ' ';
 
 	  if('county' in j2['address'])
 	    county = j2['address']['county'] + ' ';
@@ -109,25 +118,33 @@
 	    city = j2['address']['city'] + ' ';
 
 	  if (county != city)
-	    blockprint +=  city + ' ' + county + ' ';
+	    cityprint +=  city + ' ' + county + ' ';
 	  else if (!city)
-	    blockprint +=  county + ' ';
+	    cityprint +=  county + ' ';
 	  else
-	    blockprint +=  city + ' ';
-
+	    cityprint +=  city + ' ';
 
 	  }
+	  blocklist.push(streetprint,cityprint);
+	  blockprint += '<tr><td>Address</td><td>' + streetprint + '</td></tr><tr><td>City</td><td>' + cityprint + '</td></tr>';
 
 
+	  latprint=''
 	  if ('latitude' in j2 && 'longitude' in j2) {
-	    blockprint += '<tr><td>Coordinate</td><td>' + j2['latitude'] + ',' + j2['longitude'] + '</td></tr>';
+	  latprint+= j2['latitude'] + ',' + j2['longitude'];
+	}
+	blockprint += '<tr><td>Coordinate</td><td>' + latprint + '</td></tr>';
+	blocklist.push(latprint);
 
-
-	  }
-
+	relprint='';
+	if ('reliable' in j2 && j2['reliable'] == 1) {
+	  relprint += 'Yes';
+	}
+	blocklist.push('Yes');
 
 	blockprint += '</table>';
-	return blockprint
+
+	return { p: blockprint, l: blocklist }
     }
 
     function updateMarker(m) {
@@ -145,119 +162,13 @@
 	aplist[m]=marker;
 
 	google.maps.event.addListener(marker, 'mouseover', function(event) {
-// 	    alert(marker.getTitle());
-	    document.getElementById('marker_info').innerHTML = updateBoxInfo(m,b);
+	    w = parseWifi(m,b);
+	    $("#marker_info").html(w.p);
 	});
 
 
 
     }
-
-
-
-    function updateList(m) {
-
-	wf=wifi[m];
-
-	blockprint = '<tr><td>' + htmlEncode(wf['ESSID']) + '</td><td>' + m  + '</td>';
-
-	blockprint+='<td>';
-	if('Encryption' in wf) {
-	   for (e in wf['Encryption']) {
-	      blockprint += e + ' ';
-	      if(wf['Encryption'][e]) {
-		blockprint += '(';
-		for (c in wf['Encryption'][e]) {
-		  blockprint += wf['Encryption'][e][c] + ' ';
-		  }
-		blockprint+=')';
-	      }
-	      blockprint+='<br/>'
-	    }
-
-	}
-	blockprint += '</td>';
-
-
-	blockprint+='<td>';
-	if('Channel' in wf) {
-	  blockprint+= wf['Channel'];
-	}
-
-	blockprint+='</td>';
-
-	j2=wf['location'];
-
-
-	blockprint+='<td>';
-	if('address' in j2) {
-
-	  if('street' in j2['address'])
-	    blockprint +=  j2['address']['street'] + ' ';
-
-	  if('street_number' in j2['address'])
-	    blockprint +=  j2['address']['street_number'] + ' ';
-	}
-
-
-	blockprint+='</td><td>';
-
-
-
-	  if('county' in j2['address'])
-	    county = j2['address']['county'] + ' ';
-
-	  if('city' in j2['address'])
-	    city = j2['address']['city'] + ' ';
-
-	  if (county != city)
-	    blockprint +=  city + ' ' + county + ' ';
-	  else if (!city)
-	    blockprint +=  county + ' ';
-	  else
-	    blockprint +=  city + ' ';
-
-
-	if('address' in j2) {
-	  if ('country' in j2['address'])
-	    blockprint += j2['address']['country'] + ' ';
-
-	  if ('country_code' in j2['address'])
-	    blockprint +=  '(' + j2['address']['country_code'] + ') ';
-
-	  if('region' in j2['address'])
-	    blockprint +=  j2['address']['region'] + ' ';
-
-	  if('postal_code' in j2['address'])
-	    blockprint +=  j2['address']['postal_code'] + ' ';
-
-	}
-
-	blockprint+='</td><td>';
-
-	  if ('latitude' in j2 && 'longitude' in j2) {
-	    blockprint += j2['latitude'] + ',' + j2['longitude'];
-
-
-	  }
-
-	blockprint+='</td><td>';
-
-	  if ('reliable' in j2) {
-	    if (j2['reliable'] == 1) {
-	      blockprint += 'Yes';
-	    }
-	    else {
-		blockprint += 'No';
-	    }
-
-	  }
-
-	  blockprint+='</td>'
-	return blockprint
-    }
-
-
 
 
     function update(text) {
@@ -286,8 +197,8 @@
 			if (locs[b]['APs'][m] == 1) {
 			    updateMarker(m);
 			}
-			$("#myTable/tbody:first").append(updateList(m));
-
+			w = parseWifi(m,b);
+ 			wifiTable.fnAddData(w.l);
 
 		      }
 
@@ -331,8 +242,6 @@
 	    }
 
  	  }
-
-    $("#myTable").trigger('update');
 
 	}
 
@@ -384,13 +293,8 @@
 	zoomed=true;
       });
 
-      $("#myTable")
-      .tablesorter({debug: false, widgets: ['zebra'], sortList: [[0,0]]})
-      .tablesorterFilter({filterContainer: $("#filter-box"),
-                          filterClearContainer: $("#filter-clear-button"),
-                          filterColumns: [0],
-                          filterCaseSensitive: false});
-
+      wifiTable = $('#myTable').dataTable({
+		"bPaginate": false });
 
     }
 
