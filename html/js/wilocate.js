@@ -286,7 +286,8 @@
 			if (locs[b]['APs'][m] == 1) {
 			    updateMarker(m);
 			}
-			$("table/tbody:first").append(updateList(m));
+			$("#myTable/tbody:first").append(updateList(m));
+
 
 		      }
 
