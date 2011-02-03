@@ -332,8 +332,7 @@
 
  	  }
 
-
-	  $("table").trigger('update');
+    $("#myTable").trigger('update');
 
 	}
 
