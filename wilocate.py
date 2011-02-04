@@ -8,7 +8,7 @@ from core.dataHandler import *
 from core.httpHandler import *
 
 pid=-1
-options={ 'web' : True, 'browser' : True, 'port' : 8000}
+options={ 'web' : True, 'browser' : True, 'port' : 8000, 'file' : 'log.txt'}
 
 banner = "+ WiLocate		Version 0.1"
 
@@ -122,16 +122,25 @@ def mainSingle():
     data = dataHandler()
     httpd = webInterfaceStart(data)
 
-    scan={}
-    for a in options['single']:
-      scan[a]={}
 
-    print '+', str(len(scan)), 'MAC to localize,',
-    nl = addLocation(scan,10)
-    print str(nl), 'locations recovered,',
-    newscanned,newreliable,newbest = data.saveScan(scan)
-    print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
-    data.jsonDump()
+    if 'file' in options and options['file']:
+      fl = open(options['file'],'r')
+      scan = json.loads(fl.read())
+      data.saveFile(scan)
+      print '+ File', options['file'], 'opened.'
+
+    else:
+      scan={}
+      for a in options['single']:
+	scan[a]={}
+
+      print '+', str(len(scan)), 'MAC to localize,',
+      nl = addLocation(scan,10)
+      print str(nl), 'locations recovered,',
+
+      newscanned,newreliable,newbest = data.saveScan(scan)
+      print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+      data.jsonDump()
 
     while 1:
       time.sleep(100)
@@ -217,7 +226,7 @@ if __name__ == "__main__":
   try:
     parseOptions()
 
-    if 'single' in options and options['single']:
+    if ('single' in options and options['single']) or ('file' in options and options['file']):
       mainSingle()
     else:
       mainScan()

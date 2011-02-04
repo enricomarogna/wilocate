@@ -31,7 +31,7 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	self.send_header('Content-type','application/x-javascript')
 	self.end_headers()
 
-	self.wfile.write(json.dumps(data.getJson()))
+	self.wfile.write(json.dumps(data.getJson(), indent=4))
 	return
 
       else:

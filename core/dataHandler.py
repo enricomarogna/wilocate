@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import time, os, pprint
+import time, os, pprint, json
 
 def touch(files):
   for f in files:
@@ -17,6 +17,10 @@ class dataHandler:
   def __init__(self):
     self.jsonpath=self.genPath()
 
+
+  def saveFile(self,json):
+    self.locations=json['locations'].copy()
+    self.wifi=json['wifi'].copy()
 
   def saveScan(self,scan,pos=None):
 
@@ -65,7 +69,7 @@ class dataHandler:
   def jsonDump(self):
     toret = self.getJson()
     f = open(self.jsonpath,'w')
-    f.write(pprint.pformat(toret))
+    f.write(json.dumps(toret, indent=4))
     f.close()
 
   def getJson(self):
