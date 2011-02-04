@@ -173,6 +173,7 @@
 
 	google.maps.event.addListener(marker, 'dblclick', function(event) {
 	  wifiTable.fnFilter(m);
+	  window.scrollTo(0, $('#myTable').position().top);
 	});
 
     }
