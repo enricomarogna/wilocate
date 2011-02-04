@@ -8,7 +8,7 @@ from core.dataHandler import *
 from core.httpHandler import *
 
 pid=-1
-options={ 'web' : True, 'browser' : True, 'port' : 8000, 'file' : 'log.txt'}
+options={ 'web' : True, 'browser' : True, 'port' : 8000 }
 
 banner = "+ WiLocate		Version 0.1"
 
