@@ -79,11 +79,11 @@ class scanHandler:
 	if sp[0].startswith('ESSID') and not data[lastcell][splitted[0]]:
 	  data[lastcell][splitted[0]] = '<hidden>'
 
-      elif sp[0].startswith('Quality') and sp[2] == 'Signal':
-	if '=' in sp[0] and len(sp[0])==2:
+      elif sp[0].startswith('Quality'):
+	if '=' in sp[0] and len(sp[0].split('='))==2:
 	  quality = sp[0].split('=')[1]
 	  data[lastcell]['Quality'] = quality
-	if '=' in sp[3] and len(sp[0])==4:
+	if len(sp)>=3 and sp[2] == 'Signal' and '=' in sp[3] and len(sp[3].split('='))==2:
 	  level = sp[3].split('=')[1]
 	  data[lastcell]['Level'] = level
       elif sp[0] == 'Encryption' and sp[1].startswith('key'):

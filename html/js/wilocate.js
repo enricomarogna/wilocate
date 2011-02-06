@@ -57,14 +57,74 @@
 	}
     }
 
+    function printDate(t) {
+      var date = new Date(b * 1000);
+      var dateString = date.getDate() + '/' + date.getMonth() + '/' + date.getYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+      return dateString;
+    }
+
+    function parsePosition(b) {
+      j2=locs[b];
+      var date = printDate(b);
+
+      if('position' in j2) {
+	j2=j2['position'];
+	lat = j2['latitude'];
+	lng = j2['longitude'];
+
+	streetprint='';
+	cityprint='';
+	if('address' in j2) {
+
+	  if('street' in j2['address'])
+	    streetprint +=  j2['address']['street'] + ' ';
+
+	  if('street_number' in j2['address'])
+	    streetprint +=  j2['address']['street_number'] + ' ';
+
+
+	  if ('country' in j2['address'])
+	    cityprint += j2['address']['country'] + ' ';
+
+	  if ('country_code' in j2['address'])
+	    cityprint +=  '(' + j2['address']['country_code'] + ') ';
+
+	  if('region' in j2['address'])
+	    cityprint +=  j2['address']['region'] + ' ';
+
+	  if('postal_code' in j2['address'])
+	    cityprint +=  j2['address']['postal_code'] + ' ';
+
+	  if('county' in j2['address'])
+	    county = j2['address']['county'] + ' ';
+
+	  if('city' in j2['address'])
+	    city = j2['address']['city'] + ' ';
+
+	  if (county != city)
+	    cityprint +=  city + ' ' + county + ' ';
+	  else if (!city)
+	    cityprint +=  county + ' ';
+	  else
+	    cityprint +=  city + ' ';
+
+	  }
+
+
+      }
+
+      blockprint = '<tr><td>' +date+ '</td><td>' + lat + ',' + lng + '</td><td>' + streetprint + '</td><td>' + cityprint + '</td></tr>';
+      return blockprint
+
+    }
+
     function parseWifi(m,b) {
 	wf=wifi[m];
-// 	loc=loc
 
-	var blockprint = '<table id="marker_info_table">';
+	var blockprint = '';
 	var blocklist = []
 
-	blockprint += '<tr><td>' + htmlEncode(wf['ESSID']) + '</td><td>' + m  + '</td></tr>';
+	blockprint = '<tr><td>' + htmlEncode(wf['ESSID']) + '</td><td>' + m  + '</td></tr>';
 	blocklist.push(htmlEncode(wf['ESSID']),m);
 
 	encrstring='';
@@ -80,6 +140,12 @@
 	blockprint += '<tr><td> Encryption: </td><td>' + encrstring + '</td></tr>';
 	blocklist.push(encrstring);
 
+	qualityprint=''
+	if('Quality' in wf) {
+	  qualityprint+= wf['Quality'];
+	}
+	blockprint+='<tr><td> Quality </td><td>' + qualityprint + '</td></tr>';
+	blocklist.push(qualityprint);
 
 	channelprint=''
 	if('Channel' in wf) {
@@ -137,6 +203,8 @@
 	blockprint += '<tr><td>Coordinate</td><td>' + latprint + '</td></tr>';
 	blocklist.push(latprint);
 
+	blocklist.push(printDate(b));
+
 	relprint='';
 	if (locs[b]['APs'][m] == 1) {
 	  relprint += 'Yes';
@@ -146,7 +214,6 @@
 	}
 	blocklist.push(relprint);
 
-	blockprint += '</table>';
 
 	return { p: blockprint, l: blocklist }
     }
@@ -167,7 +234,7 @@
 
 	google.maps.event.addListener(marker, 'mouseover', function(event) {
 	    w = parseWifi(m,b);
-	    $("#marker_info").html(w.p);
+	    $("#marker_info_table").html(w.p);
 	});
 
 
@@ -217,10 +284,11 @@
 
 	      if('position' in locs[b]) {
 
-		    var actual_pos = new google.maps.LatLng(locs[b]['position'][0],locs[b]['position'][1]);
+		    var actual_pos = new google.maps.LatLng(locs[b]['position']['latitude'],locs[b]['position']['longitude']);
 		    map.setCenter(actual_pos, 20);
 
-		    if(!lastpos) {
+		    // > 111.3 m
+		    if(lastpos == null || (lastpos && distance(actual_pos,lastpos.getPosition()) > 0.003)) {
 
 			map.setCenter(actual_pos, 15);
 			var marker = new google.maps.Marker({
@@ -230,16 +298,9 @@
 			});
 
 		      lastpos=marker;
+		      tablepos = parsePosition(b);
+		      $("#pos_info_table").last().append(tablepos);
 
-		    }
-		    else {
-			dist = distance(actual_pos,lastpos.getPosition());
-			// Tra 1.113 km e 111.3 m
-			if(dist > 0.001) {
-
-			  lastpos.setPosition(actual_pos);
-
-			}
 		    }
 
 	      }

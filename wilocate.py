@@ -20,10 +20,11 @@ Usage:
 
 Options:
 
- -h|--help	This help
- -w|--web	Disable web HTTP interface daemon run on start (default: Enabled)
- -b|--browser	Disable web browser run on start (default: Enabled)
- -p|--port <#>	Open web HTTP interface to port # (default: 8000)
+ -h|--help	  	This help
+ -w|--web-disable	Disable web HTTP interface daemon run on start (default: Enabled)
+ -b|--browser-disable	Disable web browser run on start (default: Enabled)
+ -p|--port <#>		Open web HTTP interface to port number (default: 8000)
+ -f|--file <path>	Load scan datas from path in JSON format
 
 """
 
@@ -49,7 +50,7 @@ def parseOptions():
   import getopt
 
   try:
-      opts, args = getopt.getopt(sys.argv[1:], 'hwbs:p:', ['help','web', 'browser', 'single', 'port'])
+      opts, args = getopt.getopt(sys.argv[1:], 'hwbs:p:f:', ['help','web-disable', 'browser-disable', 'single', 'port', 'file'])
   except getopt.error, msg:
       print "! Error:", msg
       print usagemsg
@@ -69,12 +70,14 @@ def parseOptions():
 	      options['single']=[]
 
 	    options['single'] = a.split(',')
-      elif o in ('-w', '--web'):
+      elif o in ('-w', '--web-disable'):
 	  options['web']=False
-      elif o in ('-b', '--browser'):
+      elif o in ('-b', '--browser-disable'):
 	  options['browser']=False
       elif o in ('-p', '--port'):
 	  options['port']=int(a)
+      elif o in ('-f', '--file'):
+	  options['file']=a
 
       else:
 	  print usagemsg
@@ -135,7 +138,7 @@ def mainSingle():
 	scan[a]={}
 
       print '+', str(len(scan)), 'MAC to localize,',
-      nl = addLocation(scan,10)
+      nl, pos = addPosition(scan)
       print str(nl), 'locations recovered,',
 
       newscanned,newreliable,newbest = data.saveScan(scan)
@@ -195,19 +198,12 @@ def mainScan():
 
       print '+', str(len(scan)), 'APs,',
       sys.stdout.flush()
-      nl = addLocation(scan)
-      print str(nl), 'located,',
-      sys.stdout.flush()
-      pos = calcPosition(scan)
-      if not pos:
-	print 'no reliable locations found.',
-      else:
-	print str(pos[0]) + ' reliable, current position: ' + str(pos[1]) + ',' + str(pos[2]) + ' .',
-
-
+      nl, pos = addPosition(scan)
+      rel = setReliable(scan)
+      print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
       sys.stdout.flush()
 
-      newscanned,newreliable,newbest = data.saveScan(scan, pos[1:])
+      newscanned,newreliable,newbest = data.saveScan(scan, pos)
       print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
       sys.stdout.flush()
       data.jsonDump()
