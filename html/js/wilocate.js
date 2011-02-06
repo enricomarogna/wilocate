@@ -21,8 +21,8 @@
 
     function distance(X,Y) {
 
-      var lat_diff=X.lat()-Y.lat();
-      var lng_diff=X.lng()-Y.lng();
+      var lat_diff=Math.abs(X.lat()-Y.lat());
+      var lng_diff=Math.abs(X.lng()-Y.lng());
 
       return Math.sqrt(Math.pow(lat_diff,2)+Math.pow(lng_diff,2))
 
@@ -288,7 +288,6 @@
 			  var actual_pos = new google.maps.LatLng(locs[b]['position']['latitude'],locs[b]['position']['longitude']);
 			  map.setCenter(actual_pos, 20);
 
-			  // > 111.3 m
 			  if(lastpos == null || (lastpos && distance(actual_pos,lastpos.getPosition()) >= 0.04)) {
 
 			      map.setCenter(actual_pos, 15);
