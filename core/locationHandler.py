@@ -22,8 +22,8 @@ def addPosition(scan, retry = 3):
       if 'Level' in scan[a]:
 	level = scan[a]['Level']
 
-      totalparam['wifi_towers'] += [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : quality, 'age' : 0 } ]
-      singleparam['wifi_towers'] = [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : 10, 'age' : 0 } ]
+      totalparam['wifi_towers'] += [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : level, 'age' : 0 } ]
+      singleparam['wifi_towers'] = [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : level, 'age' : 0 } ]
 
       for r in range(retry):
 	j = httpQuery(headers,singleparam)
