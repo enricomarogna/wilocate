@@ -18,7 +18,7 @@ def addPosition(scan, retry = 3):
       if 'Quality' in scan[a]:
 	q = scan[a]['Quality']
 	if '/70' in q:
-	  quality = int(int(q.split('/')[0])/7)
+	  quality = int(round(int(q.split('/')[0])/7))
       if 'Level' in scan[a]:
 	level = scan[a]['Level']
 

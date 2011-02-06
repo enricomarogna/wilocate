@@ -64,16 +64,17 @@
     }
 
     function parsePosition(b) {
-      j2=locs[b];
+      loc=locs[b];
       var date = printDate(b);
 
-      if('position' in j2) {
-	j2=j2['position'];
+      if('position' in loc) {
+	j2=loc['position'];
 	lat = j2['latitude'];
 	lng = j2['longitude'];
 
 	streetprint='';
 	cityprint='';
+
 	if('address' in j2) {
 
 	  if('street' in j2['address'])
@@ -259,55 +260,58 @@
 
 	    if(b>lasttime) {
 
-	      lasttime=b
+		    lasttime=b
 
-	      if('APs' in locs[b]) {
+		    if('APs' in locs[b]) {
 
-		  for (m in locs[b]['APs']) {
+			for (m in locs[b]['APs']) {
 
-		      if(m in aplist) {
+			    if(m in aplist) {
 
-		      }
-		      else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+			    }
+			    else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
 
-			if (locs[b]['APs'][m] == 1) {
-			    updateMarker(m);
+			      if (locs[b]['APs'][m] == 1) {
+				  updateMarker(m);
+			      }
+			      w = parseWifi(m,b);
+			      wifiTable.fnAddData(w.l);
+
+			    }
+
+
 			}
-			w = parseWifi(m,b);
- 			wifiTable.fnAddData(w.l);
+		    }
 
-		      }
+		    if('position' in locs[b]) {
 
+			  var actual_pos = new google.maps.LatLng(locs[b]['position']['latitude'],locs[b]['position']['longitude']);
+			  map.setCenter(actual_pos, 20);
 
-		  }
-	      }
+			  // > 111.3 m
+			  if(lastpos == null || (lastpos && distance(actual_pos,lastpos.getPosition()) >= 0.04)) {
 
-	      if('position' in locs[b]) {
+			      map.setCenter(actual_pos, 15);
+			      var marker = new google.maps.Marker({
+				  position: actual_pos,
+				  map: map,
+				  title:"Current position"
+			      });
 
-		    var actual_pos = new google.maps.LatLng(locs[b]['position']['latitude'],locs[b]['position']['longitude']);
-		    map.setCenter(actual_pos, 20);
+			    lastpos=marker;
+			    tablepos = parsePosition(b);
+			    $("#pos_info_table").last().append(tablepos);
 
-		    // > 111.3 m
-		    if(lastpos == null || (lastpos && distance(actual_pos,lastpos.getPosition()) > 0.003)) {
-
-			map.setCenter(actual_pos, 15);
-			var marker = new google.maps.Marker({
-			    position: actual_pos,
-			    map: map,
-			    title:"Current position"
-			});
-
-		      lastpos=marker;
-		      tablepos = parsePosition(b);
-		      $("#pos_info_table").last().append(tablepos);
+			  }
+			  else if (lastpos && distance(actual_pos,lastpos.getPosition()) < 0.04) {
+			    lastpos.setPosition(actual_pos);
+			  }
 
 		    }
 
-	      }
-
-	      if (!zoomed) {
-		autozoom();
-	      }
+		    if (!zoomed) {
+		      autozoom();
+		    }
 
 	    }
 
