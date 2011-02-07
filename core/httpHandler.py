@@ -37,20 +37,20 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
       else:
 	if self.path=='/':
 	  self.path='/wilocate.html'
-
 	self.path = os.curdir + os.sep + 'html' + self.path
-	f = open(self.path)
-	self.send_response(200)
-	self.send_header('Content-type',mimetypes.guess_type(self.path))
-	self.end_headers()
-	self.wfile.write(f.read())
-	f.close()
-	return
+
+	return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+	#f = open(self.path)
+	#self.send_response(200)
+	#self.send_header('Content-type',mimetypes.guess_type(self.path))
+	#self.end_headers()
+	#self.wfile.write(f.read())
+	#f.close()
+	#return
 
     except IOError:
       self.send_error(404, 'File not found: %s' % self.path)
 
-    #return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
 class httpHandler ( Thread ):
 

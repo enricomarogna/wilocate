@@ -1,0 +1,209 @@
+
+/*stili per i font speciali -----------------------------------------*/
+@font-face {
+	font-family: 'AirplanesintheNightSkyRegular';
+	src: url('font/airplanes_in_the_night_sky-webfont.eot');
+	src: local('☺'), url('font/airplanes_in_the_night_sky-webfont.woff') format('woff'), url('font/airplanes_in_the_night_sky-webfont.ttf') format('truetype'), url('font/airplanes_in_the_night_sky-webfont.svg#webfontoPUsyI2u') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+/*fine stili font speciali*/
+
+/*stili Header Bar-----------------------------------------*/
+.header_bar{
+	margin-top:-8px;
+	border-bottom: 2px double #B0B0B0 ;
+	position:relative;
+	width:100%;
+	height:60px;
+	background: #333333 url(img/bh.png) repeat-x;
+}
+/*fine stili Header Bar*/
+
+/*stili Header Bar Dx-----------------------------------------*/
+.header_bar_dx{
+	position:relative;
+	margin-top:0px;
+	margin-right:-8px;
+	width:8px;
+	height:60px;
+	float:right;
+	border-bottom: 2px double #B0B0B0;
+	background: #333333 url(img/bh.png) repeat-x;
+}
+/*fine stili Header Bar Dx*/
+
+/*stili Header Bar Sx-----------------------------------------*/
+.header_bar_sx{
+	position:relative;
+	margin-top:0px;
+	margin-left:-8px;
+	width:8px;
+	height:60px;
+	float:left;
+	border-bottom: 2px double #B0B0B0;
+	background: #333333 url(img/bh.png) repeat-x;
+}
+/*fine stili Header Bar Sx*/
+
+/*stili Wilocate Icon-----------------------------------------*/
+.wilocate_icon{
+	margin-top:10px;
+	float:left;
+	width:100%;
+	height:60px;
+	vertical-align:middle;
+}
+/*fine stili Wilocate Icon*/
+
+/*stili Wilocate Icon Text-----------------------------------------*/
+.wilocate_icon_text {
+	font-family:Georgia;
+	color: #FFFFFF;
+	text-decoration: none;
+	font-style:italic;
+	font-size:40px;
+	margin-left:45%;
+}
+/*stili fine Wilocate Icon Text*/
+
+/*stili Wilocate Logo-----------------------------------------*/
+.wilocate_logo {
+	float:left;
+	vertical-align:middle;
+	margin-left:45%;
+}
+/*stili fine Wilocate Logo*/
+
+/*stili Wilocate Icon Img-----------------------------------------*/
+img.wilocate_icon_img{
+	width: 104px;
+	height: 49px;
+	float:right;
+	vertical-align:middle;
+}
+/*fine stili Wilocate Icon Img*/
+
+/*stili Break-----------------------------------------*/
+.break{
+	height: 20px;
+}
+/*fine stili Break*/
+
+/*stili Google Map -----------------------------------------*/
+.map_canvas1{
+	width: 55%;
+	height: 480px;
+	float:right;
+	border: 3px solid #606060;
+	font-color: #fff;
+	font-family: Verdana, Helvetica;
+	font-size: 10pt;
+	font-weight: bold;
+	color: gray;
+	font-size: .9em;
+}
+/*fine stili Google Map*/
+
+/*stili Lorem Ipsum -----------------------------------------*/
+.pos_info1{
+	background-color: #F0F4F5;
+	width: 43%;
+	height:237px;
+	float:left;
+	border-top: 3px solid #606060;
+	border-bottom: 1px solid #E6E6E6;
+	border-left: 0px solid #606060;
+	border-right: 0px solid #606060;
+	overflow: auto;
+	padding:5px;
+	text-align:justify;
+	font-family:Georgia;
+	color: #333333;
+}
+/*fine stili Lorem Ipsum*/
+
+/*stili Break2 -----------------------------------------*/
+.break2{
+	background-color: transparent;
+	width: 43%;
+	height: 10px;
+	float:left;
+	border: 0px solid transparent;
+}
+/*fine stili Break2*/
+
+/*stili Status -----------------------------------------*/
+.status1{
+	background-color: #F0F4F5;
+	width: 43%;
+	height: 30px;
+	float:left;
+	border-top: 3px solid #606060;
+	border-bottom: 1px solid #E6E6E6;
+	border-left: 0px solid #606060;
+	border-right: 0px solid #606060;
+	padding:5px;
+
+}
+/*fine stili Status*/
+
+/*stili Marker Info -----------------------------------------*/
+.marker_info1{
+	background-color: #F0F4F5;
+	width: 43%;
+	height: 160px;
+	float:left;
+	border-top: 3px solid #606060;
+	border-bottom: 1px solid #E6E6E6;
+	border-left: 0px solid #606060;
+	border-right: 0px solid #606060;
+	padding:5px;
+}
+/*fine stili Marker Info*/
+
+
+/* tables -----------------------------------------*/
+table.tablesorter {
+	font-family:arial;
+	/*background-color: #CDCDCD;*/
+	background-color: #606060;
+	margin:10px 0pt 15px;
+	font-size: 8pt;
+	width: 100%;
+	text-align: left;
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+	/*background-color: #e6EEEE;*/
+	background-color: #D8D8D8;
+	border: 1px solid #FFF;
+	font-size: 8pt;
+	padding: 4px;
+}
+table.tablesorter thead tr .header {
+	background-image: url(bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+table.tablesorter tbody td {
+	color: #3D3D3D;
+	padding: 4px;
+	background-color: #FFF;
+	vertical-align: top;
+}
+table.tablesorter tbody tr.odd td {
+	background-color:#F0F0F6;
+}
+table.tablesorter thead tr .headerSortUp {
+	background-image: url(asc.gif);
+}
+table.tablesorter thead tr .headerSortDown {
+	background-image: url(desc.gif);
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-color: #8dbdd8;
+}
+
+/* tables fine */
+

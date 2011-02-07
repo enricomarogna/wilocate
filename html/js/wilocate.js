@@ -115,7 +115,7 @@
 
       }
 
-      blockprint = '<tr><td>' +date+ '</td><td>' + lat + ',' + lng + '</td><td>' + streetprint + '</td><td>' + cityprint + '</td></tr>';
+      blockprint = '<tr><td>' +date+ '</td><td>' + streetprint + '</td><td>' + cityprint + '</td><td>' + lat + ',' + lng + '</td></tr>';
       return blockprint
 
     }
