@@ -2,9 +2,9 @@
 import sys, httplib, json, math
 
 
-def addPosition(scan, retry = 3):
+def addPosition(scan, lang, retrysingle = 2, retrytotal=5):
 
-    singleparam  = {"version": "1.1.0", "host": "maps.google.com", "request_address": "true", "address_language":"en_GB", "wifi_towers": [] }
+    singleparam  = {"version": "1.1.0", "host": "maps.google.com", "request_address": "true", "address_language":lang, "wifi_towers": [] }
     totalparam = singleparam.copy()
     headers = { "Pragma" : "no-cache", "Cache-control" : "no-cache" }
 
@@ -14,6 +14,7 @@ def addPosition(scan, retry = 3):
     for a in scan:
 
       quality=5
+      level=-60
 
       if 'Quality' in scan[a]:
 	q = scan[a]['Quality']
@@ -25,7 +26,7 @@ def addPosition(scan, retry = 3):
       totalparam['wifi_towers'] += [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : level, 'age' : 0 } ]
       singleparam['wifi_towers'] = [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : level, 'age' : 0 } ]
 
-      for r in range(retry):
+      for r in range(retrysingle):
 	j = httpQuery(headers,singleparam)
 	if 'location' in j:
 	  j = j['location'].copy()
@@ -35,7 +36,7 @@ def addPosition(scan, retry = 3):
 	    break
 
     position = {}
-    for r in range(retry):
+    for r in range(retrytotal):
       position = httpQuery(headers,totalparam)
       if 'location' in position:
 	position = position['location'].copy()

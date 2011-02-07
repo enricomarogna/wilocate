@@ -7,6 +7,7 @@
     var aplist={};
     var poslist={};
     var lastpos;
+    var lastposaddr=false;
     var lasttime=0;
 
     var map;
@@ -125,13 +126,13 @@
 	var blockprint = '';
 	var blocklist = []
 
-	blockprint = '<tr><td>' + htmlEncode(wf['ESSID']) + '</td><td>' + m  + '</td></tr>';
+	blockprint = '<tr><td>Essid</td><td>' + htmlEncode(wf['ESSID']) + '</td></tr><tr><td>Mac address</td><td>' + m  + '</td></tr>';
 	blocklist.push(htmlEncode(wf['ESSID']),m);
 
 	encrstring='';
 	if('Encryption' in wf) {
 	    for (e in wf['Encryption']) {
-	      encrstring += e + ' (';
+	      encrstring += e + ' ( ';
 	      for (c in wf['Encryption'][e]) {
 		encrstring += wf['Encryption'][e][c] + ' ';
 	      }
@@ -141,14 +142,21 @@
 	blockprint += '<tr><td> Encryption: </td><td>' + encrstring + '</td></tr>';
 	blocklist.push(encrstring);
 
-	qualityprint=''
+	qualityprint='';
 	if('Quality' in wf) {
 	  qualityprint+= wf['Quality'];
 	}
-	blockprint+='<tr><td> Quality </td><td>' + qualityprint + '</td></tr>';
+// 	blockprint+='<tr><td> Quality </td><td>' + qualityprint + '</td></tr>';
 	blocklist.push(qualityprint);
 
-	channelprint=''
+	levelprint='';
+	if('Level' in wf) {
+	  levelprint+= wf['Level'];
+	}
+	blockprint+='<tr><td> Signal Level </td><td>' + levelprint + ' dBm</td><td> Quality </td><td>' + qualityprint + '</td</tr>';
+	blocklist.push(levelprint);
+
+	channelprint='';
 	if('Channel' in wf) {
 	  channelprint+= wf['Channel'];
 	}
@@ -194,7 +202,7 @@
 
 	  }
 	  blocklist.push(streetprint,cityprint);
-	  blockprint += '<tr><td>Address</td><td>' + streetprint + '</td></tr><tr><td>City</td><td>' + cityprint + '</td></tr>';
+	  blockprint += '<tr><td>Address</td><td>' + streetprint + ' ' + cityprint + '</td></tr>';
 
 
 	  latprint=''
@@ -271,9 +279,10 @@
 			    }
 			    else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
 
-			      if (locs[b]['APs'][m] == 1) {
+			      //Togliere il sistema di reliability
+// 			      if (locs[b]['APs'][m] == 1) {
 				  updateMarker(m);
-			      }
+// 			      }
 			      w = parseWifi(m,b);
 			      wifiTable.fnAddData(w.l);
 
@@ -302,8 +311,13 @@
 			    $("#pos_info_table").last().append(tablepos);
 
 			  }
-			  else if (lastpos && distance(actual_pos,lastpos.getPosition()) < 0.04) {
+			  else if ((lastpos && distance(actual_pos,lastpos.getPosition()) < 0.04) || ('address' in locs[b]['position'] && lastposaddr==false) ) {
 			    lastpos.setPosition(actual_pos);
+			    tablepos = parsePosition(b);
+			    if('address' in locs[b]['position'])
+			      lastposaddr=true;
+			    else
+			      lastposaddr=false;
 			  }
 
 		    }

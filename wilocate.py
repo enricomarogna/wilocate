@@ -8,7 +8,7 @@ from core.dataHandler import *
 from core.httpHandler import *
 
 pid=-1
-options={ 'web' : True, 'browser' : True, 'port' : 8000 }
+options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '' }
 
 banner = "+ WiLocate		Version 0.1"
 
@@ -48,6 +48,12 @@ def getUserId():
 def parseOptions():
 
   import getopt
+
+  lang = os.getenv('LANG')
+  if lang:
+    if '.' in lang:
+      lang=lang.split('.')[0]
+    options['lang']=lang
 
   try:
       opts, args = getopt.getopt(sys.argv[1:], 'hwbs:p:f:', ['help','web-disable', 'browser-disable', 'single', 'port', 'file'])
@@ -138,7 +144,7 @@ def mainSingle():
 	scan[a]={}
 
       print '+', str(len(scan)), 'MAC to localize,',
-      nl, pos = addPosition(scan)
+      nl, pos = addPosition(scan,options['lang'])
       print str(nl), 'locations recovered,',
 
       newscanned,newreliable,newbest = data.saveScan(scan)
@@ -198,7 +204,7 @@ def mainScan():
 
       print '+', str(len(scan)), 'APs,',
       sys.stdout.flush()
-      nl, pos = addPosition(scan)
+      nl, pos = addPosition(scan,options['lang'])
       rel = setReliable(scan)
       print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
       sys.stdout.flush()
