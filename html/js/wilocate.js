@@ -60,7 +60,7 @@
 
     function printDate(t) {
       var date = new Date(b * 1000);
-      var dateString = date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+      var dateString = /*date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() + ' ' + */date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
       return dateString;
     }
 
@@ -262,14 +262,15 @@
 
 	if(locs) {
 
- 	  $('#status').html("Loaded new APs.");
+	  $("#map_canvas").css({background: 'white'});
 
 	  for (b in locs) {
 
 	    if(b>lasttime) {
 
-		    lasttime=b
 
+		    lasttime=b;
+		    newaps=0;
 		    if('APs' in locs[b]) {
 
 			for (m in locs[b]['APs']) {
@@ -281,15 +282,18 @@
 
 			      //Togliere il sistema di reliability
 // 			      if (locs[b]['APs'][m] == 1) {
-				  updateMarker(m);
+			      updateMarker(m);
 // 			      }
 			      w = parseWifi(m,b);
 			      wifiTable.fnAddData(w.l);
+			      newaps+=1;
 
 			    }
 
 
 			}
+
+			$("#status").html("Loaded " + newaps + " new WiFi spots.");
 		    }
 
 		    if('position' in locs[b]) {
@@ -376,7 +380,6 @@
       };
 
 
-      $("#map_canvas").css({background: 'white'});
       map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
 
       google.maps.event.addListener(map, 'bounds_changed', function() {
