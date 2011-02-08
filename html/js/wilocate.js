@@ -60,7 +60,7 @@
 
     function printDate(t) {
       var date = new Date(b * 1000);
-      var dateString = date.getDate() + '/' + date.getMonth() + '/' + date.getYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+      var dateString = date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
       return dateString;
     }
 
@@ -374,6 +374,9 @@
 // 	center: myLatlng,
 	mapTypeId: google.maps.MapTypeId.HYBRID
       };
+
+
+      $("#map_canvas").css({background: 'white'});
       map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
 
       google.maps.event.addListener(map, 'bounds_changed', function() {

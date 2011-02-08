@@ -2,7 +2,7 @@
 import sys, httplib, json, math
 
 
-def addPosition(scan, lang, retrysingle = 2, retrytotal=5):
+def addPosition(scan, lang, retrysingle = 1, retrytotal=8):
 
     singleparam  = {"version": "1.1.0", "host": "maps.google.com", "request_address": "true", "address_language":lang, "wifi_towers": [] }
     totalparam = singleparam.copy()
@@ -41,6 +41,18 @@ def addPosition(scan, lang, retrysingle = 2, retrytotal=5):
       if 'location' in position:
 	position = position['location'].copy()
 	break
+
+    # Se non mi ha restituito l'address della position con indirizzo, cerco l'address piu vicino e ce lo metto
+    if not 'address' in position:
+      bestlvl=0
+      best={}
+      for a in scan:
+	if 'location' in scan[a] and 'address' in scan[a]['location'] and int(scan[a]['Level']) < bestlvl:
+	  best=scan[a]['location']['address'].copy()
+	  bestlvl=int(scan[a]['Level'])
+
+      if best:
+	position['address']=best
 
     return locnum, position
 

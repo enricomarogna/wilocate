@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os, sys, json, time
+import os, sys, json, time, re
 from subprocess import Popen, PIPE, STDOUT
 
 def which(program, moredirs = []):
@@ -64,7 +64,7 @@ class scanHandler:
       sp = [x.strip(':') for x in spa]
 
       # If Cell i create new key with mac address
-      if sp[0] == 'Cell' and sp[3] == 'Address':
+      if len(sp) == 5 and sp[0] == 'Cell' and sp[3] == 'Address' and re.match("(?:[0-9A-Z][0-9A-Z](:|-)?){6}", sp[4]):
 	lastcell=sp[4]
 	data[lastcell]={}
 	lastauth=''
