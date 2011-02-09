@@ -97,10 +97,19 @@ img.wilocate_icon_img{
 }
 /*fine stili Google Map*/
 
+/*stili Left Column-----------------------------------------*/
+.left_column{
+	float:left; 
+	width: 43%;
+	height: 486px; 
+	border:0px solid red;
+}
+/*fine stili Left Column*/
+
 /*stili Lorem Ipsum -----------------------------------------*/
 .pos_info1{
 	background-color: #F0F4F5;
-	width: 43%;
+	width: 100%;
 	height:237px;
 	float:left;
 	border-top: 3px solid #606060;
@@ -118,7 +127,7 @@ img.wilocate_icon_img{
 /*stili Break2 -----------------------------------------*/
 .break2{
 	background-color: transparent;
-	width: 43%;
+	width: 100%;
 	height: 10px;
 	float:left;
 	border: 0px solid transparent;
@@ -128,7 +137,7 @@ img.wilocate_icon_img{
 /*stili Status -----------------------------------------*/
 .status1{
 	background-color: #F0F4F5;
-	width: 43%;
+	width: 100%;
 	height: 30px;
 	float:left;
 	border-top: 3px solid #606060;
@@ -143,7 +152,7 @@ img.wilocate_icon_img{
 /*stili Marker Info -----------------------------------------*/
 .marker_info1{
 	background-color: #F0F4F5;
-	width: 43%;
+	width: 100%;
 	/*height: 170px;*/
 	height: auto;
 	float:left;
