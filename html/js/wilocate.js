@@ -249,7 +249,13 @@
 
 	google.maps.event.addListener(marker, 'dblclick', function(event) {
 	  wifiTable.fnFilter(m);
-	  window.scrollTo(0, $('#myTable').position().top);
+// 	  window.scrollTo(0, $('#myTable').position().top);
+	  if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+	    var p = new google.maps.LatLng(wifi[m]['location']['latitude'],wifi[m]['location']['longitude']);
+	    autozoom();
+	    map.setCenter(p, 20);
+
+	  }
 	});
 
     }
@@ -262,7 +268,6 @@
 
 	if(locs) {
 
-	  $("#map_canvas").css({background: 'white'});
 
 	  for (b in locs) {
 
@@ -292,14 +297,16 @@
 
 
 			}
-
-			$("#status").html("Loaded " + newaps + " new WiFi spots.");
+			if (newaps>0) {
+ 			  $("#map_canvas").css({background: 'white'});
+			  $("#status").html("Loaded " + newaps + "  WiFi spots.");
+			}
 		    }
 
 		    if('position' in locs[b]) {
 
 			  var actual_pos = new google.maps.LatLng(locs[b]['position']['latitude'],locs[b]['position']['longitude']);
-			  map.setCenter(actual_pos, 20);
+
 
 			  if(lastpos == null || (lastpos && distance(actual_pos,lastpos.getPosition()) >= 0.04)) {
 
@@ -327,6 +334,7 @@
 		    }
 
 		    if (!zoomed) {
+		      map.setCenter(actual_pos, 20);
 		      autozoom();
 		    }
 

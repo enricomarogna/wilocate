@@ -90,18 +90,18 @@ img.wilocate_icon_img{
 	font-family: Verdana, Helvetica;
 	font-size: 10pt;
 	font-weight: bold;
-	color: gray;
+	color: white;
 	font-size: .9em;
-	background: url(../img/loading_map1.gif) no-repeat center;
+	background: url(../img/loading_map.gif) no-repeat center;
 
 }
 /*fine stili Google Map*/
 
 /*stili Left Column-----------------------------------------*/
 .left_column{
-	float:left; 
+	float:left;
 	width: 43%;
-	height: 486px; 
+	height: 486px;
 	border:0px solid red;
 }
 /*fine stili Left Column*/

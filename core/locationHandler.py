@@ -47,7 +47,7 @@ def addPosition(scan, lang, retrysingle = 1, retrytotal=8):
       bestlvl=0
       best={}
       for a in scan:
-	if 'location' in scan[a] and 'address' in scan[a]['location'] and int(scan[a]['Level']) < bestlvl:
+	if 'location' in scan[a] and 'address' in scan[a]['location'] and 'Level' in scan[a] and int(scan[a]['Level']) < bestlvl:
 	  best=scan[a]['location']['address'].copy()
 	  bestlvl=int(scan[a]['Level'])
 
