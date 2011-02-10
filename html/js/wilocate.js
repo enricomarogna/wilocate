@@ -246,7 +246,8 @@
 	google.maps.event.addListener(marker, 'mouseover', function(event) {
 	    w = parseWifi(m,b);
 	    $("#marker_info_text").html('');
-	    $("#marker_info_table").html(w.p);
+ 	    $("#marker_info_table").find('tbody').html('');
+	    $("#marker_info_table").find('tbody').append(w.p);
 	});
 
 
@@ -278,10 +279,13 @@
 
 
 		    lasttime=b;
+		    aps=0;
 		    newaps=0;
 		    if('APs' in locs[b]) {
 
 			for (m in locs[b]['APs']) {
+
+			    aps+=1;
 
 			    if(m in aplist) {
 
@@ -302,7 +306,7 @@
 			}
 			if (newaps>0) {
  			  $("#map_canvas").css({background: 'white'});
-			  $("#status").html("Loaded " + newaps + "  WiFi spots.");
+			  $("#status").html("Loaded " + newaps + "/" + aps + "  WiFi spots.");
 			}
 		    }
 
@@ -383,10 +387,9 @@
 
       request()
 
-      var myLatlng = new google.maps.LatLng(-34.397, 150.644);
+      var myLatlng = new google.maps.LatLng(45.0665322,7.6509678);
       var myOptions = {
 	zoom: 16,
-// 	center: myLatlng,
 	mapTypeId: google.maps.MapTypeId.HYBRID
       };
 

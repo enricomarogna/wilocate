@@ -86,7 +86,7 @@ class httpHandler ( Thread ):
 	httpd = StoppableHttpServer(('127.0.0.1', self.port), httpRequestHandler)
 	httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
       except Exception, e:
-	print '! Web interface and browser opening disabled:', e.strerror
+	print '! Web interface and browser opening disabled:', e
 	print '! Port', str(self.port), 'unavailable. Quit this session, wait few seconds and restart wilocate.'
 
       else:
@@ -95,3 +95,4 @@ class httpHandler ( Thread ):
 	print "+ Web interface is running on port", self.port
 	httpd.serve_forever()
 	print "! Quitting web interface."
+	httpd.socket.close()
