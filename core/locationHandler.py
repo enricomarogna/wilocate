@@ -39,8 +39,12 @@ def addPosition(scan, lang, retrysingle = 1, retrytotal=8):
     for r in range(retrytotal):
       position = httpQuery(headers,totalparam)
       if 'location' in position:
-	position = position['location'].copy()
-	break
+	if 'address' in position['location']:
+	  position = position['location'].copy()
+	  break
+	elif not position:
+	  position = position['location'].copy()
+
 
     # Se non mi ha restituito l'address della position con indirizzo, cerco l'address piu vicino e ce lo metto
     if not 'address' in position:
@@ -52,7 +56,7 @@ def addPosition(scan, lang, retrysingle = 1, retrytotal=8):
 	  bestlvl=int(scan[a]['Level'])
 
       if best:
-	position['address']=best
+	position['address']=best.copy()
 
     return locnum, position
 

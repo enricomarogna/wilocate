@@ -206,7 +206,8 @@ def mainScan():
       sys.stdout.flush()
       nl, pos = addPosition(scan,options['lang'])
       rel = setReliable(scan)
-      print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
+      if 'latitude' in pos and 'longitude' in pos:
+	print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
       sys.stdout.flush()
 
       newscanned,newreliable,newbest = data.saveScan(scan, pos)
