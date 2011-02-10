@@ -126,6 +126,8 @@
 	var blockprint = '';
 	var blocklist = []
 
+
+
 	blockprint = '<tr><td>Essid</td><td>' + htmlEncode(wf['ESSID']) + '</td></tr><tr><td>Mac address</td><td>' + m  + '</td></tr>';
 	blocklist.push(htmlEncode(wf['ESSID']),m);
 
@@ -243,6 +245,7 @@
 
 	google.maps.event.addListener(marker, 'mouseover', function(event) {
 	    w = parseWifi(m,b);
+	    $("#marker_info_text").html('');
 	    $("#marker_info_table").html(w.p);
 	});
 
