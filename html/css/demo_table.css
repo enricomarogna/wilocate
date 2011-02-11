@@ -166,7 +166,7 @@ table.display td.center {
 }
 
 .sorting {
-	background: url('../img/sort_both.png') no-repeat center right;
+	background:#D8D8D8  url('../img/sort_both.png') no-repeat center right;
 }
 
 .sorting_asc_disabled {
