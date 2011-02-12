@@ -84,11 +84,14 @@ img.wilocate_icon_img{
 	color:#3D3D3D;
 	padding:5px;
 
-	a:link {color: #3F8FBA;}
-	a:visited {color: #2200C1;}
+
 
 
 }
+
+.break a:link {color: #3F8FBA;}
+.break a:visited {color: #2200C1;}
+
 /*fine stili Break*/
 
 /*stili Google Map -----------------------------------------*/
