@@ -16,7 +16,6 @@ usagemsg = """
 Usage:
 
  ./wilocate.py [options]			Locate current position scanning wifi networks
- ./wilocate.py [options] -s <MAC address>	Locate given MAC address position
 
 Options:
 
