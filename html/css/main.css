@@ -149,7 +149,7 @@ img.wilocate_icon_img{
 .pos_info1{
 	background-color: #F0F4F5;
 	width: 100%;
-	height:215px;
+	height:205px;
 	float:left;
 	border-top: 3px solid #606060;
 	border-bottom: 1px solid #E6E6E6;
@@ -163,4 +163,21 @@ img.wilocate_icon_img{
 	font-size: 8pt;
 }
 /*fine stili Pos Info*/
+
+.footer{
+	font-family:arial;
+	margin:0px;
+	font-size: 8pt;
+	width: 99.2%;
+	text-align: center;
+	color:#3D3D3D;
+	background-color: #F0F4F5;
+	border-top: 3px solid #606060;
+	border-bottom: 1px solid #E6E6E6;
+	border-left: 0px solid #606060;
+	border-right: 0px solid #606060;
+	overflow: auto;
+	padding:5px;
+	vertical-align:middle;
+}
 

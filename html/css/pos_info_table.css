@@ -1,0 +1,45 @@
+
+/* --------------------------------- Pos Info Table --------------------------------- */
+
+table.pos_info_table2 {
+	font-family:arial;
+	margin:0px;
+	font-size: 8pt;
+	width: 100%;
+	text-align: left;
+	color:#3D3D3D;
+}
+
+table.pos_info_table2 tbody td {
+	padding: 4px;
+	vertical-align: top;
+	border: 1px solid white;
+	/*font-weight: bold;*/
+}
+
+table.pos_info_table2 tbody tr {
+	background:#fff;
+}
+
+/*Underliner*/
+table.pos_info_table2 tr:hover{
+ 	background: #8c8c8c;
+	color:#fff;
+}
+
+.pos_info_table_last_position, .pos_info_table_address, .pos_info_table_city, .pos_info_table_coordinates{
+	background:#D8D8D8;
+	vertical-align: top;
+	color:#3D3D3D;
+	padding: 4px;
+	vertical-align: top;
+	border: 1px solid #fff;
+	font-weight: bold;
+}
+
+/* --------------------------------- Pos Info Table End --------------------------------- */
+
+
+
+
+

@@ -32,9 +32,9 @@
 
 .dataTables_wrapper {
 	position: relative;
-	min-height: 302px;
+	min-height: 202px;
 	clear: both;
-	_height: 302px;
+	_height: 202px;
 	zoom: 1; /* Feeling sorry for IE */
 }
 
@@ -61,13 +61,16 @@
 
 .dataTables_filter {
 	width: 50%;
-	float: right;
-	text-align: right;
+	float: left;
+	text-align: left;
+	margin-top:10px;
+	margin-bottom:5px;
 }
 
 .dataTables_info {
 	width: 60%;
 	float: left;
+	color:#686868
 }
 
 .dataTables_paginate {
@@ -327,7 +330,9 @@ table.display tr.odd.row_selected td {
  */
 /* For the standard odd/even */
 tr.odd td.sorting_1 {
-	background-color: #D3D6FF;
+	/*background-color: #D3D6FF;*/
+	background-color: #8c8c8c;
+	color:#fff;
 }
 
 tr.odd td.sorting_2 {
@@ -536,3 +541,84 @@ div.box {
 	border: 1px solid #8080FF;
 	background-color: #E5E5FF;
 }
+
+
+
+/* --------------------------- Tablesorter Parameter ----------------------------- */
+
+
+table.tablesorter {
+	font-family:arial;
+	margin:0px;
+	font-size: 8pt;
+	width: 100%;
+	text-align: left;
+	color:#3D3D3D;
+	background-color: #F0F4F5;
+	border-top: 3px solid #606060;
+	border-bottom: 1px solid #E6E6E6;
+	border-left: 0px solid #606060;
+	border-right: 0px solid #606060;
+	overflow: auto;
+	padding:5px;
+}
+
+table.tablesorter tbody tr {
+	background:#fff;
+}
+
+/*Underliner*/
+table.tablesorter tr:hover{
+ 	background: #8c8c8c;
+	color:#fff;
+}
+
+.tablesorter_essid, .tablesorter_mac, .tablesorter_encryption, .tablesorter_quality, .tablesorter_signal_level, .tablesorter_channel, .tablesorter_address, .tablesorter_city, .tablesorter_coordinates, .tablesorter_last_seen, .tablesorter_reliable{
+	font-family:arial;
+	margin:0px;
+	font-size: 8pt;
+	text-align: left;
+	color:#3D3D3D;
+	background:#D8D8D8;
+	vertical-align: top;
+	padding: 4px;
+	border: 1px solid #fff;
+	font-weight: bold;
+}
+
+.tablesorter_essid{
+	width: auto;
+}
+.tablesorter_mac{
+	width: auto;
+}
+.tablesorter_encryption{
+	width: auto;
+}
+.tablesorter_quality{
+	width: 60px;
+}
+.tablesorter_signal_level{
+	width: 85px;
+}
+.tablesorter_channel{
+	width: 65px;
+}
+.tablesorter_address{
+	width: auto;
+}
+.tablesorter_city{
+	width: auto;
+}
+.tablesorter_coordinates{
+	width: 130px;
+}
+.tablesorter_last_seen{
+	width: 75px;
+}
+.tablesorter_reliable{
+	width: 65px;
+}
+
+/* --------------------------- Tablesorter Parameter End ----------------------------- */
+

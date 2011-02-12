@@ -7,6 +7,7 @@
  	<style type="text/css">@import url('css/main.css');</style>
  	<style type="text/css">@import url('css/demo_table.css');</style>
  	<style type="text/css">@import url('css/table_marker_info.css');</style>
+ 	<style type="text/css">@import url('css/pos_info_table.css');</style>
 
 	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 	<script type="text/javascript" src="js/wilocate.js"></script>
@@ -35,14 +36,17 @@
 
 	<div class="left_column">
 
-		<div class="status1" id="status">Waiting for APs positions.
+		<div class="status1" id="status">
+			Waiting for APs positions.
 		</div>
 
 		<div class="break2">
 		</div>
 
 		<div class="marker_info1" id="marker_info" >
-			<div id="marker_info_text">Point your mouse on access points in the map to show detailed informations.</div>
+			<div id="marker_info_text">
+				Point your mouse on access points in the map to show detailed informations.
+			</div>
 	  		<table id="marker_info_table" class="table_marker_info2">
 				<col class="col1">
 				<col class="col2">
@@ -57,18 +61,15 @@
 		</div>
 
 		<div class="pos_info1" id="pos_info">
-	 		<table id="pos_info_table" class="table_marker_info">
-
+	 		<table id="pos_info_table" class="pos_info_table2">
 			      <thead>
 				    <tr>
-
-					    <th>Last position</th>
-					    <th>Address</th>
-					    <th>City</th>
-					    <th>Coordinates</th>
+					    <th class="pos_info_table_last_position">Last position</th>
+					    <th class="pos_info_table_address">Address</th>
+					    <th class="pos_info_table_city">City</th>
+					    <th class="pos_info_table_coordinates">Coordinates</th>
 				    </tr>
 			    </thead>
-
 			</table>
 		</div>
 
@@ -79,29 +80,36 @@
 	<div class="tabella_elenco">
 
 		<table id="myTable" class="tablesorter">
+		<!-- <table id="myTable" class="tablesorter"> -->
 		<thead>
 			<tr>
-
-    				<th class="" style="width:15%;">Essid</th>
-    				<th class="" style="width:10%;">MAC</th>
-    				<th class="" style="width:15%;">Encryption</th>
-    				<th class="" style="width:3%;">Quality</th>
-    				<th class="" style="width:5%;">Signal Level</th>
-    				<th class="" style="width:3%;">Channel</th>
-    				<th class="" style="width:15%;">Address</th>
-    				<th class="" style="width:10%;">City</th>
-    				<th class="" style="width:10%;">Coordinates</th>
-    				<th class="" style="width:10%;">Last seen</th>
-    				<th class="" style="width:3%;">Reliable</th>
+    				<th class="tablesorter_essid">Essid</th>
+    				<th class="tablesorter_mac">MAC</th>
+    				<th class="tablesorter_encryption">Encryption</th>
+    				<th class="tablesorter_quality">Quality</th>
+    				<th class="tablesorter_signal_level">Signal Level</th>
+    				<th class="tablesorter_channel">Channel</th>
+    				<th class="tablesorter_address">Address</th>
+    				<th class="tablesorter_city">City</th>
+    				<th class="tablesorter_coordinates">Coordinates</th>
+    				<th class="tablesorter_last_seen">Last seen</th>
+    				<th class="tablesorter_reliable">Reliable</th>
 			</tr>
 		</thead>
 		<tbody>
 
 		</tbody>
 		</table>
+
+
 	</div>
+		<div class="footer">wilocate 2011 <br><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/it/"><img alt="Licenza Creative Commons" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/2.5/it/80x15.png" /></a></div>
+
+
 
 </div>
 
   </body>
 </html>
+
+
