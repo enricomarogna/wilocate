@@ -83,10 +83,6 @@ img.wilocate_icon_img{
 	text-align: right;
 	color:#3D3D3D;
 	padding:5px;
-
-
-
-
 }
 
 .break a:link {color: #3F8FBA;}
@@ -149,7 +145,7 @@ img.wilocate_icon_img{
 .marker_info1{
 	background-color: #F0F4F5;
 	width: 100%;
-	height: 190px;
+	height: 200px;
 	float:left;
 	border-top: 3px solid #606060;
 	border-bottom: 1px solid #E6E6E6;
@@ -163,7 +159,7 @@ img.wilocate_icon_img{
 .pos_info1{
 	background-color: #F0F4F5;
 	width: 100%;
-	height:205px;
+	height:195px;
 	float:left;
 	border-top: 3px solid #606060;
 	border-bottom: 1px solid #E6E6E6;
