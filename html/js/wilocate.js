@@ -294,17 +294,19 @@
 			    if(m in aplist) {
 
 			    }
-			    else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+			    else {
 
-			      //Togliere il sistema di reliability
-// 			      if (locs[b]['APs'][m] == 1) {
+
+			      w = parseWifi(m,b);
+			      newaps+=1;
+			      wifiTable.fnAddData(w.l);
+
+			      if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+
 			      updateMarker(m);
-// 			      }
+			      }
 			    }
 
-			    w = parseWifi(m,b);
-			    newaps+=1;
-			    wifiTable.fnAddData(w.l);
 
 
 			}

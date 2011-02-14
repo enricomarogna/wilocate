@@ -10,7 +10,7 @@ from core.httpHandler import *
 pid=-1
 options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '', 'localization' : True }
 
-banner = "+ WiLocate		Version 0.1"
+banner = """"+ WiLocate		Version 0.1"""
 
 httpd = None
 
@@ -21,12 +21,12 @@ Usage:
 
 Options:
 
- -h|--help	  		This help
- -w|--web-disable		Disable web HTTP interface daemon run on start (default: Enabled)
- -b|--browser-disable		Disable web browser run on start (default: Enabled)
- -p|--port <#>			Open web HTTP interface to port number (default: 8000)
- -f|--file <path>		Load scan datas from path in JSON format
- -l|--localization-disable 	Disable on-line localization, useful to collect wifi data off-line. (Default: Enabled)
+ -h|--help	  	This help
+ -w|--web-disable	Disable web HTTP interface daemon run on start (default: Enabled)
+ -b|--browser-disable	Disable web browser run on start (default: Enabled)
+ -p|--port <#>		Open web HTTP interface to port number (default: 8000)
+ -f|--file <path>	Load scan datas from path in JSON format
+ -l|--loc-disable 	Disable on-line localization, useful to collect wifi data off-line. (Default: Enabled)
 
 
 """
