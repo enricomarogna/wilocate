@@ -70,7 +70,7 @@ def httpQuery(headers,params):
     conn.request("POST", "/loc/json", json.dumps(params), headers)
     response = conn.getresponse()
   except Exception, e:
-    print '! Error querying Google Maps about ' + a + ': (%s)' % (e.strerror)
+    print '! Error querying Google Maps about: (%s)' % (e.strerror)
 
   jtext = response.read()
   try:
