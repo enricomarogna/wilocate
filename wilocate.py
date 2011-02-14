@@ -254,7 +254,8 @@ def mainScan():
 
       print '+', str(len(scan)), 'APs,',
       sys.stdout.flush()
-      localization(scan,data)
+      if options['localization']:
+	localization(scan,data)
 
       #if options['localization']:
 	#nl, pos = addPosition(scan,options['lang'])
