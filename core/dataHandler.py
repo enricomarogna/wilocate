@@ -18,9 +18,7 @@ class dataHandler:
     self.jsonpath=self.genPath()
 
 
-  def saveScan(self, scan):
-
-    timestamp = int(time.time())
+  def saveScan(self, scan,timestamp):
 
     n=0
     b=0
@@ -36,9 +34,7 @@ class dataHandler:
     return n,r,b
 
 
-  def localizeScan(self,scan,pos=None):
-
-    timestamp = int(time.time())
+  def saveAndLocalizeScan(self,scan,pos,timestamp):
 
     n=0
     b=0

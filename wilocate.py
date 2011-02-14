@@ -147,45 +147,31 @@ def mainSingle():
       fl.close()
       scanwifi = filescan['wifi']
       scanloc = filescan['locations']
-
+      sortedloctimestamp = [ k for k in sorted(scanloc.keys())]
 
       if options['localization']:
 	sys.stdout.flush()
 
-	for timestamp in scanloc:
+	for timestamp in sortedloctimestamp:
 	  if scanloc[timestamp].has_key('APs'):
 	    currentwifiscan = {}
 	    for ap in scanloc[timestamp]['APs']:
 	      if scanwifi.has_key(ap):
 		currentwifiscan[ap]=scanwifi[ap].copy()
 
-	    print '+', str(len(currentwifiscan)), 'APs,',
+	    print '+ [' + time.strftime("%H:%M:%S", time.localtime(int(timestamp)))+ '] ' + str(len(currentwifiscan)) + ' APs,',
 	    sys.stdout.flush()
-	    localization(currentwifiscan,data)
-	    #nl, pos = addPosition(currentwifiscan,options['lang'])
-	    #rel = setReliable(currentwifiscan)
-
-	    #if 'latitude' in pos and 'longitude' in pos:
-	      #print str(nl) + ' located, ' + str(rel) + ' reliable, ' + timestamp + ' position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
-	    #sys.stdout.flush()
-
-	    #newscanned,newreliable,newbest = data.localizeScan(currentwifiscan, pos)
-	    #print ' ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+	    localization(currentwifiscan,data,timestamp)
 
       print '! File read entirely.'
 
 
-    else:
-      scan={}
-      for a in options['single']:
-	scan[a]={}
+    #else:
+      #scan={}
+      #for a in options['single']:
+	#scan[a]={}
 
-      print '+', str(len(scan)), 'MAC to localize,',
-      nl, pos = addPosition(scan,options['lang'])
-      print str(nl), 'locations recovered,',
-
-      newscanned,newreliable,newbest = localize.localizeScan(scan)
-      print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+      #print '+', str(len(scan)), 'MAC to localize,',
 
     data.jsonDump()
 
@@ -197,7 +183,7 @@ def mainSingle():
       httpd.stop()
     raise
 
-def localization(scan,data):
+def localization(scan,data,tm):
 
   nl, pos = addPosition(scan,options['lang'])
   rel = setReliable(scan)
@@ -205,7 +191,7 @@ def localization(scan,data):
     print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
   sys.stdout.flush()
 
-  newscanned,newreliable,newbest = data.localizeScan(scan, pos)
+  newscanned,newreliable,newbest = data.saveAndLocalizeScan(scan, pos, tm)
   print ' ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
 
 
@@ -252,23 +238,15 @@ def mainScan():
 	continue
 
 
-      print '+', str(len(scan)), 'APs,',
+      timestamp = time.time()
+
+      print '+ [' + time.strftime("%H:%M:%S", time.localtime(timestamp))+ '] ' + str(len(scan)) + ' APs,',
       sys.stdout.flush()
       if options['localization']:
-	localization(scan,data)
-      
-      #if options['localization']:
-	#nl, pos = addPosition(scan,options['lang'])
-	#rel = setReliable(scan)
-	#if 'latitude' in pos and 'longitude' in pos:
-	  #print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
-	#sys.stdout.flush()
-
-	#newscanned,newreliable,newbest = data.localizeScan(scan, pos)
-	#print ' ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+	localization(scan,data,timestamp)
 
       else:
-	newscanned,newreliable,newbest = data.saveScan(scan)
+	newscanned,newreliable,newbest = data.saveScan(scan,timestamp)
 	print 'detected.'
 
       sys.stdout.flush()

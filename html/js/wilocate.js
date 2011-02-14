@@ -323,7 +323,7 @@
 
 			  if(lastpos == null || (lastpos && distance(actual_pos,lastpos.getPosition()) >= 0.04)) {
 
-			      map.setCenter(actual_pos, 15);
+
 			      var marker = new google.maps.Marker({
 				  position: actual_pos,
 				  map: map,
