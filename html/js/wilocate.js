@@ -165,52 +165,56 @@
 	blockprint+='<tr><td> Channel </td><td>' + channelprint + '</td></tr>';
 	blocklist.push(channelprint);
 
-	j2=wf['location'];
+
 	streetprint='';
 	cityprint='';
-	if('address' in j2) {
+	latprint=''
+	if('location' in wf) {
+	  j2=wf['location'];
+	  if('address' in j2) {
 
-	  if('street' in j2['address'])
-	    streetprint +=  j2['address']['street'] + ' ';
+	    if('street' in j2['address'])
+	      streetprint +=  j2['address']['street'] + ' ';
 
-	  if('street_number' in j2['address'])
-	    streetprint +=  j2['address']['street_number'] + ' ';
+	    if('street_number' in j2['address'])
+	      streetprint +=  j2['address']['street_number'] + ' ';
 
 
-	  if ('country' in j2['address'])
-	    cityprint += j2['address']['country'] + ' ';
+	    if ('country' in j2['address'])
+	      cityprint += j2['address']['country'] + ' ';
 
-	  if ('country_code' in j2['address'])
-	    cityprint +=  '(' + j2['address']['country_code'] + ') ';
+	    if ('country_code' in j2['address'])
+	      cityprint +=  '(' + j2['address']['country_code'] + ') ';
 
-	  if('region' in j2['address'])
-	    cityprint +=  j2['address']['region'] + ' ';
+	    if('region' in j2['address'])
+	      cityprint +=  j2['address']['region'] + ' ';
 
-	  if('postal_code' in j2['address'])
-	    cityprint +=  j2['address']['postal_code'] + ' ';
+	    if('postal_code' in j2['address'])
+	      cityprint +=  j2['address']['postal_code'] + ' ';
 
-	  if('county' in j2['address'])
-	    county = j2['address']['county'] + ' ';
+	    if('county' in j2['address'])
+	      county = j2['address']['county'] + ' ';
 
-	  if('city' in j2['address'])
-	    city = j2['address']['city'] + ' ';
+	    if('city' in j2['address'])
+	      city = j2['address']['city'] + ' ';
 
-	  if (county != city)
-	    cityprint +=  city + ' ' + county + ' ';
-	  else if (!city)
-	    cityprint +=  county + ' ';
-	  else
-	    cityprint +=  city + ' ';
+	    if (county != city)
+	      cityprint +=  city + ' ' + county + ' ';
+	    else if (!city)
+	      cityprint +=  county + ' ';
+	    else
+	      cityprint +=  city + ' ';
 
+	    }
+
+	    if ('latitude' in j2 && 'longitude' in j2) {
+	      latprint+= j2['latitude'] + ',' + j2['longitude'];
+	    }
 	  }
-	  blocklist.push(streetprint,cityprint);
-	  blockprint += '<tr><td>Address</td><td>' + streetprint + ' ' + cityprint + '</td></tr>';
 
+	blocklist.push(streetprint,cityprint);
+	blockprint += '<tr><td>Address</td><td>' + streetprint + ' ' + cityprint + '</td></tr>';
 
-	  latprint=''
-	  if ('latitude' in j2 && 'longitude' in j2) {
-	  latprint+= j2['latitude'] + ',' + j2['longitude'];
-	}
 	blockprint += '<tr><td>Coordinate</td><td>' + latprint + '</td></tr>';
 	blocklist.push(latprint);
 
@@ -296,11 +300,11 @@
 // 			      if (locs[b]['APs'][m] == 1) {
 			      updateMarker(m);
 // 			      }
-			      w = parseWifi(m,b);
-			      wifiTable.fnAddData(w.l);
-			      newaps+=1;
-
 			    }
+
+			    w = parseWifi(m,b);
+			    newaps+=1;
+			    wifiTable.fnAddData(w.l);
 
 
 			}

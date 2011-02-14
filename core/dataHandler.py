@@ -18,11 +18,25 @@ class dataHandler:
     self.jsonpath=self.genPath()
 
 
-  def saveFile(self,json):
-    self.locations=json['locations'].copy()
-    self.wifi=json['wifi'].copy()
+  def saveScan(self, scan):
 
-  def saveScan(self,scan,pos=None):
+    timestamp = int(time.time())
+
+    n=0
+    b=0
+    r=0
+    self.locations[timestamp]={'APs' : {}}
+
+    for s in scan:
+      rel=False
+      self.wifi[s]=scan[s].copy()
+      self.locations[timestamp]['APs'][s]=0
+      n+=1
+
+    return n,r,b
+
+
+  def localizeScan(self,scan,pos=None):
 
     timestamp = int(time.time())
 

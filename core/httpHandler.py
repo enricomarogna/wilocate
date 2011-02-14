@@ -25,7 +25,11 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     global http_running
 
     try:
-      if self.path.endswith(".json"):
+
+      if self.path == "/quit":
+	http_running=False
+
+      elif self.path.endswith(".json"):
 
 	self.send_response(200)
 	self.send_header('Content-type','application/x-javascript')
@@ -40,13 +44,7 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	self.path = os.curdir + os.sep + 'html' + self.path
 
 	return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
-	#f = open(self.path)
-	#self.send_response(200)
-	#self.send_header('Content-type',mimetypes.guess_type(self.path))
-	#self.end_headers()
-	#self.wfile.write(f.read())
-	#f.close()
-	#return
+
 
     except IOError:
       self.send_error(404, 'File not found: %s' % self.path)
@@ -92,7 +90,7 @@ class httpHandler ( Thread ):
       else:
 	http_running=True
 	sa = httpd.socket.getsockname()
-	print "+ Web interface is running on port", self.port
+	print "+ Web interface running on port", self.port
 	httpd.serve_forever()
 	print "! Quitting web interface."
 	httpd.socket.close()

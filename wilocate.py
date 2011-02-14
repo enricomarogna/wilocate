@@ -8,9 +8,11 @@ from core.dataHandler import *
 from core.httpHandler import *
 
 pid=-1
-options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '' }
+options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '', 'localization' : True }
 
 banner = "+ WiLocate		Version 0.1"
+
+httpd = None
 
 usagemsg = """
 Usage:
@@ -19,11 +21,13 @@ Usage:
 
 Options:
 
- -h|--help	  	This help
- -w|--web-disable	Disable web HTTP interface daemon run on start (default: Enabled)
- -b|--browser-disable	Disable web browser run on start (default: Enabled)
- -p|--port <#>		Open web HTTP interface to port number (default: 8000)
- -f|--file <path>	Load scan datas from path in JSON format
+ -h|--help	  		This help
+ -w|--web-disable		Disable web HTTP interface daemon run on start (default: Enabled)
+ -b|--browser-disable		Disable web browser run on start (default: Enabled)
+ -p|--port <#>			Open web HTTP interface to port number (default: 8000)
+ -f|--file <path>		Load scan datas from path in JSON format
+ -l|--localization-disable 	Disable on-line localization, useful to collect wifi data off-line. (Default: Enabled)
+
 
 """
 
@@ -55,7 +59,7 @@ def parseOptions():
     options['lang']=lang
 
   try:
-      opts, args = getopt.getopt(sys.argv[1:], 'hwbs:p:f:', ['help','web-disable', 'browser-disable', 'single', 'port', 'file'])
+      opts, args = getopt.getopt(sys.argv[1:], 'lhwbs:p:f:', ['help','web-disable', 'browser-disable', 'loc-disable', 'single', 'port', 'file'])
   except getopt.error, msg:
       print "! Error:", msg
       print usagemsg
@@ -83,6 +87,8 @@ def parseOptions():
 	  options['port']=int(a)
       elif o in ('-f', '--file'):
 	  options['file']=a
+      elif o in ('-l', '--loc-disable'):
+	  options['localization']=False
 
       else:
 	  print usagemsg
@@ -122,20 +128,52 @@ def webInterfaceStart(data):
 
 def mainSingle():
 
+  global httpd
+
   if os.geteuid() == 0:
     uid, gid = getUserId()
     core.privilege.drop_privileges_permanently(uid, gid, [1])
 
-  try:
-    data = dataHandler()
-    httpd = webInterfaceStart(data)
 
+  data = dataHandler()
+  httpd = webInterfaceStart(data)
+
+  try:
 
     if 'file' in options and options['file']:
       fl = open(options['file'],'r')
-      scan = json.loads(fl.read())
-      data.saveFile(scan)
-      print '+ File', options['file'], 'opened.'
+      print '+ Scan disabled, reading from', options['file'], '.'
+      filescan = json.loads(fl.read())
+      fl.close()
+      scanwifi = filescan['wifi']
+      scanloc = filescan['locations']
+
+
+      if options['localization']:
+	sys.stdout.flush()
+
+	for timestamp in scanloc:
+	  if scanloc[timestamp].has_key('APs'):
+	    currentwifiscan = {}
+	    for ap in scanloc[timestamp]['APs']:
+	      if scanwifi.has_key(ap):
+		currentwifiscan[ap]=scanwifi[ap].copy()
+
+	    print '+', str(len(currentwifiscan)), 'APs,',
+	    sys.stdout.flush()
+	    localization(currentwifiscan,data)
+	    #nl, pos = addPosition(currentwifiscan,options['lang'])
+	    #rel = setReliable(currentwifiscan)
+
+	    #if 'latitude' in pos and 'longitude' in pos:
+	      #print str(nl) + ' located, ' + str(rel) + ' reliable, ' + timestamp + ' position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
+	    #sys.stdout.flush()
+
+	    #newscanned,newreliable,newbest = data.localizeScan(currentwifiscan, pos)
+	    #print ' ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+
+      print '! File read entirely.'
+
 
     else:
       scan={}
@@ -146,17 +184,30 @@ def mainSingle():
       nl, pos = addPosition(scan,options['lang'])
       print str(nl), 'locations recovered,',
 
-      newscanned,newreliable,newbest = data.saveScan(scan)
+      newscanned,newreliable,newbest = localize.localizeScan(scan)
       print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
-      data.jsonDump()
+
+    data.jsonDump()
 
     while 1:
-      time.sleep(100)
+      time.sleep(1)
 
-  except (KeyboardInterrupt, SystemExit):
+  except (KeyboardInterrupt, SystemExit, Exception):
     if httpd:
       httpd.stop()
     raise
+
+def localization(scan,data):
+
+  nl, pos = addPosition(scan,options['lang'])
+  rel = setReliable(scan)
+  if 'latitude' in pos and 'longitude' in pos:
+    print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
+  sys.stdout.flush()
+
+  newscanned,newreliable,newbest = data.localizeScan(scan, pos)
+  print ' ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+
 
 def mainScan():
 
@@ -203,20 +254,28 @@ def mainScan():
 
       print '+', str(len(scan)), 'APs,',
       sys.stdout.flush()
-      nl, pos = addPosition(scan,options['lang'])
-      rel = setReliable(scan)
-      if 'latitude' in pos and 'longitude' in pos:
-	print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
-      sys.stdout.flush()
+      localization(scan,data)
 
-      newscanned,newreliable,newbest = data.saveScan(scan, pos)
-      print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+      #if options['localization']:
+	#nl, pos = addPosition(scan,options['lang'])
+	#rel = setReliable(scan)
+	#if 'latitude' in pos and 'longitude' in pos:
+	  #print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
+	#sys.stdout.flush()
+
+	#newscanned,newreliable,newbest = data.localizeScan(scan, pos)
+	#print ' ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+
+      #else:
+	#newscanned,newreliable,newbest = data.saveScan(scan)
+	#print 'detected.'
+
       sys.stdout.flush()
       data.jsonDump()
 
       time.sleep(5)
 
-  except (KeyboardInterrupt, SystemExit):
+  except (KeyboardInterrupt, SystemExit, Exception):
     if httpd:
       httpd.stop()
     raise
@@ -234,4 +293,5 @@ if __name__ == "__main__":
       mainScan()
 
   except (KeyboardInterrupt, SystemExit):
-    sys.exit(0)
+    if httpd:
+      httpd.stop()

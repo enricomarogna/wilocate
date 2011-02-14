@@ -2,7 +2,7 @@
 import sys, httplib, json, math
 
 
-def addPosition(scan, lang, retrysingle = 1, retrytotal=8):
+def addPosition(scan, lang, retrysingle = 3, retrytotal=5):
 
     singleparam  = {"version": "1.1.0", "host": "maps.google.com", "request_address": "true", "address_language":lang, "wifi_towers": [] }
     totalparam = singleparam.copy()
