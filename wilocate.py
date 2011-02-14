@@ -256,7 +256,7 @@ def mainScan():
       sys.stdout.flush()
       if options['localization']:
 	localization(scan,data)
-
+      
       #if options['localization']:
 	#nl, pos = addPosition(scan,options['lang'])
 	#rel = setReliable(scan)
@@ -267,9 +267,9 @@ def mainScan():
 	#newscanned,newreliable,newbest = data.localizeScan(scan, pos)
 	#print ' ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
 
-      #else:
-	#newscanned,newreliable,newbest = data.saveScan(scan)
-	#print 'detected.'
+      else:
+	newscanned,newreliable,newbest = data.saveScan(scan)
+	print 'detected.'
 
       sys.stdout.flush()
       data.jsonDump()
