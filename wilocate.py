@@ -10,7 +10,7 @@ from core.httpHandler import *
 pid=-1
 options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '', 'localization' : True }
 
-banner = """"+ WiLocate		Version 0.1"""
+banner = """+ WiLocate		Version 0.1"""
 
 httpd = None
 
@@ -147,31 +147,36 @@ def mainSingle():
       fl.close()
       scanwifi = filescan['wifi']
       scanloc = filescan['locations']
-      sortedloctimestamp = [ k for k in sorted(scanloc.keys())]
+
 
       if options['localization']:
 	sys.stdout.flush()
 
-	for timestamp in sortedloctimestamp:
+	for timestamp in scanloc:
 	  if scanloc[timestamp].has_key('APs'):
 	    currentwifiscan = {}
 	    for ap in scanloc[timestamp]['APs']:
 	      if scanwifi.has_key(ap):
 		currentwifiscan[ap]=scanwifi[ap].copy()
 
-	    print '+ [' + time.strftime("%H:%M:%S", time.localtime(int(timestamp)))+ '] ' + str(len(currentwifiscan)) + ' APs,',
+	    print '+', str(len(currentwifiscan)), 'APs,',
 	    sys.stdout.flush()
-	    localization(currentwifiscan,data,timestamp)
+	    localization(currentwifiscan,data)
 
       print '! File read entirely.'
 
 
-    #else:
-      #scan={}
-      #for a in options['single']:
-	#scan[a]={}
+    else:
+      scan={}
+      for a in options['single']:
+	scan[a]={}
 
-      #print '+', str(len(scan)), 'MAC to localize,',
+      print '+', str(len(scan)), 'MAC to localize,',
+      nl, pos = addPosition(scan,options['lang'])
+      print str(nl), 'locations recovered,',
+
+      newscanned,newreliable,newbest = localize.localizeScan(scan)
+      print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
 
     data.jsonDump()
 
@@ -183,7 +188,7 @@ def mainSingle():
       httpd.stop()
     raise
 
-def localization(scan,data,tm):
+def localization(scan,data):
 
   nl, pos = addPosition(scan,options['lang'])
   rel = setReliable(scan)
@@ -191,7 +196,7 @@ def localization(scan,data,tm):
     print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
   sys.stdout.flush()
 
-  newscanned,newreliable,newbest = data.saveAndLocalizeScan(scan, pos, tm)
+  newscanned,newreliable,newbest = data.localizeScan(scan, pos)
   print ' ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
 
 
@@ -238,15 +243,16 @@ def mainScan():
 	continue
 
 
-      timestamp = time.time()
-
-      print '+ [' + time.strftime("%H:%M:%S", time.localtime(timestamp))+ '] ' + str(len(scan)) + ' APs,',
+      print '+', str(len(scan)), 'APs,',
       sys.stdout.flush()
+      if not scan:
+	continue
+
       if options['localization']:
-	localization(scan,data,timestamp)
+	localization(scan,data)
 
       else:
-	newscanned,newreliable,newbest = data.saveScan(scan,timestamp)
+	newscanned,newreliable,newbest = data.saveScan(scan)
 	print 'detected.'
 
       sys.stdout.flush()
