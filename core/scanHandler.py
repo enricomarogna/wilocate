@@ -86,7 +86,7 @@ class scanHandler:
 	if len(sp)>=3 and sp[2] == 'Signal' and '=' in sp[3] and len(sp[3].split('='))==2:
 	  level = sp[3].split('=')[1]
 	  data[lastcell]['Level'] = level
-      elif sp[0] == 'Encryption' and sp[1].startswith('key') and ':' in sp[1] and len(sp[1].split(':'))==2:
+      elif sp[0] == 'Encryption' and sp[1].startswith('key'):
 	if sp[1].split(':')[1] == 'on':
 	  if 'Encryption' not in data[lastcell]:
 	    data[lastcell]['Encryption']= { 'WEP' : {} }

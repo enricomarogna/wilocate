@@ -2,7 +2,7 @@
 import sys, httplib, json, math
 
 
-def addPosition(scan, lang, retrysingle = 3, retrytotal=5):
+def addPosition(scan, lang, retrysingle = 1, retrytotal=8):
 
     singleparam  = {"version": "1.1.0", "host": "maps.google.com", "request_address": "true", "address_language":lang, "wifi_towers": [] }
     totalparam = singleparam.copy()
@@ -37,14 +37,13 @@ def addPosition(scan, lang, retrysingle = 3, retrytotal=5):
 
     position = {}
     for r in range(retrytotal):
-      position = {}
       position = httpQuery(headers,totalparam)
       if 'location' in position:
 	if 'address' in position['location']:
 	  position = position['location'].copy()
 	  break
-	#elif not position:
-	  #position = position['location'].copy()
+	elif not position:
+	  position = position['location'].copy()
 
 
     # Se non mi ha restituito l'address della position con indirizzo, cerco l'address piu vicino e ce lo metto
@@ -71,7 +70,7 @@ def httpQuery(headers,params):
     conn.request("POST", "/loc/json", json.dumps(params), headers)
     response = conn.getresponse()
   except Exception, e:
-    print '! Error querying Google Maps about: (%s)' % (e.strerror)
+    print '! Error querying Google Maps about ' + a + ': (%s)' % (e.strerror)
 
   jtext = response.read()
   try:
