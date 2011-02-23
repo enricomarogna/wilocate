@@ -4000,9 +4000,7 @@
 			}
 			nFilter.className = oSettings.oClasses.sFilter;
 			var sSpace = oSettings.oLanguage.sSearch==="" ? "" : " ";
-			nFilter.innerHTML = oSettings.oLanguage.sSearch+sSpace+'<input type="text" /> <img src="../img/clear.png" title="Clear search parameters" alt="Clear" class="clear_button" style="vertical-align:middle;"/>';
-
-
+			nFilter.innerHTML = oSettings.oLanguage.sSearch+sSpace+'<input type="text" /> <img src="../img/clear.png" title="Clear search parameters"  alt="Clear" class="clear_button" style="vertical-align:middle;"/>';
 			
 			var jqFilter = $("input", nFilter);
 			jqFilter.val( oSettings.oPreviousSearch.sSearch.replace('"','&quot;') );
