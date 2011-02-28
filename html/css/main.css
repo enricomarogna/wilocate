@@ -48,7 +48,7 @@
 
 /*stili Wilocate Icon Text-----------------------------------------*/
 .wilocate_icon_text {
-	font-family:Times New Roman;
+	font-family:Arial;
 	color: #FFFFFF;
 	text-decoration: none;
 	font-style:italic;
@@ -78,7 +78,7 @@ img.wilocate_icon_img{
 .break {
 	height: 20px;
 	width:99%;
-	font-family:Times New Roman;
+	font-family:Arial;
 	font-size: 9pt;
 	color:#3D3D3D;
 	padding-left:0px;
@@ -144,7 +144,7 @@ img.wilocate_icon_img{
 
 /*stili Status -----------------------------------------*/
 .status1{
-	font-family:Times New Roman;
+	font-family:Arial;
 	background-color: #F0F4F5;
 	width: 100%;
 	height: 30px;
@@ -160,7 +160,7 @@ img.wilocate_icon_img{
 
 /*stili Marker Info -----------------------------------------*/
 .marker_info1{
-	font-family:Times New Roman;
+	font-family:Arial;
 	background-color: #F0F4F5;
 	width: 100%;
 	height: 200px;
@@ -176,7 +176,7 @@ img.wilocate_icon_img{
 
 /*stili Pos Info -----------------------------------------*/
 .pos_info1{
-	font-family:Times New Roman;
+	font-family:Arial;
 	background-color: #F0F4F5;
 	width: 100%;
 	height:195px;
@@ -195,7 +195,7 @@ img.wilocate_icon_img{
 /*fine stili Pos Info*/
 
 .footer{
-	font-family:Times New Roman;
+	font-family:Arial;
 	margin:0px;
 	font-size: 8pt;
 	width: 99.2%;
