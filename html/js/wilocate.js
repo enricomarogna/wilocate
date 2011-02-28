@@ -316,7 +316,7 @@
 			if (newaps>0) {
 			  if (newlocaps)
 			    $("#map_canvas").css({background: 'white'});
-			  $("#status").html("[" + printDate(b) + "] " + aps + " WiFi spots detected, " + newaps + " new, " + newlocaps  + ", located.");
+			  $("#status").html("[" + printDate(b) + "] " + aps + " WiFi spots detected, " + newaps + " new, " + newlocaps  + " located.");
 			}
 		    }
 
