@@ -165,56 +165,63 @@
 	blockprint+='<tr><td> Channel </td><td>' + channelprint + '</td></tr>';
 	blocklist.push(channelprint);
 
-	j2=wf['location'];
+
 	streetprint='';
 	cityprint='';
-	if('address' in j2) {
+	latprint=''
+	if ('location' in wf) {
 
-	  if('street' in j2['address'])
-	    streetprint +=  j2['address']['street'] + ' ';
+	    j2=wf['location'];
+	    if('address' in j2) {
 
-	  if('street_number' in j2['address'])
-	    streetprint +=  j2['address']['street_number'] + ' ';
+	      if('street' in j2['address'])
+		streetprint +=  j2['address']['street'] + ' ';
 
-
-	  if ('country' in j2['address'])
-	    cityprint += j2['address']['country'] + ' ';
-
-	  if ('country_code' in j2['address'])
-	    cityprint +=  '(' + j2['address']['country_code'] + ') ';
-
-	  if('region' in j2['address'])
-	    cityprint +=  j2['address']['region'] + ' ';
-
-	  if('postal_code' in j2['address'])
-	    cityprint +=  j2['address']['postal_code'] + ' ';
-
-	  if('county' in j2['address'])
-	    county = j2['address']['county'] + ' ';
-
-	  if('city' in j2['address'])
-	    city = j2['address']['city'] + ' ';
-
-	  if (county != city)
-	    cityprint +=  city + ' ' + county + ' ';
-	  else if (!city)
-	    cityprint +=  county + ' ';
-	  else
-	    cityprint +=  city + ' ';
-
-	  }
-	  blocklist.push(streetprint,cityprint);
-	  blockprint += '<tr><td>Address</td><td>' + streetprint + ' ' + cityprint + '</td></tr>';
+	      if('street_number' in j2['address'])
+		streetprint +=  j2['address']['street_number'] + ' ';
 
 
-	  latprint=''
-	  if ('latitude' in j2 && 'longitude' in j2) {
-	  latprint+= j2['latitude'] + ',' + j2['longitude'];
+	      if ('country' in j2['address'])
+		cityprint += j2['address']['country'] + ' ';
+
+	      if ('country_code' in j2['address'])
+		cityprint +=  '(' + j2['address']['country_code'] + ') ';
+
+	      if('region' in j2['address'])
+		cityprint +=  j2['address']['region'] + ' ';
+
+	      if('postal_code' in j2['address'])
+		cityprint +=  j2['address']['postal_code'] + ' ';
+
+	      if('county' in j2['address'])
+		county = j2['address']['county'] + ' ';
+
+	      if('city' in j2['address'])
+		city = j2['address']['city'] + ' ';
+
+	      if (county != city)
+		cityprint +=  city + ' ' + county + ' ';
+	      else if (!city)
+		cityprint +=  county + ' ';
+	      else
+		cityprint +=  city + ' ';
+
+	      }
+	      blockprint += '<tr><td>Address</td><td>' + streetprint + ' ' + cityprint + '</td></tr>';
+
+
+	      if ('latitude' in j2 && 'longitude' in j2) {
+	      latprint+= j2['latitude'] + ',' + j2['longitude'];
+	    }
+	    blockprint += '<tr><td>Coordinate</td><td>' + latprint + '</td></tr>';
+
 	}
-	blockprint += '<tr><td>Coordinate</td><td>' + latprint + '</td></tr>';
-	blocklist.push(latprint);
 
+
+	blocklist.push(streetprint,cityprint);
+	blocklist.push(latprint);
 	blocklist.push(printDate(b));
+
 
 	relprint='';
 	if (locs[b]['APs'][m] == 1) {
@@ -272,15 +279,15 @@
 
 	if(locs) {
 
-
 	  for (b in locs) {
 
 	    if(b>lasttime) {
 
-
 		    lasttime=b;
 		    aps=0;
 		    newaps=0;
+		    newlocaps=0;
+
 		    if('APs' in locs[b]) {
 
 			for (m in locs[b]['APs']) {
@@ -290,12 +297,12 @@
 			    if(m in aplist) {
 
 			    }
-			    else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs'] && m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+			    else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs']) {
 
-			      //Togliere il sistema di reliability
-// 			      if (locs[b]['APs'][m] == 1) {
-			      updateMarker(m);
-// 			      }
+			      if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+				newlocaps+=1;
+				updateMarker(m);
+			      }
 			      w = parseWifi(m,b);
 			      wifiTable.fnAddData(w.l);
 			      newaps+=1;
@@ -305,8 +312,9 @@
 
 			}
 			if (newaps>0) {
- 			  $("#map_canvas").css({background: 'white'});
-			  $("#status").html("Loaded " + newaps + "/" + aps + "  WiFi spots.");
+			  if (newlocaps)
+			    $("#map_canvas").css({background: 'white'});
+			  $("#status").html("[" + printDate(b) + "] " + aps + " WiFi spots detected, " + newaps + " new, " + newlocaps  + ", located.");
 			}
 		    }
 

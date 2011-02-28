@@ -8,7 +8,7 @@ from core.dataHandler import *
 from core.httpHandler import *
 
 pid=-1
-options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '' }
+options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '', 'loc': True }
 
 banner = "+ WiLocate		Version 0.1"
 
@@ -24,6 +24,7 @@ Options:
  -b|--browser-disable	Disable web browser run on start (default: Enabled)
  -p|--port <#>		Open web HTTP interface to port number (default: 8000)
  -f|--file <path>	Load scan datas from path in JSON format
+ -l|--loc-disable       Disable localization, useful collecting wifi data off-line. (Default: Enabled)
 
 """
 
@@ -55,7 +56,7 @@ def parseOptions():
     options['lang']=lang
 
   try:
-      opts, args = getopt.getopt(sys.argv[1:], 'hwbs:p:f:', ['help','web-disable', 'browser-disable', 'single', 'port', 'file'])
+      opts, args = getopt.getopt(sys.argv[1:], 'hwlbs:p:f:', ['help','web-disable', 'browser-disable', 'single', 'port', 'file'])
   except getopt.error, msg:
       print "! Error:", msg
       print usagemsg
@@ -77,13 +78,14 @@ def parseOptions():
 	    options['single'] = a.split(',')
       elif o in ('-w', '--web-disable'):
 	  options['web']=False
+      elif o in ('-l', '--loc-disable'):
+	  options['loc']=False
       elif o in ('-b', '--browser-disable'):
 	  options['browser']=False
       elif o in ('-p', '--port'):
 	  options['port']=int(a)
       elif o in ('-f', '--file'):
 	  options['file']=a
-
       else:
 	  print usagemsg
 	  sys.exit(1)
@@ -137,18 +139,19 @@ def mainSingle():
       data.saveFile(scan)
       print '+ File', options['file'], 'opened.'
 
-    else:
-      scan={}
-      for a in options['single']:
-	scan[a]={}
 
-      print '+', str(len(scan)), 'MAC to localize,',
-      nl, pos = addPosition(scan,options['lang'])
-      print str(nl), 'locations recovered,',
+    #else:
+      #scan={}
+      #for a in options['single']:
+	#scan[a]={}
 
-      newscanned,newreliable,newbest = data.saveScan(scan)
-      print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
-      data.jsonDump()
+      #print '+', str(len(scan)), 'MAC to localize,',
+      #nl, pos = addPosition(scan,options['lang'])
+      #print str(nl), 'locations recovered,',
+
+      #newscanned,newreliable,newbest = data.saveScan(scan)
+      #print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
+      #data.jsonDump()
 
     while 1:
       time.sleep(100)
@@ -157,6 +160,23 @@ def mainSingle():
     if httpd:
       httpd.stop()
     raise
+
+
+def locateScan(data, scan):
+
+    if scan:
+
+      pos = None
+
+      if options['loc']:
+	nl, pos = addPosition(scan,options['lang'])
+	rel = setReliable(scan)
+	if 'latitude' in pos and 'longitude' in pos:
+	  print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
+	sys.stdout.flush()
+
+      newscanned,newreliable,newbest = data.saveScan(scan, pos)
+      print '(' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest) + ')',
 
 def mainScan():
 
@@ -200,18 +220,10 @@ def mainScan():
 	print '! Error decoding JSON: (%s)' % (e.strerror)
 	continue
 
+      print '+', str(len(scan)), 'APs ',
+      locateScan(data,scan)
+      print ''
 
-      print '+', str(len(scan)), 'APs,',
-      sys.stdout.flush()
-      nl, pos = addPosition(scan,options['lang'])
-      rel = setReliable(scan)
-      if 'latitude' in pos and 'longitude' in pos:
-	print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
-      sys.stdout.flush()
-
-      newscanned,newreliable,newbest = data.saveScan(scan, pos)
-      print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
-      sys.stdout.flush()
       data.jsonDump()
 
       time.sleep(5)
