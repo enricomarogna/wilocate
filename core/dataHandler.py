@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import time, os, pprint, json
+from threading import Lock
+lock=Lock()
 
 def touch(files):
   for f in files:
@@ -17,7 +19,6 @@ class dataHandler:
   def __init__(self):
     self.jsonpath=self.genPath()
 
-
   def saveFile(self,json):
     self.locations=json['locations'].copy()
     self.wifi=json['wifi'].copy()
@@ -27,6 +28,7 @@ class dataHandler:
     n=0
     b=0
     r=0
+    lock.acquire()
     self.locations[timestamp]={'APs' : {}}
 
     for s in scan:
@@ -62,16 +64,25 @@ class dataHandler:
     if pos:
       self.locations[timestamp]['position'] = pos
 
+    lock.release()
     return n,r,b
 
   def jsonDump(self):
-    toret = self.getJson()
     f = open(self.jsonpath,'w')
-    f.write(json.dumps(toret, indent=4))
+    f.write(self.getJson())
     f.close()
 
   def getJson(self):
-    return { 'locations' : self.locations, 'wifi' : self.wifi }
+    lock.acquire()
+    jsonobj = { 'locations' : self.locations, 'wifi' : self.wifi }
+    lock.release()
+    return json.dumps(jsonobj, indent=4)
+
+  def getData(self,f,v):
+    if f=='wifi':
+      return self.wifi[v]
+    if f=='locations':
+      return self.locations[v]
 
   def genPath(self):
 

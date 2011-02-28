@@ -8,7 +8,7 @@
     var poslist={};
     var lastpos;
     var lastposaddr=false;
-    var lasttime=0;
+    var seentime=[];
 
     var map;
     var geoXml;
@@ -281,9 +281,9 @@
 
 	  for (b in locs) {
 
-	    if(b>lasttime) {
+	    if(!(b in seentime)) {
 
-		    lasttime=b;
+		    seentime.push(b);
 		    aps=0;
 		    newaps=0;
 		    newlocaps=0;
@@ -308,9 +308,9 @@
 			      newaps+=1;
 
 			    }
-
-
 			}
+
+
 			if (newaps>0) {
 			  if (newlocaps)
 			    $("#map_canvas").css({background: 'white'});

@@ -29,7 +29,7 @@ def addPosition(scan, data, lang, alwaysRelocate=False, retrysingle = 1, retryto
 
 
       if not alwaysRelocate and data.wifi and a in data.wifi and 'location' in data.wifi[a]:
-	scan[a]['location']=data.wifi[a]['location'].copy()
+	scan[a]['location']=data.getData('wifi',a)['location']
 	alreadylocnum+=1
       else:
 	for r in range(retrysingle):
