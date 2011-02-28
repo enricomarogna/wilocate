@@ -430,6 +430,11 @@
 	  $('#status').html(toprint);
       });
 
+      $('#clear_button').click(function() {
+ 	  $('#input_filter').val('');
+	  wifiTable.fnFilter('');
+      });
+
     }
 
 
