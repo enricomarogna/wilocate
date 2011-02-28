@@ -13,10 +13,10 @@ def addPosition(scan, data, lang, alwaysRelocate=False, retrysingle = 1, retryto
 
     for a in scan:
 
-
-      #if not alwaysRelocate and data.wifi and a in data.wifi and 'location' in data.wifi[a]:
-	#scan[a]['location']=data.wifi[a]['location'].copy()
-	#continue
+      if not alwaysRelocate and data.wifi and a in data.wifi and 'location' in data.wifi[a]:
+	scan[a]['location']=data.wifi[a]['location'].copy()
+	#print a, 'skipped.'
+	continue
 
       quality=5
       level=-60
@@ -49,7 +49,6 @@ def addPosition(scan, data, lang, alwaysRelocate=False, retrysingle = 1, retryto
 	  break
 	elif not position:
 	  position = position['location'].copy()
-
 
     # Se non mi ha restituito l'address della position con indirizzo, cerco l'address piu vicino e ce lo metto
     if not 'address' in position:

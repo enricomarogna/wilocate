@@ -318,7 +318,7 @@
 			}
 		    }
 
-		    if('position' in locs[b]) {
+		    if('position' in locs[b] and 'latitude' in locs[b]['position'] and 'longitude' in locs[b]['position']) {
 
 			  var actual_pos = new google.maps.LatLng(locs[b]['position']['latitude'],locs[b]['position']['longitude']);
 
