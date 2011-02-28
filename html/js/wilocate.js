@@ -10,6 +10,8 @@
     var lastposaddr=false;
     var seentime=[];
 
+
+    var userquit = false;
     var map;
     var geoXml;
     var toggleState = 1;
@@ -380,8 +382,10 @@
 	    $('#status').html(toprint);
 	  }
 	} else if (client.readyState == 4 && client.status != 200) {
-	  toprint = 'Connection error while requesting APs data. Please restart wilocate application.';
-	  $('#status').html(toprint);
+	  if (!userquit) {
+	    toprint = 'Connection error while requesting APs data. Please restart wilocate application.';
+	    $('#status').html(toprint);
+	  }
 	}
       }
 
@@ -410,8 +414,21 @@
 	zoomed=true;
       });
 
-      wifiTable = $('#myTable').dataTable({
-		"bPaginate": false });
+      wifiTable = $('#myTable').dataTable({"bPaginate": false });
+
+      $('#center_button').click(function() {
+ 	map.setCenter(lastpos.getPosition(), 20);
+	autozoom();
+      });
+
+      $('#quit_button').click(function() {
+	  var client = new XMLHttpRequest();
+          client.open("GET", "http://localhost:8000/control?quit", true);
+	  client.send();
+	  userquit=true;
+	  toprint = 'Wilocate is now stopped, and no more wifi are loaded.';
+	  $('#status').html(toprint);
+      });
 
     }
 

@@ -32,21 +32,18 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	self.end_headers()
 
 	self.wfile.write(data.getJson())
-	return
+
+      elif self.path.endswith("control?quit"):
+	http_running=False
 
       else:
 	if self.path=='/':
 	  self.path='/wilocate.html'
 	self.path = os.curdir + os.sep + 'html' + self.path
 
+
 	return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
-	#f = open(self.path)
-	#self.send_response(200)
-	#self.send_header('Content-type',mimetypes.guess_type(self.path))
-	#self.end_headers()
-	#self.wfile.write(f.read())
-	#f.close()
-	#return
+
 
     except IOError:
       self.send_error(404, 'File not found: %s' % self.path)

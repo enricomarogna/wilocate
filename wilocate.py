@@ -160,10 +160,14 @@ def mainSingle():
 	      locateScan(data,currentwifiscan,timestamp)
 	      print ''
 
-	print '! File read entirely.'
+	      if (httpd and not httpd.isRunning()):
+		break
 
 
-    while 1:
+	print '! File read.'
+
+
+    while (httpd and httpd.isRunning()):
       time.sleep(100)
 
   except (KeyboardInterrupt, SystemExit, Exception):
@@ -213,7 +217,7 @@ def mainScan():
   buf=''
 
   try:
-    while 1:
+    while (httpd and httpd.isRunning()) or (not httpd):
 
       buf=''
       while 1:
