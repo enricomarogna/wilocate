@@ -9,13 +9,13 @@
  	<style type="text/css">@import url('css/demo_table.css');</style>
  	<style type="text/css">@import url('css/table_marker_info.css');</style>
  	<style type="text/css">@import url('css/pos_info_table.css');</style>
- 	<style type="text/css">@import url('css/collapse.css');</style>
+ 	<!-- <style type="text/css">@import url('css/collapse.css');</style> -->
 
 	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 	<script type="text/javascript" src="js/wilocate.js"></script>
 	<script type="text/javascript" language="javascript" src="js/jquery.js"></script>
 	<script type="text/javascript" language="javascript" src="js/jquery.dataTables.js"></script>
-	<script type="text/javascript" language="javascript" src="js/collapse.js"></script>
+	<!-- <script type="text/javascript" language="javascript" src="js/collapse.js"></script> -->
 
   </head>
 
@@ -34,22 +34,39 @@
 	</div>
 
 <!-- Control Pannel Begin -->
-<div style="width:99.9%;">
+
+<!-- <div style="width:99.9%;">
     <div class="squarebox"><div class="squareboxgradientcaption" style="height:20px; cursor: pointer;" onclick="togglePannelAnimatedStatus(this.nextSibling,50,50)"><div style="float: left">Control Pannel</div><div style="float: right; vertical-align: middle"><img src="img/collapse.gif" width="13" height="14" border="0" alt="Show/Hide" title="Show/Hide" /></div>
         </div><div class="squareboxcontent">
             <img style="vertical-align:middle;" src="img/quit.png" onmouseover="this.src='img/quit_over.png'" onmouseout="this.src='img/quit.png'" alt="Quit Wilocate" title="Quit Wilocate" />
             <img style="vertical-align:middle;" src="img/center.png" onmouseover="this.src='img/center_over.png'" onmouseout="this.src='img/center.png'" alt="Center map" title="Center map" />
         </div>
     </div>
-</div>
+</div> -->
+
 <!-- Control Pannel End -->
 
+
+
+
+
+
 	<div class="break">
-		<a href="https://code.google.com/p/wilocate/" target="_blank">Project home</a> |
-		<a href="https://code.google.com/p/wilocate/source/checkout" target="_blank">Source</a> |
-		<a href="https://code.google.com/p/wilocate/feeds" target="_blank">Feed</a> |
-		<a href="https://code.google.com/p/wilocate/w/list" target="_blank">Wiki</a>
+		<div class="break_left">
+			<img class="img_properties" style="vertical-align:middle;" src="img/quit.png" onmouseover="this.src='img/quit_over.png'" onmouseout="this.src='img/quit.png'" alt="Quit Wilocate" title="Quit Wilocate" />
+			<img class="img_properties" style="vertical-align:middle;" src="img/center.png" onmouseover="this.src='img/center_over.png'" onmouseout="this.src='img/center.png'" alt="Center map" title="Center map" />
+		</div>
+
+
+		<div class="break_right">
+			<a href="https://code.google.com/p/wilocate/" target="_blank">Project home</a> |
+			<a href="https://code.google.com/p/wilocate/source/checkout" target="_blank">Source</a> |
+			<a href="https://code.google.com/p/wilocate/feeds" target="_blank">Feed</a> |
+			<a href="https://code.google.com/p/wilocate/w/list" target="_blank">Wiki</a>
+		</div>
 	</div>
+
+
     	<div class="map_canvas1" id="map_canvas" >
 	</div>
 
