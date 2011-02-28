@@ -332,8 +332,6 @@
 				  title:"Current position"
 			      });
 
-			      marker.setZIndex(999);
-
 			    lastpos=marker;
 			    tablepos = parsePosition(b);
 			    $("#pos_info_table").last().append(tablepos);
