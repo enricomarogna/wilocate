@@ -9,11 +9,21 @@
  	<style type="text/css">@import url('css/demo_table.css');</style>
  	<style type="text/css">@import url('css/table_marker_info.css');</style>
  	<style type="text/css">@import url('css/pos_info_table.css');</style>
+ 	<style type="text/css">@import url('css/highslide.css');</style>
 
 	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 	<script type="text/javascript" src="js/wilocate.js"></script>
 	<script type="text/javascript" language="javascript" src="js/jquery.js"></script>
 	<script type="text/javascript" language="javascript" src="js/jquery.dataTables.js"></script>
+	<script type="text/javascript" language="javascript" src="js/highslide.js"></script>
+
+<script type="text/javascript">
+	hs.graphicsDir = '../img/graphics/';
+	hs.outlineType = 'rounded-white';
+	hs.showCredits = false;
+	hs.wrapperClassName = 'draggable-header';
+</script>
+
 
   </head>
 
@@ -31,10 +41,18 @@
 		</div>
 	</div>
 
+
+
+
+
 	<div class="break">
 		<div class="break_left">
 			<img id="quit_button" class="img_properties" style="vertical-align:middle;" src="img/quit.png" onmouseover="this.src='img/quit_over.png'" onmouseout="this.src='img/quit.png'" alt="Quit Wilocate" title="Quit Wilocate" />
 			<img id="center_button" class="img_properties" style="vertical-align:middle;" src="img/center.png" onmouseover="this.src='img/center_over.png'" onmouseout="this.src='img/center.png'" alt="Center map" title="Center map" />
+			
+<a href="#" onclick="return hs.htmlExpand(this, { headingText: 'About' })"><img id="about_button" class="img_properties" style="vertical-align:middle;" src="img/about.png" onmouseover="this.src='img/about_over.png'" onmouseout="this.src='img/about.png'" alt="About" title="About" /></a><div class="highslide-maincontent">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam dapibus leo quis nisl. In lectus. Vivamus consectetuer pede in nisl. Mauris cursus pretium mauris. Suspendisse condimentum mi ac tellus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec sed enim. Ut vel ipsum. Cras consequat velit et justo. Donec mollis, mi at tincidunt vehicula, nisl mi luctus risus, quis scelerisque arcu nibh ac nisi. Sed risus. Curabitur urna. Aliquam vitae nisl. Quisque imperdiet semper justo. Pellentesque nonummy pretium tellus.
+</div>
+
 		</div>
 
 		<div class="break_right">
