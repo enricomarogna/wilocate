@@ -8,7 +8,7 @@ from core.dataHandler import *
 from core.httpHandler import *
 
 pid=-1
-options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '', 'loc': True }
+options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '', 'loc': True, 'always-loc': False }
 
 banner = "+ WiLocate		Version 0.1"
 
@@ -25,6 +25,8 @@ Options:
  -p|--port <#>		Open web HTTP interface to port number (default: 8000)
  -f|--file <path>	Load scan datas from path in JSON format
  -l|--loc-disable       Disable localization, useful collecting wifi data off-line. (Default: Enabled)
+ -a|--always-loc        Localize APs every detection, not always first time. (Default: Disabled)
+
 
 """
 
@@ -56,7 +58,7 @@ def parseOptions():
     options['lang']=lang
 
   try:
-      opts, args = getopt.getopt(sys.argv[1:], 'hwlbs:p:f:', ['help','web-disable', 'browser-disable', 'single', 'port', 'file'])
+      opts, args = getopt.getopt(sys.argv[1:], 'hawlbs:p:f:', ['help','web-disable', 'browser-disable', 'single', 'port', 'file'])
   except getopt.error, msg:
       print "! Error:", msg
       print usagemsg
@@ -86,6 +88,8 @@ def parseOptions():
 	  options['port']=int(a)
       elif o in ('-f', '--file'):
 	  options['file']=a
+      elif o in ('-a', '--always-loc'):
+	  options['always-loc']=True
       else:
 	  print usagemsg
 	  sys.exit(1)
@@ -118,7 +122,7 @@ def webInterfaceStart(data):
 	else:
 	  # webbrowser.open() fails on KDE with kfmclient http://portland.freedesktop.org/wiki/TaskOpenURL
 	  webbrowser.get('x-www-browser').open('http://localhost:' + str(options['port']))
-	  print '! Webbrowser autorun enabled. Point browser to http://localhost:' + str(options['port'])
+	  print '+ Webbrowser autorun enabled. Point browser to http://localhost:' + str(options['port']) + ' .'
 
       return httpd
 
@@ -134,48 +138,52 @@ def mainSingle():
 
 
     if 'file' in options and options['file']:
-      fl = open(options['file'],'r')
-      scan = json.loads(fl.read())
-      data.saveFile(scan)
-      print '+ File', options['file'], 'opened.'
+	fl = open(options['file'],'r')
+	print '+ Scan disabled, reading from', options['file'], '.'
+	filescan = json.loads(fl.read())
+	fl.close()
+	scanwifi = filescan['wifi']
+	scanloc = filescan['locations']
+	sortedloctimestamp = [ k for k in sorted(scanloc.keys())]
 
+	if 'loc' in options and options['loc']:
+	  sys.stdout.flush()
 
-    #else:
-      #scan={}
-      #for a in options['single']:
-	#scan[a]={}
+	  for timestamp in sortedloctimestamp:
+	    if scanloc[timestamp].has_key('APs'):
+	      currentwifiscan = {}
+	      for ap in scanloc[timestamp]['APs']:
+		if scanwifi.has_key(ap):
+		  currentwifiscan[ap]=scanwifi[ap].copy()
 
-      #print '+', str(len(scan)), 'MAC to localize,',
-      #nl, pos = addPosition(scan,options['lang'])
-      #print str(nl), 'locations recovered,',
+	      print '+ [' + time.strftime("%H:%M:%S", time.localtime(int(timestamp)))+ '] ' + str(len(currentwifiscan)) + ' APs,',
+	      locateScan(data,currentwifiscan,timestamp)
+	      print ''
 
-      #newscanned,newreliable,newbest = data.saveScan(scan)
-      #print '+ ' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest)
-      #data.jsonDump()
+	print '! File read entirely.'
+
 
     while 1:
       time.sleep(100)
 
-  except (KeyboardInterrupt, SystemExit):
+  except (KeyboardInterrupt, SystemExit, Exception):
     if httpd:
       httpd.stop()
     raise
 
 
-def locateScan(data, scan):
+def locateScan(data, scan,tm):
 
     if scan:
-
       pos = None
-
       if options['loc']:
-	nl, pos = addPosition(scan,options['lang'])
+	nl, pos = addPosition(scan,data,options['lang'],options['always-loc'])
 	rel = setReliable(scan)
 	if 'latitude' in pos and 'longitude' in pos:
 	  print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
 	sys.stdout.flush()
 
-      newscanned,newreliable,newbest = data.saveScan(scan, pos)
+      newscanned,newreliable,newbest = data.saveScan(scan, pos, tm)
       print '(' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest) + ')',
 
 def mainScan():
@@ -220,15 +228,17 @@ def mainScan():
 	print '! Error decoding JSON: (%s)' % (e.strerror)
 	continue
 
-      print '+', str(len(scan)), 'APs ',
-      locateScan(data,scan)
+      timestamp = time.time()
+      print '+ [' + time.strftime("%H:%M:%S", time.localtime(timestamp))+ '] ' + str(len(scan)) + ' APs,',
+
+      locateScan(data,scan,timestamp)
       print ''
 
       data.jsonDump()
 
       time.sleep(5)
 
-  except (KeyboardInterrupt, SystemExit):
+  except (KeyboardInterrupt, SystemExit, Exception):
     if httpd:
       httpd.stop()
     raise

@@ -22,9 +22,7 @@ class dataHandler:
     self.locations=json['locations'].copy()
     self.wifi=json['wifi'].copy()
 
-  def saveScan(self,scan,pos=None):
-
-    timestamp = int(time.time())
+  def saveScan(self,scan,pos,timestamp):
 
     n=0
     b=0

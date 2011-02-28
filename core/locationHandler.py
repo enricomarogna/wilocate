@@ -2,7 +2,7 @@
 import sys, httplib, json, math
 
 
-def addPosition(scan, lang, retrysingle = 1, retrytotal=8):
+def addPosition(scan, data, lang, alwaysRelocate=False, retrysingle = 1, retrytotal=8):
 
     singleparam  = {"version": "1.1.0", "host": "maps.google.com", "request_address": "true", "address_language":lang, "wifi_towers": [] }
     totalparam = singleparam.copy()
@@ -12,6 +12,11 @@ def addPosition(scan, lang, retrysingle = 1, retrytotal=8):
     j={}
 
     for a in scan:
+
+
+      #if not alwaysRelocate and data.wifi and a in data.wifi and 'location' in data.wifi[a]:
+	#scan[a]['location']=data.wifi[a]['location'].copy()
+	#continue
 
       quality=5
       level=-60
