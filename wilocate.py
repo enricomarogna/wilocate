@@ -25,7 +25,7 @@ Options:
  -p|--port <#>		Open web HTTP interface to port number (default: 8000)
  -f|--file <path>	Load scan datas from path in JSON format
  -l|--loc-disable       Disable localization, useful collecting wifi data off-line. (Default: Enabled)
- -a|--always-loc        Localize APs every detection, not always first time. (Default: Disabled)
+ -a|--always-loc        GeoLocate APs always, not only at first seen. (Default: Disabled)
 
 
 """

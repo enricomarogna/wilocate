@@ -332,9 +332,11 @@
 				  title:"Current position"
 			      });
 
-			    lastpos=marker;
-			    tablepos = parsePosition(b);
-			    $("#pos_info_table").last().append(tablepos);
+			      marker.setZIndex(999);
+
+			      lastpos=marker;
+			      tablepos = parsePosition(b);
+			      $("#pos_info_table").last().append(tablepos);
 
 			  }
 			  else if ((lastpos && distance(actual_pos,lastpos.getPosition()) < 0.04) || ('address' in locs[b]['position'] && lastposaddr==false) ) {

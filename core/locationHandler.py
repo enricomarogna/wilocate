@@ -9,14 +9,10 @@ def addPosition(scan, data, lang, alwaysRelocate=False, retrysingle = 1, retryto
     headers = { "Pragma" : "no-cache", "Cache-control" : "no-cache" }
 
     locnum=0
+    alreadylocnum=0
     j={}
 
     for a in scan:
-
-      if not alwaysRelocate and data.wifi and a in data.wifi and 'location' in data.wifi[a]:
-	scan[a]['location']=data.wifi[a]['location'].copy()
-	#print a, 'skipped.'
-	continue
 
       quality=5
       level=-60
@@ -31,36 +27,42 @@ def addPosition(scan, data, lang, alwaysRelocate=False, retrysingle = 1, retryto
       totalparam['wifi_towers'] += [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : level, 'age' : 0 } ]
       singleparam['wifi_towers'] = [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : level, 'age' : 0 } ]
 
-      for r in range(retrysingle):
-	j = httpQuery(headers,singleparam)
-	if 'location' in j:
-	  j = j['location'].copy()
-	  if 'address' in j:
-	    locnum+=1
-	    scan[a]['location']=j
+
+      if not alwaysRelocate and data.wifi and a in data.wifi and 'location' in data.wifi[a]:
+	scan[a]['location']=data.wifi[a]['location'].copy()
+	alreadylocnum+=1
+      else:
+	for r in range(retrysingle):
+	  j = httpQuery(headers,singleparam)
+	  if 'location' in j:
+	    j = j['location'].copy()
+	    if 'address' in j:
+	      locnum+=1
+	      scan[a]['location']=j
+	      break
+
+    if totalparam:
+      position = {}
+      for r in range(retrytotal):
+	position = httpQuery(headers,totalparam)
+	if 'location' in position:
+	  if 'address' in position['location']:
+	    position = position['location'].copy()
 	    break
+	  elif not position:
+	    position = position['location'].copy()
 
-    position = {}
-    for r in range(retrytotal):
-      position = httpQuery(headers,totalparam)
-      if 'location' in position:
-	if 'address' in position['location']:
-	  position = position['location'].copy()
-	  break
-	elif not position:
-	  position = position['location'].copy()
+      # Se non mi ha restituito l'address della position con indirizzo, cerco l'address piu vicino e ce lo metto
+      if not 'address' in position:
+	bestlvl=0
+	best={}
+	for a in scan:
+	  if 'location' in scan[a] and 'address' in scan[a]['location'] and 'Level' in scan[a] and int(scan[a]['Level']) < bestlvl:
+	    best=scan[a]['location']['address'].copy()
+	    bestlvl=int(scan[a]['Level'])
 
-    # Se non mi ha restituito l'address della position con indirizzo, cerco l'address piu vicino e ce lo metto
-    if not 'address' in position:
-      bestlvl=0
-      best={}
-      for a in scan:
-	if 'location' in scan[a] and 'address' in scan[a]['location'] and 'Level' in scan[a] and int(scan[a]['Level']) < bestlvl:
-	  best=scan[a]['location']['address'].copy()
-	  bestlvl=int(scan[a]['Level'])
-
-      if best:
-	position['address']=best.copy()
+	if best:
+	  position['address']=best.copy()
 
     return locnum, position
 
