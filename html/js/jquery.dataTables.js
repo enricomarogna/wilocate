@@ -4003,7 +4003,6 @@
 			nFilter.innerHTML = oSettings.oLanguage.sSearch+sSpace+'<input id="input_filter" type="text" /> <img src="../img/clear.png" title="Clear search parameters"  alt="Clear" id="clear_button" class="clear_button" style="vertical-align:middle;"/>';
 
 
-
 			var jqFilter = $("input", nFilter);
 			jqFilter.val( oSettings.oPreviousSearch.sSearch.replace('"','&quot;') );
 			jqFilter.keyup( function(e) {
