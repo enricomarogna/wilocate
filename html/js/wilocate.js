@@ -240,14 +240,28 @@
 
     function updateMarker(m) {
 
-
 	var pos = new google.maps.LatLng(wifi[m]['location']['latitude'],wifi[m]['location']['longitude']);
 
+	var iconpath='img/default_unselect.png';
+	if('Encryption' in wifi[m]) {
+	    for (e in wifi[m]['Encryption']) {
+	      if (e == 'open' || e == 'WEP') {  
+		iconpath='img/unsecure_unselect.png';
+		break;
+	      }
+	      if (e == 'WPA1' || e == 'WPA2') {
+		iconpath='img/secure_unselect.png';
+		break;
+	      }
+	      
+	    }
+	}
+	
 	var marker = new google.maps.Marker({
 	    position: pos,
 	    map: map,
 	    title:wifi[m]['ESSID'] + '\n' + m,
-	    icon:'img/wifi.png'
+	    icon:iconpath
 	});
 
 	aplist[m]=marker;
@@ -415,6 +429,7 @@
       });
 
       wifiTable = $('#myTable').dataTable({"bPaginate": false });
+
 
       $('#center_button').click(function() {
  	map.setCenter(lastpos.getPosition(), 20);
