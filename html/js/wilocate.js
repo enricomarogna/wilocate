@@ -277,8 +277,8 @@
 // 	  window.scrollTo(0, $('#myTable').position().top);
 	  if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
 	    var p = new google.maps.LatLng(wifi[m]['location']['latitude'],wifi[m]['location']['longitude']);
-	    autozoom();
-	    map.setCenter(p, 20);
+	    map.setCenter(p);
+// 	    autozoom();
 
 	  }
 	});
