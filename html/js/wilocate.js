@@ -1,7 +1,5 @@
     google.load("maps", "3",  {other_params:"sensor=false"});
 
-    //risolvere che zooma sempre
-
     var locs={};
     var wifi={};
     var aplist={};
