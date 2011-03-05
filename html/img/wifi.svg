@@ -864,9 +864,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
+     inkscape:zoom="2.8"
      inkscape:cx="586.15823"
-     inkscape:cy="620.39469"
+     inkscape:cy="613.25183"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -883,7 +883,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -896,7 +896,7 @@
        transform="matrix(1.7018944,0,0,1.7018944,841.40016,-120.76235)"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
-       inkscape:export-filename="/home/norby/wifi1.png">
+       inkscape:export-filename="/home/momphucker/Scrivania/default_select.png">
       <rect
          ry="0"
          rx="0"
@@ -963,7 +963,10 @@
        ry="0" />
     <g
        id="g5737"
-       transform="translate(-50.633896,-22.349625)">
+       transform="translate(-50.633896,-22.349625)"
+       inkscape:export-filename="/home/momphucker/Scrivania/unsecure_select.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
       <rect
          ry="0"
          rx="0"
@@ -1030,7 +1033,10 @@
        ry="0" />
     <g
        id="g5907"
-       transform="translate(-32.57742,-81.569818)">
+       transform="translate(-32.57742,-81.569818)"
+       inkscape:export-filename="/home/momphucker/Scrivania/secure_select.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
       <path
          inkscape:connector-curvature="0"
          id="path4232-7"
