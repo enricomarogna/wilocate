@@ -14,7 +14,7 @@
     var geoXml;
     var toggleState = 1;
 
-    var zoomed = false;
+    var zoomed=true; //To avoid first autozoom
 
     var wifiTable;
 
@@ -365,7 +365,7 @@
 
 			  if(lastpos == null || (lastpos && distance(actual_pos,lastpos.getPosition()) >= 0.04)) {
 
-			      map.setCenter(actual_pos, 15);
+			      map.setCenter(actual_pos, 18);
 			      var marker = new google.maps.Marker({
 				  position: actual_pos,
 				  map: map,
@@ -391,8 +391,8 @@
 		    }
 
 		    if (!zoomed) {
-		      map.setCenter(actual_pos, 20);
-		      autozoom();
+		      map.setCenter(actual_pos,18);
+ 		      autozoom();
 		    }
 
 	    }
@@ -460,7 +460,7 @@
 
       var myLatlng = new google.maps.LatLng(45.0665322,7.6509678);
       var myOptions = {
-	zoom: 16,
+	zoom: 18,
 	mapTypeId: google.maps.MapTypeId.HYBRID
       };
 
@@ -475,8 +475,8 @@
 
 
       $('#center_button').click(function() {
- 	map.setCenter(lastpos.getPosition(), 20);
-	autozoom();
+ 	map.setCenter(lastpos.getPosition());
+ 	autozoom();
       });
 
       $('#quit_button').click(function() {
@@ -490,8 +490,8 @@
 
       $('#clear_button').click(function() {
 
-	  showMarker();
-// 	  wifiTable.fnFilter('');
+// 	  showMarker();
+ 	  wifiTable.fnFilter('');
 
       });
 

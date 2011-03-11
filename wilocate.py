@@ -8,7 +8,7 @@ from core.dataHandler import *
 from core.httpHandler import *
 
 pid=-1
-options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '', 'loc': True, 'always-loc': False }
+options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '', 'loc': True, 'always-loc': False, 'sleep':(5,60,10) }
 
 banner = "+ WiLocate		Version 0.1"
 
@@ -189,10 +189,13 @@ def locateScan(data, scan,tm):
 
       newscanned,newreliable,newbest = data.saveScan(scan, pos, tm)
       print '(' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest) + ')',
+      return nl
 
 def mainScan():
 
   global pid
+
+  sleep=options['sleep'][0]
 
   pin, pout = os.pipe()
   try:
@@ -235,14 +238,22 @@ def mainScan():
       timestamp = time.time()
       print '+ [' + time.strftime("%H:%M:%S", time.localtime(timestamp))+ '] ' + str(len(scan)) + ' APs,',
 
-      locateScan(data,scan,timestamp)
-      print ''
-
+      newscanned = locateScan(data,scan,timestamp)
       data.jsonDump()
 
-      time.sleep(5)
+      s=sleep
+      if not newscanned:
+	s=sleep+options['sleep'][2]
+      else:
+	s=sleep-options['sleep'][2]
+      if s >= options['sleep'][0] and s<=options['sleep'][1]:
+	sleep=s
 
-  except (KeyboardInterrupt, SystemExit, Exception):
+      print 'Sleeping ' + str(sleep) + 's.'
+      time.sleep(sleep)
+
+
+  except (KeyboardInterrupt, Exception):
     if httpd:
       httpd.stop()
     raise

@@ -78,13 +78,13 @@ def httpQuery(headers,params):
     conn.request("POST", "/loc/json", json.dumps(params), headers)
     response = conn.getresponse()
   except Exception, e:
-    print '! Error querying Google Maps about ' + a + ': (%s)' % (e.strerror)
-
-  jtext = response.read()
-  try:
-    j = json.loads(jtext)
-  except ValueError, e:
-    print '! Error parsing Google Maps JSON data:', e
+    print '! Error on HTTP request:', e, '. Are you connected to Internet? Try offline scan with \'-l\'.'
+  else:
+    jtext = response.read()
+    try:
+      j = json.loads(jtext)
+    except ValueError, e:
+      print '! Error parsing JSON:', e, '.',
 
   return j
 
@@ -125,7 +125,7 @@ def setReliable(scan):
 
 
     if scan[a]['location']['accuracy'] > 22000:
-      print a + ' (' + str(scan[a]['location']['accuracy']) + ') rejected, low accuracy.'
+      print a + ' (' + str(scan[a]['location']['accuracy']) + ') rejected, low accuracy.',
       scan[a]['location']['reliable']=0
 
   return summ_num
