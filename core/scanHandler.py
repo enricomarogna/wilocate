@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import os, sys, json, time, re
+import os, sys, time, re
 from subprocess import Popen, PIPE, STDOUT
+try: import json
+except ImportError: import simplejson as json
 
 def which(program, moredirs = []):
     def is_exe(fpath):

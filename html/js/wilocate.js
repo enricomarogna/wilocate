@@ -19,6 +19,32 @@
     var wifiTable;
 
 
+	/*
+	  * Function: fnGetHiddenTrNodes
+	  * Purpose:  Get all of the hidden TR nodes (i.e. the ones which aren't on display)
+	  * Returns:  array:
+	  * Inputs:   object:oSettings - DataTables settings object
+	  */
+	$.fn.dataTableExt.oApi.fnGetHiddenTrNodes = function ( oSettings )
+	{
+		/* Note the use of a DataTables 'private' function thought the 'oApi' object */
+		var anNodes = this.oApi._fnGetTrNodes( oSettings );
+		var anDisplay = $('tbody tr', oSettings.nTable);
+
+		/* Remove nodes which are being displayed */
+		for ( var i=0 ; i<anDisplay.length ; i++ )
+		{
+			var iIndex = jQuery.inArray( anDisplay[i], anNodes );
+			if ( iIndex != -1 )
+			{
+				anNodes.splice( iIndex, 1 );
+			}
+		}
+
+		/* Fire back the array to the caller */
+		return anNodes;
+	}
+
 
     function distance(X,Y) {
 
@@ -243,7 +269,7 @@
 	var iconpath='img/default_unselect.png';
 	if('Encryption' in wifi[m]) {
 	    for (e in wifi[m]['Encryption']) {
-	      if (e == 'open' || e == 'WEP') {  
+	      if (e == 'open' || e == 'WEP') {
 		iconpath='img/unsecure_unselect.png';
 		break;
 	      }
@@ -251,10 +277,10 @@
 		iconpath='img/secure_unselect.png';
 		break;
 	      }
-	      
+
 	    }
 	}
-	
+
 	var marker = new google.maps.Marker({
 	    position: pos,
 	    map: map,
@@ -408,6 +434,25 @@
     }
 
 
+    function showMarker() {
+
+	  var nHidden = wifiTable.fnGetHiddenTrNodes();
+// 	  aplist[m]
+
+	  for( var i=0; i<nHidden.length; i++) {
+
+		var mac= $(nHidden[0]).find('td:eq(1)').text();
+		if (mac in aplist) {
+// 		  mac=$.trim(mac)
+	//	  aplist[mac].setVisible(false);
+// 		  aplist[mac].setAnimation(google.maps.Animation.BOUNCE);
+//  		  alert(aplist[mac].getVisible());
+		}
+
+	  }
+
+    }
+
 
     function initialize() {
 
@@ -444,9 +489,16 @@
       });
 
       $('#clear_button').click(function() {
-	  wifiTable.fnFilter('');
+
+	  showMarker();
+// 	  wifiTable.fnFilter('');
+
       });
 
-    }
+//       $("#myTable tbody").delegate("tr", "click", function() {
+// 	  var secondCellText = $("td:eq(1)", this).text();
+// 	  alert(secondCellText);
+//       });
 
+    }
 

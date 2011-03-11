@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-import time, os, pprint, json
+import time, os, pprint
 from threading import Lock
+try: import json
+except ImportError: import simplejson as json
 lock=Lock()
 
 def touch(files):

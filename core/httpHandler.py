@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from threading import Thread, Lock
-import SimpleHTTPServer, SocketServer, os, sys, urllib2,json, socket, mimetypes
+import SimpleHTTPServer, SocketServer, os, sys, urllib2, socket, mimetypes
+try: import json
+except ImportError: import simplejson as json
 
 http_running=False
 data = None

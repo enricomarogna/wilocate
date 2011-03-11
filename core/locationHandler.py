@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-import sys, httplib, json, math
+import sys, httplib, math
+try: import json
+except ImportError: import simplejson as json
 
 
 def addPosition(scan, data, lang, alwaysRelocate=False, retrysingle = 1, retrytotal=8):
