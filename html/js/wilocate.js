@@ -336,10 +336,7 @@
 
 			    aps+=1;
 
-			    if(m in aplist) {
-
-			    }
-			    else if(b in locs && 'APs' in locs[b] && m in locs[b]['APs']) {
+			    if(!(m in aplist) && b in locs && 'APs' in locs[b] && m in locs[b]['APs']) {
 
 			      if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
 				newlocaps+=1;
