@@ -128,6 +128,8 @@ def webInterfaceStart(data):
 
 def mainSingle():
 
+  httpd = None
+
   if os.geteuid() == 0:
     uid, gid = getUserId()
     core.privilege.drop_privileges_permanently(uid, gid, [1])
@@ -156,7 +158,7 @@ def mainSingle():
 		if scanwifi.has_key(ap):
 		  currentwifiscan[ap]=scanwifi[ap].copy()
 
-	      print '+ [' + time.strftime("%H:%M:%S", time.localtime(int(timestamp)))+ '] ' + str(len(currentwifiscan)) + ' APs,'
+	      print '+ [' + time.strftime("%H:%M:%S", time.localtime(int(timestamp)))+ ']',
 	      locateScan(data,currentwifiscan,timestamp)
 	      print ''
 

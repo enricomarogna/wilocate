@@ -77,8 +77,9 @@ class dataHandler:
   def getJson(self):
     lock.acquire()
     jsonobj = { 'locations' : self.locations, 'wifi' : self.wifi }.copy()
+    jsondump = json.dumps(jsonobj, indent=4)
     lock.release()
-    return json.dumps(jsonobj, indent=4)
+    return jsondump
 
   def getData(self,f,v):
     if f=='wifi':

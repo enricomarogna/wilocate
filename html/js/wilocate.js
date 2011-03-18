@@ -371,6 +371,8 @@
 
 			  }
 			  else if ((lastpos && distance(actual_pos,lastpos.getPosition()) < 0.04) || ('address' in locs[b]['position'] && lastposaddr==false) ) {
+
+			    map.setCenter(actual_pos,18);
 			    lastpos.setPosition(actual_pos);
 			    tablepos = parsePosition(b);
 			    if('address' in locs[b]['position'])
@@ -381,10 +383,10 @@
 
 		    }
 
-		    if (!zoomed) {
-		      map.setCenter(actual_pos,18);
+// 		    if (!zoomed) {
+// 		      alert('sto centrando');
 //  		      autozoom();
-		    }
+// 		    }
 
 	    }
 
