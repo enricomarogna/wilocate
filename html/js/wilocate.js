@@ -363,7 +363,7 @@
 				  title:"Current position"
 			      });
 
-			      marker.setZIndex(999);
+			      marker.setZIndex(0);
 
 			      lastpos=marker;
 			      tablepos = parsePosition(b);
