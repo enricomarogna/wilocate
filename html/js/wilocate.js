@@ -18,13 +18,6 @@
 
     var wifiTable;
 
-
-	/*
-	  * Function: fnGetHiddenTrNodes
-	  * Purpose:  Get all of the hidden TR nodes (i.e. the ones which aren't on display)
-	  * Returns:  array:
-	  * Inputs:   object:oSettings - DataTables settings object
-	  */
 	$.fn.dataTableExt.oApi.fnGetHiddenTrNodes = function ( oSettings )
 	{
 		/* Note the use of a DataTables 'private' function thought the 'oApi' object */
@@ -303,12 +296,11 @@
 	google.maps.event.addListener(marker, 'dblclick', function(event) {
 	  wifiTable.fnFilter(m);
 // 	  window.scrollTo(0, $('#myTable').position().top);
-	  if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
-	    var p = new google.maps.LatLng(wifi[m]['location']['latitude'],wifi[m]['location']['longitude']);
-	    map.setCenter(p);
-// 	    autozoom();
-
-	  }
+// 	  if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+// 	    var p = new google.maps.LatLng(wifi[m]['location']['latitude'],wifi[m]['location']['longitude']);
+// 	    break;
+// 	  }
+// 	  map.setCenter(p);
 	});
 
     }
@@ -391,7 +383,7 @@
 
 		    if (!zoomed) {
 		      map.setCenter(actual_pos,18);
- 		      autozoom();
+//  		      autozoom();
 		    }
 
 	    }

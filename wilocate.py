@@ -156,7 +156,7 @@ def mainSingle():
 		if scanwifi.has_key(ap):
 		  currentwifiscan[ap]=scanwifi[ap].copy()
 
-	      print '+ [' + time.strftime("%H:%M:%S", time.localtime(int(timestamp)))+ '] ' + str(len(currentwifiscan)) + ' APs,',
+	      print '+ [' + time.strftime("%H:%M:%S", time.localtime(int(timestamp)))+ '] ' + str(len(currentwifiscan)) + ' APs,'
 	      locateScan(data,currentwifiscan,timestamp)
 	      print ''
 
@@ -184,11 +184,11 @@ def locateScan(data, scan,tm):
 	nl, pos = addPosition(scan,data,options['lang'],options['always-loc'])
 	rel = setReliable(scan)
 	if 'latitude' in pos and 'longitude' in pos:
-	  print str(nl) + ' located, ' + str(rel) + ' reliable, current position: ' + str(pos['latitude']) + ',' + str(pos['longitude']) + ' .',
+	  print '[' + str(pos['latitude']) + ',' + str(pos['longitude']) + '] ' + str(len(scan)) + ' APs seen, ' + str(nl) + ' located,',
 	sys.stdout.flush()
 
       newscanned,newreliable,newbest = data.saveScan(scan, pos, tm)
-      print '(' + str(newscanned) + '/' + str(newreliable) + '/' + str(newbest) + ')',
+      print '+' + str(newscanned) + ' APs, ' + '+' + str(newreliable) + ' reliable.', # (' + str(newbest) + ').',
       return nl
 
 def mainScan():
@@ -236,18 +236,17 @@ def mainScan():
 	continue
 
       timestamp = time.time()
-      print '+ [' + time.strftime("%H:%M:%S", time.localtime(timestamp))+ '] ' + str(len(scan)) + ' APs,',
+      print '+ [' + time.strftime("%H:%M:%S", time.localtime(timestamp))+ ']',
 
       newscanned = locateScan(data,scan,timestamp)
       data.jsonDump()
 
-      s=sleep
-      if not newscanned:
-	s=sleep+options['sleep'][2]
-      else:
-	s=sleep-options['sleep'][2]
-      if s >= options['sleep'][0] and s<=options['sleep'][1]:
-	sleep=s
+
+      if sleep >= options['sleep'][0] and sleep <= options['sleep'][1]:
+	if not newscanned:
+	  sleep+=options['sleep'][2]
+	else:
+	  sleep=options['sleep'][0]
 
       print 'Sleeping ' + str(sleep) + 's.'
       time.sleep(sleep)

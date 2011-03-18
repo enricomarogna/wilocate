@@ -125,7 +125,7 @@ def setReliable(scan):
 
 
     if scan[a]['location']['accuracy'] > 22000:
-      print a + ' (' + str(scan[a]['location']['accuracy']) + ') rejected, low accuracy.',
+      #print '(' + str(scan[a]['location']['accuracy']) + ' accuracy rejected)',
       scan[a]['location']['reliable']=0
 
   return summ_num
