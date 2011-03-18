@@ -490,8 +490,6 @@
 
       $('#center_button').click(function() {
  	map.setCenter(lastpos.getPosition());
-  	autozoom();
-
       });
 
       $('#quit_button').click(function() {
@@ -507,6 +505,11 @@
 
  	  wifiTable.fnFilter('');
 
+      });
+
+      $("#myTable tbody").delegate("tr", "click", function() {
+	  var secondCellText = $("td:eq(1)", this).text();
+	  wifiTable.fnFilter(secondCellText);
       });
 
     }
