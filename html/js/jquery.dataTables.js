@@ -1496,6 +1496,7 @@
 				oSettings.aoPreSearchCols[ iColumn ].bSmart = bSmart;
 				_fnFilterComplete( oSettings, oSettings.oPreviousSearch, 1 );
 			}
+
 		};
 
 		/*
@@ -4074,6 +4075,8 @@
 
 			/* Rebuild search array 'offline' */
 			_fnBuildSearchArray( oSettings, 0 );
+
+ 			showMarker();
 		}
 
 		/*
