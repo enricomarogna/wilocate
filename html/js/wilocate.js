@@ -499,8 +499,12 @@
       });
 
       $("#myTable tbody").delegate("tr", "click", function() {
-	  var secondCellText = $("td:eq(1)", this).text();
-	  wifiTable.fnFilter(secondCellText);
+	  var m = $("td:eq(1)", this).text();
+	  wifiTable.fnFilter(m);
+	  if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
+	    var p = new google.maps.LatLng(wifi[m]['location']['latitude'],wifi[m]['location']['longitude']);
+	  }
+	  map.setCenter(p);
       });
 
     }
