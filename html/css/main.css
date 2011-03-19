@@ -91,11 +91,20 @@ img.wilocate_icon_img{
 .break_right{
 	float:right;
 	vertical-align:middle;
+	width:55%;
 } 
 .break_left{
 	float:left;
 	vertical-align:middle;
+	width:43%;
 }
+
+.break_right_links{
+	float:right;
+	vertical-align:middle;
+}
+
+
 
 .img_properties{
 	padding-right:5px;

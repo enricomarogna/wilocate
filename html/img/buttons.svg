@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   width="40"
+   height="17"
+   sodipodi:docname="buttons.svg">
+  <metadata
+     id="metadata8">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1680"
+     inkscape:window-height="929"
+     id="namedview4"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:zoom="12.775"
+     inkscape:cx="13.252466"
+     inkscape:cy="26.161855"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <sodipodi:guide
+       orientation="1,0"
+       position="20.039139,10.567515"
+       id="guide3783" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="41.565558,8.5322896"
+       id="guide3785" />
+  </sodipodi:namedview>
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Livello 1">
+    <rect
+       style="fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:#707070;stroke-width:0.46475226;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.93774318;stroke-dasharray:none"
+       id="rect2988"
+       width="54.527023"
+       height="17.221134"
+       x="-7.1460953"
+       y="-0.14285715"
+       ry="4.5999999"
+       rx="6.209846"
+       inkscape:export-filename="/home/momphucker/Scrivania/quit_over1.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:#707070;stroke-width:0.55461121;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.93774318;stroke-dasharray:none"
+       id="rect2988-5"
+       width="77.650826"
+       height="17.221134"
+       x="-19.207998"
+       y="-31.53229"
+       ry="5.1999998"
+       rx="4.9429998"
+       inkscape:export-filename="/home/momphucker/Repository/wilocate/html/img/show_all.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:13px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#666666;fill-opacity:1;stroke:none;font-family:Sawasdee;-inkscape-font-specification:Sawasdee Bold"
+       x="19.539139"
+       y="-18.227631"
+       id="text3779-5"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/momphucker/Repository/wilocate/html/img/show_all.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3781-4"
+         x="20.039139"
+         y="-18.227631"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;letter-spacing:1px;text-anchor:middle;fill:#666666;font-family:REZ;-inkscape-font-specification:REZ Bold">show all</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Livello 2">
+    <text
+       xml:space="preserve"
+       style="font-size:13px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#666666;fill-opacity:1;stroke:none;font-family:Sawasdee;-inkscape-font-specification:Sawasdee Bold"
+       x="20.039139"
+       y="13.161801"
+       id="text3779"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/momphucker/Scrivania/quit_over1.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3781"
+         x="20.539139"
+         y="13.161801"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;letter-spacing:1px;text-anchor:middle;fill:#666666;font-family:REZ;-inkscape-font-specification:REZ Bold">quit</tspan></text>
+  </g>
+</svg>
