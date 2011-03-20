@@ -261,7 +261,9 @@ class WilocateFrame(wx.Frame):
 
 	    if self.options['BrowserOnWebStart']:
 	      webbrowser.get('x-www-browser').open('http://localhost:' + str(self.options['port']))
+	    break
 
+	  if http_state[2]:
 	    break
 
 	  else:

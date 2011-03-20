@@ -5,7 +5,8 @@ import SimpleHTTPServer, SocketServer, os, sys, urllib2, socket, mimetypes, time
 try: import json
 except ImportError: import simplejson as json
 
-http_running = (False, 'Not Running')
+http_running = (False, 'Not Running', False)
+
 
 data = None
 
@@ -38,7 +39,7 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	self.wfile.write(data.getJson())
 
       elif self.path.endswith("control?quit"):
-	http_running=(False, 'Web interface stopped')
+	http_running=(False, 'Web interface stopped', True)
 
       else:
 	if self.path=='/':
@@ -69,7 +70,7 @@ class httpHandler ( Thread ):
 
      global http_running
 
-     http_running=(False, 'Web interface stopped')
+     http_running=(False, 'Web interface stopped',True)
 
      while range(2):
 	try:
@@ -87,20 +88,22 @@ class httpHandler ( Thread ):
 
       httpd=None
 
-      while not http_running[0]:
+      while not http_running[0] and not http_running[2]:
 	try:
 	  httpd = StoppableHttpServer(('127.0.0.1', self.port), httpRequestHandler)
 	  httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	except Exception, e:
 	  print '!', e
-	  http_running=(False, 'Port ' + str(self.port) + ' busy,\nretrying in 5s')
-	  time.sleep(5)
+	  http_running=(False, 'Port ' + str(self.port) + ' busy,\nretrying in 5s',False)
+	  time.sleep(1)
 	else:
 	  break
 
+
       if httpd:
-	http_running=(True, "Running on port " + str(self.port))
+	http_running=(True, "Running on port " + str(self.port),False)
 	sa = httpd.socket.getsockname()
 	httpd.serve_forever()
 	httpd.socket.close()
-	http_running=(False, 'Web interface stopped')
+
+      http_running=(False, 'Web interface stopped', True)
