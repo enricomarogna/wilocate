@@ -5,6 +5,9 @@ from subprocess import Popen, PIPE, STDOUT
 try: import json
 except ImportError: import simplejson as json
 
+from locationHandler import *
+from dataHandler import *
+
 def which(program, moredirs = []):
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
@@ -27,37 +30,86 @@ def which(program, moredirs = []):
 class scanHandler:
 
   command=''
-  pout=None
-  pin=None
+  command_su=''
 
-  def __init__(self,pout,pin,delay=5):
+  lastscan={}
 
-    self.pout=pout
-    self.pin=pin
+  datahdl=None
 
-    bin = 'iwlist'
-    path = which(bin, ['/sbin/', '/usr/sbin/'])
-    if not path:
-      print '! Error, no', bin, 'founded in $PATH'
+  def __init__(self,options,data):
 
-    self.command = path
 
-    try:
-      while 1:
-	self.getScan()
-	time.sleep(delay)
-    except (KeyboardInterrupt, SystemExit):
-      print '! Quitting scan subprocess.'
-      sys.exit(0)
+    bin_iwlist = 'iwlist'
+    path_iwlist = which(bin_iwlist, ['/sbin/', '/usr/sbin/'])
+    if not path_iwlist:
+      print '! Error, no', bin_iwlist, 'founded in $PATH'
+    else:
+      self.command=path_iwlist
 
-  def getScan(self):
+    bin_gtksu = 'gtksu'
+    path_su = which(bin_gtksu, ['/sbin/', '/usr/sbin/'])
+    if path_su:
+      self.command_su=path_su
+
+    bin_kdesu = 'kdesudo'
+    path_su = which(bin_kdesu, ['/sbin/', '/usr/sbin/'])
+    if not path_su:
+      print '! No sudo GUIs, quitting'
+      sys.exit(1)
+    else:
+      self.command_su=path_su
+
+    self.datahdl=data
+    self.options=options
+
+  def wifiScan(self,sudo=False):
+
+    self.getScan(sudo)
+    newscaninfo = self.locateScan()
+    self.datahdl.jsonDump()
+    return newscaninfo
+
+  def locateScan(self):
+
+      tm = time.time()
+
+      if self.lastscan:
+	pos = { }
+	lonpos = 0
+	latpos = 0
+	nl = 0
+	rel = 0
+	if not self.options['NotLocate']:
+	  nl, pos = addPosition(self.lastscan,self.datahdl,self.options['lang'],self.options['always-loc'])
+	  rel = setReliable(self.lastscan)
+	  lonpos=pos['longitude']
+	  latpos=pos['latitude']
+
+	newscanned,newreliable,newbest = self.datahdl.saveScan(self.lastscan, pos, tm)
+
+	return {
+	  'timestamp' : time.strftime("%H:%M:%S", time.localtime(tm)),
+	  'seen' : str(len(self.lastscan)),
+	  'located' : str(nl),
+	  'newscanned' : str(newscanned),
+	  'newreliable' : str(newreliable),
+	  'newbest' : str(newbest),
+	  'latitude' : str(lonpos),
+	  'longitude' : str(latpos)
+	}
+
+  def getScan(self, sudo=False):
 
     data = {}
     lastcell=''
     lastauth=''
 
-    cmd = self.command + ' scan'
-    pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+    if not sudo:
+      cmd = [ self.command + ' scan' ]
+      pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+    else:
+      cmd = [ self.command_su + ' "' + self.command + ' scan"' ]
+      pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
 
     try:
       for l in pop.stdout.read().split('\n'):
@@ -123,11 +175,7 @@ class scanHandler:
     except Exception, e:
       print '! Error parsing scan command output:', e
 
-    if data:
-      self.sendData(data)
-
-  def sendData(self,data):
-    os.write(self.pout,json.dumps(data) + '\n%%WILOCATE%%\n')
+    self.lastscan=data.copy()
 
   def encodeAuth(self,string):
     if 'WPA ' in string and string.endswith('1'):

@@ -1,275 +1,331 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, core.privilege, signal, pprint, re, sys, webbrowser
+import sys, wx, time, webbrowser
 from core.scanHandler import *
-from core.locationHandler import *
-from core.dataHandler import *
 from core.httpHandler import *
+from core.optionsHandler import *
+from threading import Timer
 
-pid=-1
-options={ 'web' : True, 'browser' : True, 'port' : 8000, 'lang' : '', 'loc': True, 'always-loc': False, 'sleep':(5,60,10) }
+ID_ICON_TIMER = wx.NewId()
+ID_OPEN_BROWSER=wx.NewId()
+ID_START_SCAN=wx.NewId()
+ID_STOP_SCAN=wx.NewId()
+ID_TRIGGER_SCAN=wx.NewId()
+ID_SCAN_ON_START=wx.NewId()
+ID_NOT_LOC=wx.NewId()
+ID_LOAD_FILE=wx.NewId()
 
-banner = "+ WiLocate		Version 0.1"
+ID_START_WEB=wx.NewId()
+ID_STOP_WEB=wx.NewId()
+ID_WEB_ON_START=wx.NewId()
+ID_BROWSER_ON_WEB_START=wx.NewId()
+ID_MENU_SCAN_STATUS=wx.NewId()
+ID_MENU_SCAN=wx.NewId()
 
-usagemsg = """
-Usage:
-
- ./wilocate.py [options]			Locate current position scanning wifi networks
-
-Options:
-
- -h|--help	  	This help
- -w|--web-disable	Disable web HTTP interface daemon run on start (default: Enabled)
- -b|--browser-disable	Disable web browser run on start (default: Enabled)
- -p|--port <#>		Open web HTTP interface to port number (default: 8000)
- -f|--file <path>	Load scan datas from path in JSON format
- -l|--loc-disable       Disable localization, useful collecting wifi data off-line. (Default: Enabled)
- -a|--always-loc        GeoLocate APs always, not only at first seen. (Default: Disabled)
-
-
-"""
-
-def getUserId():
-
-  import pwd, grp
-
-  user="nobody"
-  group="nogroup"
-
-  if os.getenv("SUDO_UID") and os.getenv("SUDO_GID"):
-    uid=int(os.getenv("SUDO_UID"))
-    gid=int(os.getenv("SUDO_GID"))
-  else:
-    uid = pwd.getpwnam( user )[2]
-    gid = grp.getgrnam( group )[2]
-
-  return uid, gid
+ID_MENU_WEB=wx.NewId()
+ID_MENU_WEB_STATUS=wx.NewId()
 
 
-def parseOptions():
+class WilocateTaskBarIcon(wx.TaskBarIcon):
 
-  import getopt
+    options = {}
 
-  lang = os.getenv('LANG')
-  if lang:
-    if '.' in lang:
-      lang=lang.split('.')[0]
-    options['lang']=lang
+    def __init__(self, parent):
+        wx.TaskBarIcon.__init__(self)
+        self.parentApp = parent
+        self.options=parent.options
+        self.logoStandard = wx.Icon("html/img/logo.png",wx.BITMAP_TYPE_PNG)
+        #self.youHaveMailIcon = wx.Icon("mail-message-new.png",wx.BITMAP_TYPE_PNG)
+        self.CreateMenu()
+        self.SetIconImage()
 
-  try:
-      opts, args = getopt.getopt(sys.argv[1:], 'hawlbs:p:f:', ['help','web-disable', 'browser-disable', 'single', 'port', 'file'])
-  except getopt.error, msg:
-      print "! Error:", msg
-      print usagemsg
-      sys.exit(1)
 
-  ## process options
-  for o, a in opts:
-      if o in ('-h', '--help'):
-	  print usagemsg
-	  sys.exit(1)
-      elif o in ('-s', '--single'):
-	  if not re.match("(?:[0-9A-Z][0-9A-Z](:|-)?){6}", a):
-	    print '! Error: \'' + a + '\' is not a MAC address with AA:BB:CC:DD:EE:FF format. Exiting.'
-	    sys.exit(1)
+    def CreateMenu(self):
+        self.Bind(wx.EVT_TASKBAR_RIGHT_UP, self.ShowMenu)
+        self.Bind(wx.EVT_MENU, self.parentApp.OpenBrowser, id=ID_OPEN_BROWSER)
+        self.Bind(wx.EVT_MENU, self.parentApp.StartWeb, id=ID_START_WEB)
+        self.Bind(wx.EVT_MENU, self.parentApp.StopWeb, id=ID_STOP_WEB)
+        self.Bind(wx.EVT_MENU, self.parentApp.WebOnStart, id=ID_WEB_ON_START)
+        self.Bind(wx.EVT_MENU, self.parentApp.BrowserOnWebStart, id=ID_BROWSER_ON_WEB_START)
+        self.Bind(wx.EVT_MENU, self.parentApp.StartScan, id=ID_START_SCAN)
+        self.Bind(wx.EVT_MENU, self.parentApp.StopScan, id=ID_STOP_SCAN)
+        self.Bind(wx.EVT_MENU, self.parentApp.TriggerScan, id=ID_TRIGGER_SCAN)
+        self.Bind(wx.EVT_MENU, self.parentApp.ScanOnStart, id=ID_SCAN_ON_START)
+        self.Bind(wx.EVT_MENU, self.parentApp.NotLocate, id=ID_NOT_LOC)
+        self.Bind(wx.EVT_MENU, self.parentApp.LoadFile, id=ID_LOAD_FILE)
+        self.Bind(wx.EVT_MENU, self.parentApp.OnExit, id=wx.ID_EXIT)
+	wx.EVT_TASKBAR_LEFT_DCLICK(self, self.parentApp.OpenBrowser)
+
+        self.menu=wx.Menu()
+
+        menuscan = wx.Menu()
+	menuscan.Append(ID_MENU_SCAN_STATUS,"")
+	menuscan.AppendSeparator()
+        menuscan.Append(ID_START_SCAN, "Start Scan")
+        menuscan.Append(ID_STOP_SCAN, "Stop Scan")
+	menuscan.AppendSeparator()
+        menuscan.Append(ID_TRIGGER_SCAN, "Trigger Root Scan")
+        menuscan.AppendSeparator()
+        menuscan.Append(ID_SCAN_ON_START, 'Scanning on start', 'Start Scan on start', kind=wx.ITEM_CHECK)
+        menuscan.Check(ID_SCAN_ON_START, self.options['ScanOnStart'])
+	menuscan.Append(ID_NOT_LOC, 'Don\'t locate (offline mode)', 'Don\'t locate', kind=wx.ITEM_CHECK)
+        menuscan.Check(ID_NOT_LOC, self.options['NotLocate'])
+        self.menu.AppendMenu(ID_MENU_SCAN, "Wifi Scan", menuscan)
+
+        menuweb = wx.Menu()
+        menuweb.Append(ID_MENU_WEB_STATUS,"")
+	menuweb.AppendSeparator()
+	menuweb.Append(ID_START_WEB, "Start web interface")
+        menuweb.Append(ID_STOP_WEB, "Stop web interface")
+	menuweb.AppendSeparator()
+        menuweb.Append(ID_OPEN_BROWSER, "Open browser","This will open a new Browser")
+	menuweb.AppendSeparator()
+        menuweb.Append(ID_WEB_ON_START, 'Web interface on start', 'Start Web interface on start', kind=wx.ITEM_CHECK)
+        menuweb.Check(ID_WEB_ON_START, self.options['WebOnStart'])
+	menuweb.Append(ID_BROWSER_ON_WEB_START, 'Web browser on start', 'Start Web browser on start', kind=wx.ITEM_CHECK)
+        menuweb.Check(ID_WEB_ON_START, self.options['BrowserOnWebStart'])
+	self.menu.AppendMenu(ID_MENU_WEB, "Web Interface", menuweb)
+
+	self.menu.AppendSeparator()
+        self.menu.Append(ID_LOAD_FILE, "Load File")
+	self.menu.AppendSeparator()
+	self.menu.Append(wx.ID_EXIT, "Close App")
+
+    def ShowMenu(self,event):
+        self.PopupMenu(self.menu)
+
+    def SetIconImage(self):
+	self.SetIcon(self.logoStandard, "Wilocate")
+
+
+class WilocateFrame(wx.Frame):
+
+    scannerTimer=5
+
+    scanRunning=False
+
+    datahdl=None
+    scanhdl=None
+    httphdl=None
+    httphdlfirstrun=True
+
+    options = {}
+
+    def __init__(self, parent, id, title, options):
+
+        wx.Frame.__init__(self, parent, -1, title, size = (1, 1),
+            style=wx.FRAME_NO_TASKBAR|wx.NO_FULL_REPAINT_ON_RESIZE)
+
+	self.options = options
+
+        self.tbicon = WilocateTaskBarIcon(self)
+        #self.tbicon.Bind(wx.EVT_MENU, self.exitApp, id=wx.ID_EXIT)
+        self.Show(True)
+
+
+	self.datahdl = dataHandler(self.options['LogPath'])
+	self.scanhdl = scanHandler(self.options,self.datahdl)
+	self.httphdl = httpHandler(self.datahdl,self.options['port'])
+
+	self.scannerTimer = self.options['sleep'][0]
+
+	#Detach to renderize systray icon faster
+	if self.options['ScanOnStart']:
+	  self.scanRunning=True
+	  t = Timer(0.2, self.StartScan, ['fakevent'])
+	  t.start()
+
+	if self.options['WebOnStart']:
+	  t = Timer(0.1, self.StartWebDetached)
+	  t.start()
+
+
+    def OpenBrowser(self,event):
+        webbrowser.get('x-www-browser').open('http://localhost:8000')
+
+    def TriggerScan(self,event):
+
+      newscaninfo = self.scanhdl.wifiScan(True)
+
+      scan_info = newscaninfo['timestamp'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
+
+      itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
+      itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
+      itemmenustatus.SetText(scan_info)
+
+    def StartScan(self,event):
+
+	newscaninfo = self.scanhdl.wifiScan()
+
+	if self.scannerTimer >= self.options['sleep'][0] and self.scannerTimer <= self.options['sleep'][1]:
+	  if newscaninfo['newscanned'] == '0':
+	    self.scannerTimer+=self.options['sleep'][2]
 	  else:
-	    if 'single' not in options:
-	      options['single']=[]
+	    self.scannerTimer=self.options['sleep'][0]
 
-	    options['single'] = a.split(',')
-      elif o in ('-w', '--web-disable'):
-	  options['web']=False
-      elif o in ('-l', '--loc-disable'):
-	  options['loc']=False
-      elif o in ('-b', '--browser-disable'):
-	  options['browser']=False
-      elif o in ('-p', '--port'):
-	  options['port']=int(a)
-      elif o in ('-f', '--file'):
-	  options['file']=a
-      elif o in ('-a', '--always-loc'):
-	  options['always-loc']=True
+	#print '[' + newscaninfo['timestamp'] + '] [' + newscaninfo['latitude'] + ',' + newscaninfo['longitude'] + '] ' + newscaninfo['seen'] + ' APs seen, ' + newscaninfo['located'] + ' located, ' + '+' + newscaninfo['newscanned'] + ' APs, ' + '+' + newscaninfo['newreliable'] + ' reliable.',
+	#print 'Next in ' + str(self.scannerTimer) + 's.'
+
+	scan_info = newscaninfo['timestamp'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
+
+	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
+	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
+	itemmenustatus.SetText(scan_info)
+
+	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
+	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
+
+	if self.scanRunning:
+	  t = Timer(self.scannerTimer, self.StartScan, ['falsevent'])
+	  t.start()
+
+    def StopScan(self,event):
+      	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
+      	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
+	itemmenustatus.SetText('Scan stopped')
+        self.scanRunning=False
+
+	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(True)
+	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(False)
+
+    def ScanOnStart(self,event):
+      if self.tbicon.menu.FindItemById(ID_MENU_SCAN).GetMenu().FindItemById(ID_SCAN_ON_START).IsChecked():
+	self.options['ScanOnStart']=True
       else:
-	  print usagemsg
-	  sys.exit(1)
+	self.options['ScanOnStart']=False
 
-  if os.getuid() != 0:
-    print '+ Warning: triggered scan needs root privileges. Restart with \'sudo -E ' + sys.argv[0] + '\' to get more results.'
+      saveOptions()
 
+    def WebOnStart(self,event):
+      if self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_WEB_ON_START).IsChecked():
+	self.options['WebOnStart']=True
+      else:
+	self.options['WebOnStart']=False
+	self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().Check(ID_BROWSER_ON_WEB_START, False)
+	self.options['BrowserOnWebStart']=False
 
-def webInterfaceStart(data):
+      saveOptions()
 
-  if options['web']:
-    try:
-      httpd = httpHandler(data,options['port'])
-      httpd.start()
-    except Exception, e:
-      print '! Error creating new thread.', e
-    else:
-
-      r=False
-      for i in range(2):
-	if httpd.isRunning():
-	  r=True
-	  break
-	time.sleep(1)
+    def BrowserOnWebStart(self,event):
+      if self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_BROWSER_ON_WEB_START).IsChecked():
+	self.options['BrowserOnWebStart']=True
+	self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().Check(ID_WEB_ON_START, True)
+	self.options['WebOnStart']=True
+      else:
+	self.options['BrowserOnWebStart']=False
 
 
-      if options['browser'] and r:
-	if os.getenv("SUDO_UID") and os.getenv("SUDO_GID") and 'root' in os.getenv("HOME"):
-	  print '! Webbrowser autorun disabled. Enable enviroinment variables using \'sudo -E ' + sys.argv[0] + '\''
+      saveOptions()
+
+
+    def NotLocate(self,event):
+      if self.tbicon.menu.FindItemById(ID_MENU_SCAN).GetMenu().FindItemById(ID_NOT_LOC).IsChecked():
+	self.options['NotLocate']=True
+      else:
+	self.options['NotLocate']=False
+
+      saveOptions()
+
+    def StartWeb(self,event):
+
+	if not self.httphdl.isRunning()[0]:
+
+	  t = Timer(0.1, self.StartWebDetached)
+	  t.start()
+
+
+    def StartWebDetached(self):
+
+	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_WEB)
+	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
+	itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(False)
+	itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Starting Web interface')
+
+	if self.httphdlfirstrun:
+	  self.httphdl.start()
+	  self.httphdlfirstrun=False
 	else:
-	  # webbrowser.open() fails on KDE with kfmclient http://portland.freedesktop.org/wiki/TaskOpenURL
-	  webbrowser.get('x-www-browser').open('http://localhost:' + str(options['port']))
-	  print '+ Webbrowser autorun enabled. Point browser to http://localhost:' + str(options['port']) + ' .'
-
-      return httpd
-
-def mainSingle():
-
-  httpd = None
-
-  if os.geteuid() == 0:
-    uid, gid = getUserId()
-    core.privilege.drop_privileges_permanently(uid, gid, [1])
-
-  try:
-    data = dataHandler()
-    httpd = webInterfaceStart(data)
+	  self.httphdl.run()
 
 
-    if 'file' in options and options['file']:
-	fl = open(options['file'],'r')
-	print '+ Scan disabled, reading from', options['file'], '.'
-	filescan = json.loads(fl.read())
-	fl.close()
-	scanwifi = filescan['wifi']
-	scanloc = filescan['locations']
-	sortedloctimestamp = [ k for k in sorted(scanloc.keys())]
+	r=False
+	rnum=0
 
-	if 'loc' in options and options['loc']:
-	  sys.stdout.flush()
+	while not r:
+	  http_state = self.httphdl.isRunning()
+	  if http_state[0]:
+	    r=True
+	    self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
+	    itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Web interface started')
 
-	  for timestamp in sortedloctimestamp:
-	    if scanloc[timestamp].has_key('APs'):
-	      currentwifiscan = {}
-	      for ap in scanloc[timestamp]['APs']:
-		if scanwifi.has_key(ap):
-		  currentwifiscan[ap]=scanwifi[ap].copy()
+	    if self.options['BrowserOnWebStart']:
+	      webbrowser.get('x-www-browser').open('http://localhost:' + str(self.options['port']))
 
-	      print '+ [' + time.strftime("%H:%M:%S", time.localtime(int(timestamp)))+ ']',
-	      locateScan(data,currentwifiscan,timestamp)
-	      print ''
+	    break
 
-	      if (httpd and not httpd.isRunning()):
-		break
+	  else:
+	    itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1] + ' (try #' + str(rnum) + ')')
+	    rnum+=1
+	    time.sleep(5)
 
 
-	print '! File read.'
+	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
+	itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(True)
 
 
-    while (httpd and httpd.isRunning()):
-      time.sleep(100)
+    def StopWeb(self,event):
+	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_WEB)
+	itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Stopped')
 
-  except (KeyboardInterrupt, SystemExit, Exception):
-    if httpd:
-      httpd.stop()
-    raise
+	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(True)
+	itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(False)
 
-
-def locateScan(data, scan,tm):
-
-    if scan:
-      pos = None
-      if options['loc']:
-	nl, pos = addPosition(scan,data,options['lang'],options['always-loc'])
-	rel = setReliable(scan)
-	if 'latitude' in pos and 'longitude' in pos:
-	  print '[' + str(pos['latitude']) + ',' + str(pos['longitude']) + '] ' + str(len(scan)) + ' APs seen, ' + str(nl) + ' located,',
-	sys.stdout.flush()
-
-      newscanned,newreliable,newbest = data.saveScan(scan, pos, tm)
-      print '+' + str(newscanned) + ' APs, ' + '+' + str(newreliable) + ' reliable.', # (' + str(newbest) + ').',
-      return nl
-
-def mainScan():
-
-  global pid
-
-  sleep=options['sleep'][0]
-
-  pin, pout = os.pipe()
-  try:
-    pid = os.fork()
-    if pid == 0:
-      # child
-      scanHandler(pout,pin,5)
-      sys.exit(0)
-
-  except OSError, e:
-    print 'Fork failed: %d (%s)' % (e.errno, e.strerror)
-    sys.exit(1)
-
-  if os.geteuid() == 0:
-    uid, gid = getUserId()
-    core.privilege.drop_privileges_permanently(uid, gid, [1])
-
-  data = dataHandler()
-  httpd = webInterfaceStart(data)
-
-  scantext=''
-  buf=''
-
-  try:
-    while (httpd and httpd.isRunning()) or (not httpd):
-
-      buf=''
-      while 1:
-	buf+=os.read(pin,1)
-	if '\n%%WILOCATE%%\n' in buf:
-	  scantext=buf[:buf.find('\n%%WILOCATE%%\n')]
-	  break
-
-      try:
-	scan = json.loads(scantext)
-      except ValueError, e:
-	print '! Error decoding JSON: (%s)' % (e.strerror)
-	continue
-
-      timestamp = time.time()
-      print '+ [' + time.strftime("%H:%M:%S", time.localtime(timestamp))+ ']',
-
-      newscanned = locateScan(data,scan,timestamp)
-      data.jsonDump()
+	if self.httphdl:
+	  self.httphdl.stop()
 
 
-      if sleep >= options['sleep'][0] and sleep <= options['sleep'][1]:
-	if not newscanned:
-	  sleep+=options['sleep'][2]
-	else:
-	  sleep=options['sleep'][0]
+    def LoadFile(self,event):
+      pass
 
-      print 'Sleeping ' + str(sleep) + 's.'
-      time.sleep(sleep)
+    def OnExit(self,event):
+      self.tbicon.RemoveIcon()
+      self.tbicon.Destroy()
+      self.StopWeb(["fakevent"])
+      self.StopScan(["fakevent"])
+      sys.exit()
 
 
-  except (KeyboardInterrupt, Exception):
-    if httpd:
-      httpd.stop()
-    raise
+class PassDialog(wx.Dialog):
+    def __init__(self, parent):
+        wx.Dialog.__init__(self, parent, -1, "Password dialog", size=(250, 210))
 
-if __name__ == "__main__":
+        panel = wx.Panel(self, -1)
+        vbox = wx.BoxSizer(wx.VERTICAL)
 
-  print banner
+        wx.TextCtrl(panel, -1, '', (95, 105))
 
-  try:
-    parseOptions()
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        okButton = wx.Button(self, -1, 'Ok', size=(70, 30))
+        closeButton = wx.Button(self, -1, 'Close', size=(70, 30))
+        hbox.Add(okButton, 1)
+        hbox.Add(closeButton, 1, wx.LEFT, 5)
 
-    if ('single' in options and options['single']) or ('file' in options and options['file']):
-      mainSingle()
-    else:
-      mainScan()
+        vbox.Add(panel)
+        vbox.Add(hbox, 1, wx.ALIGN_CENTER | wx.TOP | wx.BOTTOM, 10)
 
-  except (KeyboardInterrupt, SystemExit):
-    sys.exit(0)
+        self.SetSizer(vbox)
+
+def main(argv=None):
+
+    options = loadOptions()
+    options['LogPath']=genLogPath()
+
+    app = wx.App(False)
+    frame = WilocateFrame(None, -1, ' ', options)
+    #frame.Center(wx.BOTH)
+    frame.Show(False)
+    app.MainLoop()
+
+if __name__ == '__main__':
+    main()

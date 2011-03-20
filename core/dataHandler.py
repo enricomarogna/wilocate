@@ -5,11 +5,7 @@ try: import json
 except ImportError: import simplejson as json
 lock=Lock()
 
-def touch(files):
-  for f in files:
-    fo = open(f,'w')
-    if not fo.closed:
-      fo.close()
+
 
 class dataHandler:
 
@@ -18,8 +14,8 @@ class dataHandler:
 
   jsonpath=''
 
-  def __init__(self):
-    self.jsonpath=self.genPath()
+  def __init__(self,jsonpath):
+    self.jsonpath=jsonpath
 
   def saveFile(self,json):
     self.locations=json['locations'].copy()
@@ -87,22 +83,5 @@ class dataHandler:
     if f=='locations':
       return self.locations[v]
 
-  def genPath(self):
 
-    tm = time.strftime("%d-%b-%Y", time.gmtime())
-
-    dirr = 'log-' + tm
-    if not os.path.exists(dirr):
-      os.makedirs(dirr)
-
-    i=0
-    path = dirr + os.sep + str(i) + '.log'
-    while os.path.exists(path):
-      i+=1
-      path = dirr + os.sep + str(i) + '.log'
-
-    touch([ path ])
-
-    print '+ Log file:', path
-    return path
 

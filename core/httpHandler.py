@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from threading import Thread, Lock
-import SimpleHTTPServer, SocketServer, os, sys, urllib2, socket, mimetypes
+import SimpleHTTPServer, SocketServer, os, sys, urllib2, socket, mimetypes, time
 try: import json
 except ImportError: import simplejson as json
 
-http_running=False
+http_running = (False, 'Not Running')
+
 data = None
 
 class StoppableHttpServer (SocketServer.TCPServer):
     def serve_forever (self):
 	global http_running
-        while http_running:
+        while http_running[0]:
             self.handle_request()
 
 class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -25,6 +26,7 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
   def do_GET(self):
 
     global http_running
+    global data
 
     try:
       if self.path.endswith(".json"):
@@ -36,7 +38,7 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	self.wfile.write(data.getJson())
 
       elif self.path.endswith("control?quit"):
-	http_running=False
+	http_running=(False, 'Web interface stopped')
 
       else:
 	if self.path=='/':
@@ -55,7 +57,7 @@ class httpHandler ( Thread ):
 
    port = -1
 
-   def __init__(self,jsondata, port=8000):
+   def __init__(self, jsondata, port=8000):
 
      global data
      data=jsondata
@@ -66,13 +68,15 @@ class httpHandler ( Thread ):
    def stop(self):
 
      global http_running
-     http_running=False
-     while 1:
+
+     http_running=(False, 'Web interface stopped')
+
+     while range(2):
 	try:
-	    #print "+ Try to quit web interface on port", self.port
 	    urllib2.urlopen('http://localhost:' + str(self.port) + '/', timeout=1)
 	except Exception, e:
 	    break
+
 
    def isRunning(self):
      global http_running
@@ -81,17 +85,22 @@ class httpHandler ( Thread ):
    def run ( self ):
       global http_running
 
-      try:
-	httpd = StoppableHttpServer(('127.0.0.1', self.port), httpRequestHandler)
-	httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-      except Exception, e:
-	print '! Web interface and browser opening disabled:', e
-	print '! Port', str(self.port), 'unavailable. Quit this session, wait few seconds and restart wilocate.'
+      httpd=None
 
-      else:
-	http_running=True
+      while not http_running[0]:
+	try:
+	  httpd = StoppableHttpServer(('127.0.0.1', self.port), httpRequestHandler)
+	  httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	except Exception, e:
+	  print '!', e
+	  http_running=(False, 'Port ' + str(self.port) + ' busy,\nretrying in 5s')
+	  time.sleep(5)
+	else:
+	  break
+
+      if httpd:
+	http_running=(True, "Running on port " + str(self.port))
 	sa = httpd.socket.getsockname()
-	print "+ Web interface is running on port", self.port
 	httpd.serve_forever()
-	print "! Quitting web interface."
 	httpd.socket.close()
+	http_running=(False, 'Web interface stopped')

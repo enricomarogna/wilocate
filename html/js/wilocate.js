@@ -2,7 +2,8 @@
 
     var locs={};
     var wifi={};
-    var aplist={};
+    var mappedaps={};
+    var unmappedaps={};
     var poslist={};
     var lastpos;
     var lastposaddr=false;
@@ -65,9 +66,9 @@
 
 	var toZoom=false;
 	var bounds = new google.maps.LatLngBounds ();
-	for (a in aplist) {
-	  if(!bounds.contains(aplist[a].getPosition())) {
-	    bounds.extend (aplist[a].getPosition());
+	for (a in mappedaps) {
+	  if(!bounds.contains(mappedaps[a].getPosition())) {
+	    bounds.extend (mappedaps[a].getPosition());
 	    toZoom=true;
 
 	  }
@@ -283,7 +284,7 @@
 	    icon:iconpath
 	});
 
-	aplist[m]=marker;
+	mappedaps[m]=marker;
 
 	google.maps.event.addListener(marker, 'mouseover', function(event) {
 	    w = parseWifi(m,b);
@@ -328,11 +329,14 @@
 
 			    aps+=1;
 
-			    if(!(m in aplist) && b in locs && 'APs' in locs[b] && m in locs[b]['APs']) {
+			    if(!((m in unmappedaps) || (m in mappedaps)) && b in locs && 'APs' in locs[b] && m in locs[b]['APs']) {
 
 			      if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
 				newlocaps+=1;
 				updateMarker(m);
+			      }
+			      else {
+				unmappedaps[m]=0;
 			      }
 			      w = parseWifi(m,b);
 			      wifiTable.fnAddData(w.l);
@@ -439,17 +443,17 @@
 		hiddenlist.push($(nHidden[i]).find('td:eq(1)').text());
 	  }
 
-	  for (mac in aplist) {
+	  for (mac in mappedaps) {
 
 
 		if (hiddenlist.indexOf(mac)!=-1) {
-		  if (aplist[mac].getVisible()==true) {
-		    aplist[mac].setVisible(false);
+		  if (mappedaps[mac].getVisible()==true) {
+		    mappedaps[mac].setVisible(false);
 		  }
 		}
 		else {
-		  if (aplist[mac].getVisible()==false) {
-		    aplist[mac].setVisible(true);
+		  if (mappedaps[mac].getVisible()==false) {
+		    mappedaps[mac].setVisible(true);
 		  }
 		}
 

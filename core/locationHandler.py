@@ -29,7 +29,6 @@ def addPosition(scan, data, lang, alwaysRelocate=False, retrysingle = 1, retryto
       totalparam['wifi_towers'] += [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : level, 'age' : 0 } ]
       singleparam['wifi_towers'] = [ { 'mac_address' : a.replace(':','-'), 'signal_strength' : level, 'age' : 0 } ]
 
-
       if not alwaysRelocate and data.wifi and a in data.wifi and 'location' in data.wifi[a]:
 	scan[a]['location']=data.getData('wifi',a)['location']
 	alreadylocnum+=1
