@@ -31,23 +31,31 @@ class dataHandler:
 
     for s in scan:
 
-      rel=False
+      best_reliability=False
       try:
 	if(self.wifi[s]['location']['reliable'] > scan[s]['location']['reliable']):
-	  rel = True
+	  best_reliability = True
 	  b+=1
       except KeyError:
 	pass
 
-      acc=False
+      best_accuracy=False
       try:
 	if(self.wifi[s]['location']['accuracy'] < scan[s]['location']['accuracy']):
-	  acc = True
+	  best_accuracy = True
 	  b+=1
       except KeyError:
 	pass
 
-      if not s in self.wifi.keys() or acc or rel:
+      best_location=False
+      try:
+	if not ('latitude' in self.wifi[s]['location'] and 'longitude' in self.wifi[s]['location']) and ('latitude' in scan[s]['location'] and 'longitude' in scan[s]['location']):
+	  best_location=True
+	  b+=1
+      except KeyError:
+	pass
+
+      if not s in self.wifi.keys() or best_accuracy or best_reliability or best_location:
 	self.wifi[s]=scan[s].copy()
 	n+=1
 

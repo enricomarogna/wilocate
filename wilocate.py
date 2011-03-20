@@ -295,7 +295,6 @@ class WilocateFrame(wx.Frame):
       self.StopScan(["fakevent"])
       sys.exit()
 
-
 class PassDialog(wx.Dialog):
     def __init__(self, parent):
         wx.Dialog.__init__(self, parent, -1, "Password dialog", size=(250, 210))
