@@ -13,7 +13,7 @@ data = None
 class StoppableHttpServer (SocketServer.TCPServer):
     def serve_forever (self):
 	global http_running
-        while http_running[0]:
+        while http_running[0] and not http_running[2]:
             self.handle_request()
 
 class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -72,11 +72,13 @@ class httpHandler ( Thread ):
 
      http_running=(False, 'Web interface stopped',True)
 
-     while range(2):
+     for n in range(3):
 	try:
 	    urllib2.urlopen('http://localhost:' + str(self.port) + '/', timeout=1)
 	except Exception, e:
-	    break
+	  pass
+	else:
+	  break
 
 
    def isRunning(self):
@@ -88,15 +90,22 @@ class httpHandler ( Thread ):
 
       httpd=None
 
-      while not http_running[0] and not http_running[2]:
-	try:
-	  httpd = StoppableHttpServer(('127.0.0.1', self.port), httpRequestHandler)
-	  httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	except Exception, e:
-	  print '!', e
-	  http_running=(False, 'Port ' + str(self.port) + ' busy,\nretrying in 5s',False)
-	  time.sleep(1)
-	else:
+      while True:
+	if not http_running[0]:
+	  try:
+	    httpd = StoppableHttpServer(('127.0.0.1', self.port), httpRequestHandler)
+	    httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	  except Exception, e:
+	    print '!', e
+	    http_running=(False, 'Port ' + str(self.port) + ' busy,\nretrying in 5s',False)
+	    time.sleep(5)
+	  else:
+	    #print 'Chiudo il ciclo del thread, normalmente'
+	    break
+
+	if http_running[2]:
+
+	  #print 'Chiudo il ciclo del thread, forced'
 	  break
 
 
@@ -107,3 +116,4 @@ class httpHandler ( Thread ):
 	httpd.socket.close()
 
       http_running=(False, 'Web interface stopped', True)
+      #print 'Esco dal thread, credo'

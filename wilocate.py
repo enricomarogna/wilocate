@@ -71,6 +71,9 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
         menuscan.Check(ID_SCAN_ON_START, self.options['ScanOnStart'])
 	menuscan.Append(ID_NOT_LOC, 'Don\'t locate (offline mode)', 'Don\'t locate', kind=wx.ITEM_CHECK)
         menuscan.Check(ID_NOT_LOC, self.options['NotLocate'])
+	menuscan.AppendSeparator()
+	menuscan.Append(ID_LOAD_FILE, "Load File")
+
         self.menu.AppendMenu(ID_MENU_SCAN, "Wifi Scan", menuscan)
 
         menuweb = wx.Menu()
@@ -79,17 +82,20 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
 	menuweb.Append(ID_START_WEB, "Start web interface")
         menuweb.Append(ID_STOP_WEB, "Stop web interface")
 	menuweb.AppendSeparator()
-        menuweb.Append(ID_OPEN_BROWSER, "Open browser","This will open a new Browser")
-	menuweb.AppendSeparator()
+        #menuweb.Append(ID_OPEN_BROWSER, "Open browser","This will open a new Browser")
+	#menuweb.AppendSeparator()
         menuweb.Append(ID_WEB_ON_START, 'Web interface on start', 'Start Web interface on start', kind=wx.ITEM_CHECK)
         menuweb.Check(ID_WEB_ON_START, self.options['WebOnStart'])
 	menuweb.Append(ID_BROWSER_ON_WEB_START, 'Web browser on start', 'Start Web browser on start', kind=wx.ITEM_CHECK)
         menuweb.Check(ID_WEB_ON_START, self.options['BrowserOnWebStart'])
 	self.menu.AppendMenu(ID_MENU_WEB, "Web Interface", menuweb)
+	self.menu.AppendSeparator()
+        self.menu.Append(ID_OPEN_BROWSER, "Open browser","This will open a new Browser")
+	self.menu.AppendSeparator()
 
-	self.menu.AppendSeparator()
-        self.menu.Append(ID_LOAD_FILE, "Load File")
-	self.menu.AppendSeparator()
+	#self.menu.AppendSeparator()
+        #self.menu.Append(ID_LOAD_FILE, "Load File")
+
 	self.menu.Append(wx.ID_EXIT, "Close App")
 
     def ShowMenu(self,event):
@@ -102,6 +108,7 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
 class WilocateFrame(wx.Frame):
 
     scannerTimer=5
+    timers=[]
 
     scanRunning=False
 
@@ -133,16 +140,17 @@ class WilocateFrame(wx.Frame):
 	#Detach to renderize systray icon faster
 	if self.options['ScanOnStart']:
 	  self.scanRunning=True
-	  t = Timer(0.2, self.StartScan, ['fakevent'])
-	  t.start()
+	  self.timers.append(Timer(0.2, self.StartScan, ['fakevent']))
+	  self.timers[-1].start()
 
 	if self.options['WebOnStart']:
-	  t = Timer(0.1, self.StartWebDetached)
-	  t.start()
-
+	  #t = Timer(0.1, self.StartWebDetached)
+	  #t.start()
+	  self.timers.append(Timer(0.1, self.StartWebDetached))
+	  self.timers[-1].start()
 
     def OpenBrowser(self,event):
-        webbrowser.get('x-www-browser').open('http://localhost:8000')
+        webbrowser.get('x-www-browser').open('http://localhost:' + str(self.options['port']))
 
     def TriggerScan(self,event):
 
@@ -177,8 +185,11 @@ class WilocateFrame(wx.Frame):
 	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
 
 	if self.scanRunning:
-	  t = Timer(self.scannerTimer, self.StartScan, ['falsevent'])
-	  t.start()
+	  #t = Timer(self.scannerTimer, self.StartScan, ['falsevent'])
+	  #t.start()
+	  self.timers.append(Timer(self.scannerTimer, self.StartScan, ['falsevent']))
+	  self.timers[-1].start()
+
 
     def StopScan(self,event):
       	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
@@ -231,8 +242,11 @@ class WilocateFrame(wx.Frame):
 
 	if not self.httphdl.isRunning()[0]:
 
-	  t = Timer(0.1, self.StartWebDetached)
-	  t.start()
+	  #t = Timer(0.1, self.StartWebDetached)
+	  #t.start()
+	  self.timers.append(Timer(0.1, self.StartWebDetached))
+	  self.timers[-1].start()
+
 
 
     def StartWebDetached(self):
@@ -258,12 +272,15 @@ class WilocateFrame(wx.Frame):
 	    r=True
 	    self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
 	    itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Web interface started')
-
 	    if self.options['BrowserOnWebStart']:
-	      webbrowser.get('x-www-browser').open('http://localhost:' + str(self.options['port']))
+	      self.OpenBrowser(["fa"])
+
+	    #print 'Chiudo il ciclo del prog, normalmente'
 	    break
 
 	  if http_state[2]:
+
+	    #print 'Chiudo il ciclo del prog, forced'
 	    break
 
 	  else:
@@ -288,13 +305,26 @@ class WilocateFrame(wx.Frame):
 
 
     def LoadFile(self,event):
-      pass
+      dirname = '/'
+      dlg = wx.FileDialog(self, "Choose a file", dirname,"", "*.*", wx.OPEN)
+
+      if dlg.ShowModal()==wx.ID_OK:
+	filename=dlg.GetFilename()
+	dirname=dlg.GetDirectory()
+
+      print filename, dirname
+      dlg.Destroy()
 
     def OnExit(self,event):
+
+      for t in self.timers:
+	t.cancel()
+
       self.tbicon.RemoveIcon()
       self.tbicon.Destroy()
       self.StopWeb(["fakevent"])
       self.StopScan(["fakevent"])
+      #self.Close(True)
       sys.exit()
 
 class PassDialog(wx.Dialog):
