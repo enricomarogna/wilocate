@@ -313,6 +313,7 @@ class WilocateFrame(wx.Frame):
 
     def LoadFile(self,event):
       global confdir
+
       dirname = confdir
       dlg = wx.FileDialog(self, "Choose a file", dirname,"", "*.*", wx.OPEN)
 
@@ -320,7 +321,9 @@ class WilocateFrame(wx.Frame):
 	filename=dlg.GetFilename()
 	dirname=dlg.GetDirectory()
 
+	fl = open(dirname + filename,'r')
 
+	fl.close()
 
 
       dlg.Destroy()
