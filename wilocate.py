@@ -42,7 +42,7 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
         wx.TaskBarIcon.__init__(self)
         self.parentApp = parent
         self.options=parent.options
-        self.logoStandard = wx.Icon("html/img/icontray1.png",wx.BITMAP_TYPE_PNG)
+        self.logoStandard = wx.Icon("html/img/logotray.png",wx.BITMAP_TYPE_PNG)
         #self.youHaveMailIcon = wx.Icon("mail-message-new.png",wx.BITMAP_TYPE_PNG)
         self.CreateMenu()
         self.SetIconImage()
@@ -312,14 +312,17 @@ class WilocateFrame(wx.Frame):
 
 
     def LoadFile(self,event):
-      dirname = '/'
+      global confdir
+      dirname = confdir
       dlg = wx.FileDialog(self, "Choose a file", dirname,"", "*.*", wx.OPEN)
 
       if dlg.ShowModal()==wx.ID_OK:
 	filename=dlg.GetFilename()
 	dirname=dlg.GetDirectory()
 
-      print filename, dirname
+
+
+
       dlg.Destroy()
 
     def OnExit(self,event):

@@ -4,17 +4,20 @@ import os, time, json
 default_options={ 'ScanOnStart' : True, 'WebOnStart' : True, 'BrowserOnWebStart' : True, 'port' : 8000, 'lang' : '', 'NotLocate': False, 'always-loc': False, 'sleep':(5,60,10) }
 options = {}
 
+confdir = os.getenv("HOME") + os.sep + '.wilocate' + os.sep
+
 def touch(files):
   for f in files:
     fo = open(f,'w')
     if not fo.closed:
       fo.close()
 
+
 def genLogPath():
 
   tm = time.strftime("%d-%b-%Y", time.gmtime())
 
-  dirr = 'log-' + tm
+  dirr = confdir + 'log-' + tm
   if not os.path.exists(dirr):
     os.makedirs(dirr)
 
@@ -29,7 +32,7 @@ def genLogPath():
   return path
 
 def saveOptions():
-    f = open(os.getenv("HOME") + os.sep + '.wilocate.conf','w')
+    f = open(confdir + 'wilocate.conf','w')
 
     f.write(json.dumps(options, indent=4))
     f.close()
@@ -50,13 +53,16 @@ def loadOptions():
 
   global options
 
-  if not os.path.exists(os.getenv("HOME") + os.sep + '.wilocate.conf'):
+  if not os.path.exists(confdir):
+    os.makedirs(confdir)
+
+  if not os.path.exists(confdir + 'wilocate.conf'):
     setDefaultOptions()
     print 'No config founded, loaded default options.'
     saveOptions()
 
   else:
-    f = open(os.getenv("HOME") + os.sep + '.wilocate.conf','r')
+    f = open(confdir + 'wilocate.conf','r')
     options = json.loads(f.read())
 
   return options
