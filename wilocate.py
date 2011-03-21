@@ -42,7 +42,7 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
         wx.TaskBarIcon.__init__(self)
         self.parentApp = parent
         self.options=parent.options
-        self.logoStandard = wx.Icon("html/img/logo.png",wx.BITMAP_TYPE_PNG)
+        self.logoStandard = wx.Icon("html/img/icontray1.png",wx.BITMAP_TYPE_PNG)
         #self.youHaveMailIcon = wx.Icon("mail-message-new.png",wx.BITMAP_TYPE_PNG)
         self.CreateMenu()
         self.SetIconImage()
