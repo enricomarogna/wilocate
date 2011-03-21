@@ -11,7 +11,7 @@ from threading import Timer
 try:
   import wx
 except ImportError:
-  print '! Install wxPython library with sudo apt-get install wxPython'
+  print '! Install wxPython library version 2.6 with \'sudo apt-get install python-wxgtk2.6\''
   sys.exit(1)
 
 ID_ICON_TIMER = wx.NewId()

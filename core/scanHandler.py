@@ -54,8 +54,8 @@ class scanHandler:
     bin_kdesu = 'kdesudo'
     path_su = which(bin_kdesu, ['/sbin/', '/usr/sbin/'])
     if not path_su:
-      print '! No sudo GUIs, quitting'
-      sys.exit(1)
+      self.command_su=path_su
+      print '! No gtksu or kdesudo founded, triggered scan is disabled.'
     else:
       self.command_su=path_su
 
@@ -104,10 +104,15 @@ class scanHandler:
     lastcell=''
     lastauth=''
 
-    if not sudo:
+    if not sudo or not self.command_su:
       cmd = [ self.command + ' scan' ]
       pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
     else:
+      if self.command_su == 'sudo':
+	#Fare l'interfaccia di input/output per sudo
+	#os.popen("sudo -S somecommand", 'w').write("mypassword")
+	pass
+
       cmd = [ self.command_su + ' "' + self.command + ' scan"' ]
       pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
 
