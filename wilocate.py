@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys, wx, time, webbrowser
+import sys, time, webbrowser
 from core.scanHandler import *
 from core.httpHandler import *
 from core.optionsHandler import *
 from threading import Timer
+
+
+try:
+  import wx
+except ImportError:
+  print '! Install wxPython library with sudo apt-get install wxPython'
+  sys.exit(1)
 
 ID_ICON_TIMER = wx.NewId()
 ID_OPEN_BROWSER=wx.NewId()
