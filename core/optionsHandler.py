@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-import os, time, json
+import os, time
+try: import json
+except ImportError: import simplejson as json
 
 default_options={ 'ScanOnStart' : True, 'WebOnStart' : True, 'BrowserOnWebStart' : True, 'port' : 8000, 'lang' : '', 'NotLocate': False, 'always-loc': False, 'sleep':(5,60,10) }
 options = {}
