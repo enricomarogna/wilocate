@@ -65,6 +65,11 @@ def loadOptions():
 
   else:
     f = open(confdir + 'wilocate.conf','r')
-    options = json.loads(f.read())
+
+    try:
+      options = json.loads(f.read())
+    except Exception, e:
+      setDefaultOptions()
+      print 'Invalid config founded, loaded default options.'
 
   return options
