@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Wilocate
+Comment=Wireless networks detection and geolocation tool
+Icon=/usr/share/wilocate/html/img/logo.png
+Exec=/usr/share/wilocate/wilocate.py
+Terminal=false
+MultipleArgs=false
+Categories=Application;Network

@@ -320,10 +320,27 @@ class WilocateFrame(wx.Frame):
       if dlg.ShowModal()==wx.ID_OK:
 	filename=dlg.GetFilename()
 	dirname=dlg.GetDirectory()
+	self.StopScan(["fakeevent"])
 
-	fl = open(dirname + filename,'r')
+	#newscaninfo = self.scanhdl.wifiScan()
 
-	fl.close()
+	#scan_info = newscaninfo['timestamp'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
+
+	scan_info="Loading file"
+
+	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
+	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
+	itemmenustatus.SetText(scan_info)
+
+	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
+	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
+
+	while self.scanRunning:
+	  pass
+	  #t = Timer(self.scannerTimer, self.StartScan, ['falsevent'])
+	  #t.start()
+	  #self.timers.append(Timer(self.scannerTimer, self.StartScan, ['falsevent']))
+	  #self.timers[-1].start()
 
 
       dlg.Destroy()

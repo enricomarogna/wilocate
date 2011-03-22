@@ -499,6 +499,14 @@
  	  wifiTable.fnFilter('');
 
       });
+      $('#clear_button2').click(function() {
+ 	  alert('asddas');
+
+      });
+      $('#show_all_button').click(function() {
+ 	  alert('asddsasd');
+
+      });
 
       $("#myTable tbody").delegate("tr", "click", function() {
 	  var m = $("td:eq(1)", this).text();
