@@ -505,7 +505,6 @@
       });
       $('#show_all_button').click(function() {
  	  alert('asddsasd');
-
       });
 
       $("#myTable tbody").delegate("tr", "click", function() {
