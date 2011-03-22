@@ -162,34 +162,34 @@ class WilocateFrame(wx.Frame):
     def TriggerScan(self,event):
 
       newscaninfo = self.scanhdl.wifiScan(True)
-
-      scan_info = newscaninfo['timestamp'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
-
-      itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
-      itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
-      itemmenustatus.SetText(scan_info)
-
-    def StartScan(self,event):
-
-	newscaninfo = self.scanhdl.wifiScan()
-
-	if self.scannerTimer >= self.options['sleep'][0] and self.scannerTimer <= self.options['sleep'][1]:
-	  if newscaninfo['newscanned'] == '0':
-	    self.scannerTimer+=self.options['sleep'][2]
-	  else:
-	    self.scannerTimer=self.options['sleep'][0]
-
-	#print '[' + newscaninfo['timestamp'] + '] [' + newscaninfo['latitude'] + ',' + newscaninfo['longitude'] + '] ' + newscaninfo['seen'] + ' APs seen, ' + newscaninfo['located'] + ' located, ' + '+' + newscaninfo['newscanned'] + ' APs, ' + '+' + newscaninfo['newreliable'] + ' reliable.',
-	#print 'Next in ' + str(self.scannerTimer) + 's.'
-
+      if newscaninfo:
 	scan_info = newscaninfo['timestamp'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
 
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
 	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
 	itemmenustatus.SetText(scan_info)
 
-	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
-	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
+    def StartScan(self,event):
+
+	newscaninfo = self.scanhdl.wifiScan()
+	if newscaninfo:
+	  if self.scannerTimer >= self.options['sleep'][0] and self.scannerTimer <= self.options['sleep'][1]:
+	    if newscaninfo['newscanned'] == '0':
+	      self.scannerTimer+=self.options['sleep'][2]
+	    else:
+	      self.scannerTimer=self.options['sleep'][0]
+
+	  #print '[' + newscaninfo['timestamp'] + '] [' + newscaninfo['latitude'] + ',' + newscaninfo['longitude'] + '] ' + newscaninfo['seen'] + ' APs seen, ' + newscaninfo['located'] + ' located, ' + '+' + newscaninfo['newscanned'] + ' APs, ' + '+' + newscaninfo['newreliable'] + ' reliable.',
+	  #print 'Next in ' + str(self.scannerTimer) + 's.'
+
+	  scan_info = newscaninfo['timestamp'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
+
+	  itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
+	  itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
+	  itemmenustatus.SetText(scan_info)
+
+	  itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
+	  itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
 
 	if self.scanRunning:
 	  #t = Timer(self.scannerTimer, self.StartScan, ['falsevent'])
