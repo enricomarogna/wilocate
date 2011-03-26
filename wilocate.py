@@ -19,6 +19,7 @@ ID_OPEN_BROWSER=wx.NewId()
 ID_START_SCAN=wx.NewId()
 ID_STOP_SCAN=wx.NewId()
 ID_TRIGGER_SCAN=wx.NewId()
+ID_SCAN_TRIGGERED=wx.NewId()
 ID_SCAN_ON_START=wx.NewId()
 ID_NOT_LOC=wx.NewId()
 ID_LOAD_FILE=wx.NewId()
@@ -58,6 +59,7 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
         self.Bind(wx.EVT_MENU, self.parentApp.StartScan, id=ID_START_SCAN)
         self.Bind(wx.EVT_MENU, self.parentApp.StopScan, id=ID_STOP_SCAN)
         self.Bind(wx.EVT_MENU, self.parentApp.TriggerScan, id=ID_TRIGGER_SCAN)
+        self.Bind(wx.EVT_MENU, self.parentApp.TriggeredOnStart, id=ID_SCAN_TRIGGERED)
         self.Bind(wx.EVT_MENU, self.parentApp.ScanOnStart, id=ID_SCAN_ON_START)
         self.Bind(wx.EVT_MENU, self.parentApp.NotLocate, id=ID_NOT_LOC)
         self.Bind(wx.EVT_MENU, self.parentApp.LoadFile, id=ID_LOAD_FILE)
@@ -65,14 +67,15 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
 	wx.EVT_TASKBAR_LEFT_DCLICK(self, self.parentApp.OpenBrowser)
 
         self.menu=wx.Menu()
-
         menuscan = wx.Menu()
 	menuscan.Append(ID_MENU_SCAN_STATUS,"")
 	menuscan.AppendSeparator()
         menuscan.Append(ID_START_SCAN, "Start Scan")
         menuscan.Append(ID_STOP_SCAN, "Stop Scan")
 	menuscan.AppendSeparator()
-        menuscan.Append(ID_TRIGGER_SCAN, "Trigger Root Scan")
+        menuscan.Append(ID_TRIGGER_SCAN, "Trigger root scan")
+        menuscan.Append(ID_SCAN_TRIGGERED, "Triggered scan on start", 'Triggered scan on start', kind=wx.ITEM_CHECK)
+        menuscan.Check(ID_SCAN_TRIGGERED, self.options['TriggeredOnStart'])
         menuscan.AppendSeparator()
         menuscan.Append(ID_SCAN_ON_START, 'Scanning on start', 'Start Scan on start', kind=wx.ITEM_CHECK)
         menuscan.Check(ID_SCAN_ON_START, self.options['ScanOnStart'])
@@ -89,8 +92,6 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
 	menuweb.Append(ID_START_WEB, "Start web interface")
         menuweb.Append(ID_STOP_WEB, "Stop web interface")
 	menuweb.AppendSeparator()
-        #menuweb.Append(ID_OPEN_BROWSER, "Open browser","This will open a new Browser")
-	#menuweb.AppendSeparator()
         menuweb.Append(ID_WEB_ON_START, 'Web interface on start', 'Start Web interface on start', kind=wx.ITEM_CHECK)
         menuweb.Check(ID_WEB_ON_START, self.options['WebOnStart'])
 	menuweb.Append(ID_BROWSER_ON_WEB_START, 'Web browser on start', 'Start Web browser on start', kind=wx.ITEM_CHECK)
@@ -99,9 +100,6 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
 	self.menu.AppendSeparator()
         self.menu.Append(ID_OPEN_BROWSER, "Open browser","This will open a new Browser")
 	self.menu.AppendSeparator()
-
-	#self.menu.AppendSeparator()
-        #self.menu.Append(ID_LOAD_FILE, "Load File")
 
 	self.menu.Append(wx.ID_EXIT, "Close App")
 
@@ -126,6 +124,8 @@ class WilocateFrame(wx.Frame):
 
     options = {}
 
+    dialog=None
+
     def __init__(self, parent, id, title, options):
 
         wx.Frame.__init__(self, parent, -1, title, size = (1, 1),
@@ -134,7 +134,6 @@ class WilocateFrame(wx.Frame):
 	self.options = options
 
         self.tbicon = WilocateTaskBarIcon(self)
-        #self.tbicon.Bind(wx.EVT_MENU, self.exitApp, id=wx.ID_EXIT)
         self.Show(True)
 
 
@@ -157,21 +156,35 @@ class WilocateFrame(wx.Frame):
 	  self.timers[-1].start()
 
     def OpenBrowser(self,event):
-        webbrowser.get('x-www-browser').open('http://localhost:' + str(self.options['port']))
+	webbrowser.get('x-www-browser').open('http://localhost:' + str(self.options['port']))
 
     def TriggerScan(self,event):
+      """Trigger a root scan.
+
+      It not call directly StartScan to avoid multiple scan loops.
+      """
+
+      self.GetSudoPwd()
 
       newscaninfo = self.scanhdl.wifiScan(True)
       if newscaninfo:
-	scan_info = newscaninfo['timestamp'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
+	scan_info = newscaninfo['timestamp'] + ' Triggered\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
 
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
 	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
 	itemmenustatus.SetText(scan_info)
 
+
     def StartScan(self,event):
+	"""Start main scan loop."""
+
+	triggered_info = ''
+	if self.options['TriggeredOnStart']:
+	  triggered_info = ' Triggered'
+	  #newscaninfo = self.scanhdl.wifiScan(self.options['TriggeredOnStart'])
 
 	newscaninfo = self.scanhdl.wifiScan()
+
 	if newscaninfo:
 	  if self.scannerTimer >= self.options['sleep'][0] and self.scannerTimer <= self.options['sleep'][1]:
 	    if newscaninfo['newscanned'] == '0':
@@ -182,7 +195,7 @@ class WilocateFrame(wx.Frame):
 	  #print '[' + newscaninfo['timestamp'] + '] [' + newscaninfo['latitude'] + ',' + newscaninfo['longitude'] + '] ' + newscaninfo['seen'] + ' APs seen, ' + newscaninfo['located'] + ' located, ' + '+' + newscaninfo['newscanned'] + ' APs, ' + '+' + newscaninfo['newreliable'] + ' reliable.',
 	  #print 'Next in ' + str(self.scannerTimer) + 's.'
 
-	  scan_info = newscaninfo['timestamp'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
+	  scan_info = newscaninfo['timestamp'] + triggered_info + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
 
 	  itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
 	  itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
@@ -233,9 +246,16 @@ class WilocateFrame(wx.Frame):
       else:
 	self.options['BrowserOnWebStart']=False
 
-
       saveOptions()
 
+
+    def TriggeredOnStart(self,event):
+      if self.tbicon.menu.FindItemById(ID_MENU_SCAN).GetMenu().FindItemById(ID_SCAN_TRIGGERED).IsChecked():
+	self.options['TriggeredOnStart']=True
+      else:
+	self.options['TriggeredOnStart']=False
+
+      saveOptions()
 
     def NotLocate(self,event):
       if self.tbicon.menu.FindItemById(ID_MENU_SCAN).GetMenu().FindItemById(ID_NOT_LOC).IsChecked():
@@ -253,7 +273,6 @@ class WilocateFrame(wx.Frame):
 	  #t.start()
 	  self.timers.append(Timer(0.1, self.StartWebDetached))
 	  self.timers[-1].start()
-
 
 
     def StartWebDetached(self):
@@ -301,6 +320,7 @@ class WilocateFrame(wx.Frame):
 
 
     def StopWeb(self,event):
+
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_WEB)
 	itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Stopped')
 
@@ -310,8 +330,15 @@ class WilocateFrame(wx.Frame):
 	if self.httphdl:
 	  self.httphdl.stop()
 
+    def GetSudoPwd(self):
+      """Ask root password with a Dialog. """
+      if not self.options['password']:
+	self.dialog = PasswordDialog(self, -1, 'Sudo')
+        result = self.dialog.ShowModal()
+        self.dialog.Destroy()
 
     def LoadFile(self,event):
+
       global confdir
 
       dirname = confdir
@@ -342,7 +369,6 @@ class WilocateFrame(wx.Frame):
 	  #self.timers.append(Timer(self.scannerTimer, self.StartScan, ['falsevent']))
 	  #self.timers[-1].start()
 
-
       dlg.Destroy()
 
     def OnExit(self,event):
@@ -357,25 +383,29 @@ class WilocateFrame(wx.Frame):
       #self.Close(True)
       sys.exit()
 
-class PassDialog(wx.Dialog):
-    def __init__(self, parent):
-        wx.Dialog.__init__(self, parent, -1, "Password dialog", size=(250, 210))
+class PasswordDialog(wx.Dialog):
 
-        panel = wx.Panel(self, -1)
-        vbox = wx.BoxSizer(wx.VERTICAL)
+    pwd_textctrl = None
 
-        wx.TextCtrl(panel, -1, '', (95, 105))
+    def __init__(self, parent, id, title):
+        wx.Dialog.__init__(self, parent, id, title, size=(340,110))
 
-        hbox = wx.BoxSizer(wx.HORIZONTAL)
-        okButton = wx.Button(self, -1, 'Ok', size=(70, 30))
-        closeButton = wx.Button(self, -1, 'Close', size=(70, 30))
-        hbox.Add(okButton, 1)
-        hbox.Add(closeButton, 1, wx.LEFT, 5)
+        wx.StaticText(self,-1,'Insert \'sudo\' root password to run wifi scans as root.', (5, 5))
+        self.pwd_textctrl = wx.TextCtrl(self, -1, '',  (90, 30), (150, -1), style=wx.TE_PASSWORD)
+        ID_PASS_BUTT = wx.NewId()
+        wx.Button(self, ID_PASS_BUTT, 'Run', (130, 70))
 
-        vbox.Add(panel)
-        vbox.Add(hbox, 1, wx.ALIGN_CENTER | wx.TOP | wx.BOTTOM, 10)
+	self.Bind(wx.EVT_BUTTON, self.PassButtPressed, id=ID_PASS_BUTT)
+	self.parentApp = parent
 
-        self.SetSizer(vbox)
+    def PassButtPressed(self,event):
+	pwd = self.pwd_textctrl.GetValue()
+	if pwd:
+	  self.parentApp.options['password']=pwd
+	else:
+	  wx.MessageBox('Invalid password, scan stopped.', 'Error')
+
+	self.Hide()
 
 def main(argv=None):
 
@@ -384,7 +414,6 @@ def main(argv=None):
 
     app = wx.App(False)
     frame = WilocateFrame(None, -1, ' ', options)
-    #frame.Center(wx.BOTH)
     frame.Show(False)
     app.MainLoop()
 

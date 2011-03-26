@@ -3,7 +3,7 @@ import os, time
 try: import json
 except ImportError: import simplejson as json
 
-default_options={ 'ScanOnStart' : True, 'WebOnStart' : True, 'BrowserOnWebStart' : True, 'port' : 8000, 'lang' : '', 'NotLocate': False, 'always-loc': False, 'sleep':(5,60,10) }
+default_options={ 'ScanOnStart' : True, 'WebOnStart' : True, 'BrowserOnWebStart' : True, 'port' : 8000, 'lang' : '', 'NotLocate': False, 'always-loc': False, 'sleep':(5,60,10), 'password': '', 'TriggeredOnStart' : False, 'password' : '' }
 options = {}
 
 confdir = os.getenv("HOME") + os.sep + '.wilocate' + os.sep
@@ -36,7 +36,10 @@ def genLogPath():
 def saveOptions():
     f = open(confdir + 'wilocate.conf','w')
 
-    f.write(json.dumps(options, indent=4))
+    options_to_save = options.copy()
+    options_to_save['password']=''
+
+    f.write(json.dumps(options_to_save, indent=4))
     f.close()
 
 def setDefaultOptions():
@@ -50,6 +53,7 @@ def setDefaultOptions():
     if '.' in lang:
       lang=lang.split('.')[0]
     options['lang']=lang
+
 
 def loadOptions():
 
@@ -72,4 +76,5 @@ def loadOptions():
       setDefaultOptions()
       print 'Invalid config founded, loaded default options.'
 
+  options['password']=''
   return options

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os, sys, time, re
+import os, sys, time, re, wx
 from subprocess import Popen, PIPE, STDOUT
 try: import json
 except ImportError: import simplejson as json
@@ -27,6 +27,7 @@ def which(program, moredirs = []):
 
     return None
 
+
 class scanHandler:
 
   command=''
@@ -46,24 +47,25 @@ class scanHandler:
     else:
       self.command=path_iwlist
 
-    bin_gtksu = 'gtksu'
-    path_su = which(bin_gtksu, ['/sbin/', '/usr/sbin/'])
+    bin_su = 'sudo'
+    path_su = which(bin_su, ['/sbin/', '/usr/sbin/'])
     if path_su:
       self.command_su=path_su
-
-    bin_kdesu = 'kdesudo'
-    path_su = which(bin_kdesu, ['/sbin/', '/usr/sbin/'])
-    if not path_su:
-      self.command_su=path_su
-      print '! No gtksu or kdesudo founded, triggered scan is disabled.'
     else:
-      self.command_su=path_su
+      print '! No sudo program founded, triggered scan is disabled.'
+
+    #bin_kdesu = 'kdesudo'
+    #path_su = which(bin_kdesu, ['/sbin/', '/usr/sbin/'])
+    #if not path_su:
+      #self.command_su=path_su
+      #print '! No gtksu or kdesudo founded, triggered scan is disabled.'
+    #else:
+      #self.command_su=path_su
 
     self.datahdl=data
     self.options=options
 
   def wifiScan(self,sudo=False):
-
     self.getScan(sudo)
     newscaninfo = self.locateScan()
     self.datahdl.jsonDump()
@@ -104,17 +106,29 @@ class scanHandler:
     lastcell=''
     lastauth=''
 
-    if not sudo or not self.command_su:
+    if sudo or self.options['password']:
+      if self.command_su and self.options['password']:
+	cmd = [ 'echo ' + self.options['password'] + ' | ' + self.command_su + ' -S ' + self.command + ' scan' ]
+	pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+      else:
+
+	print 'ci sono entrato'
+	msg = 'Error executing ' + self.command_su + ' with password ' + '*'*len(self.options['password']) + '.'
+	wx.MessageBox(msg, 'Error')
+	return
+
+    else:
       cmd = [ self.command + ' scan' ]
       pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
-    else:
-      if self.command_su == 'sudo':
-	#Fare l'interfaccia di input/output per sudo
-	#os.popen("sudo -S somecommand", 'w').write("mypassword")
-	pass
 
-      cmd = [ self.command_su + ' "' + self.command + ' scan"' ]
-      pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+    ret = pop.wait()
+    if ret != 0:
+	msg = 'Something gone wrong with scan execution.'
+	if sudo and self.options['password']:
+	  msg += ' Check your \'sudo\' root password or disable triggered scans.'
+	  self.options['password']=''
+	wx.MessageBox(msg, 'Error')
+	return
 
     try:
       for l in pop.stdout.read().split('\n'):
