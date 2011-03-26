@@ -100,21 +100,25 @@ class scanHandler:
 	  'longitude' : str(latpos)
 	}
 
+  msgbox = None
+
   def getScan(self, sudo=False):
 
     data = {}
     lastcell=''
     lastauth=''
 
+    dlg=None
+
     if sudo or self.options['password']:
       if self.command_su and self.options['password']:
 	cmd = [ 'echo ' + self.options['password'] + ' | ' + self.command_su + ' -S ' + self.command + ' scan' ]
 	pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
       else:
-
-	print 'ci sono entrato'
 	msg = 'Error executing ' + self.command_su + ' with password ' + '*'*len(self.options['password']) + '.'
-	wx.MessageBox(msg, 'Error')
+	self.dlg = wx.MessageDialog(None, msg, "Error", wx.OK)
+	self.dlg.ShowModal()
+	self.dlg.Destroy()
 	return
 
     else:
@@ -127,7 +131,9 @@ class scanHandler:
 	if sudo and self.options['password']:
 	  msg += ' Check your \'sudo\' root password or disable triggered scans.'
 	  self.options['password']=''
-	wx.MessageBox(msg, 'Error')
+	self.dlg = wx.MessageDialog(None, msg, "Error", wx.OK)
+	self.dlg.ShowModal()
+	self.dlg.Destroy()
 	return
 
     try:
