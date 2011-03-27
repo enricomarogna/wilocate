@@ -116,7 +116,6 @@ class scanHandler:
 	pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
       else:
 	msg = 'Error executing ' + self.command_su + ' with password ' + '*'*len(self.options['password']) + '.'
-	print msg
 	self.dlg = wx.MessageDialog(None, msg, "Error", wx.OK)
 	self.dlg.ShowModal()
 	self.dlg.Destroy()
@@ -133,7 +132,6 @@ class scanHandler:
 	  msg += ' Check your \'sudo\' root password or disable triggered scans.'
 	  self.options['password']=''
 
-	print msg
 	self.dlg = wx.MessageDialog(None, msg, "Error", wx.OK)
 	self.dlg.ShowModal()
 	self.dlg.Destroy()
