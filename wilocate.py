@@ -197,8 +197,9 @@ class WilocateFrame(wx.Frame):
 
 	triggered_info = ''
 	if self.options['TriggeredOnStart']:
+	  self.GetSudoPwd()
 	  triggered_info = ' Triggered'
-	  #newscaninfo = self.scanhdl.wifiScan(self.options['TriggeredOnStart'])
+	  newscaninfo = self.scanhdl.wifiScan(self.options['TriggeredOnStart'])
 
 	newscaninfo = self.scanhdl.wifiScan()
 
@@ -320,30 +321,6 @@ class WilocateFrame(wx.Frame):
 
 	r=False
 	rnum=0
-
-	#while not r:
-	  #print 'quanti giri fo?'
-	  #http_state = self.httphdl.isRunning()
-	  #if http_state[0]:
-	    #r=True
-	    #self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
-	    #itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Web interface started')
-	    #if self.options['BrowserOnWebStart']:
-	      #self.OpenBrowser(["fa"])
-
-	    ##print 'Chiudo il ciclo del prog, normalmente'
-	    #break
-
-	  #if http_state[2]:
-
-	    ##print 'Chiudo il ciclo del prog, forced'
-	    #break
-
-	  #else:
-	    #itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1] + ' (try #' + str(rnum) + ')')
-	    #rnum+=1
-	    #time.sleep(5)
-
 
 	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
 	itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(True)

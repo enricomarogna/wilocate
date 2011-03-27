@@ -117,9 +117,9 @@ class scanHandler:
       else:
 	msg = 'Error executing ' + self.command_su + ' with password ' + '*'*len(self.options['password']) + '.'
 	print msg
-	#self.dlg = wx.MessageDialog(None, msg, "Error", wx.OK)
-	#self.dlg.ShowModal()
-	#self.dlg.Destroy()
+	self.dlg = wx.MessageDialog(None, msg, "Error", wx.OK)
+	self.dlg.ShowModal()
+	self.dlg.Destroy()
 	return
 
     else:
@@ -134,9 +134,9 @@ class scanHandler:
 	  self.options['password']=''
 
 	print msg
-	#self.dlg = wx.MessageDialog(None, msg, "Error", wx.OK)
-	#self.dlg.ShowModal()
-	#self.dlg.Destroy()
+	self.dlg = wx.MessageDialog(None, msg, "Error", wx.OK)
+	self.dlg.ShowModal()
+	self.dlg.Destroy()
 	return
 
     try:
