@@ -10,6 +10,7 @@ from threading import Timer
 
 try:
   import wx
+  import wx.lib.newevent
 except ImportError:
   print '! Install wxPython library version 2.6 with \'sudo apt-get install python-wxgtk2.6\''
   sys.exit(1)
@@ -33,6 +34,9 @@ ID_MENU_SCAN=wx.NewId()
 
 ID_MENU_WEB=wx.NewId()
 ID_MENU_WEB_STATUS=wx.NewId()
+
+ID_TIMER_WEB=wx.NewId()
+ID_TIMER_SCAN=wx.NewId()
 
 
 class WilocateTaskBarIcon(wx.TaskBarIcon):
@@ -103,6 +107,8 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
 
 	self.menu.Append(wx.ID_EXIT, "Close App")
 
+
+
     def ShowMenu(self,event):
         self.PopupMenu(self.menu)
 
@@ -126,6 +132,8 @@ class WilocateFrame(wx.Frame):
 
     dialog=None
 
+
+
     def __init__(self, parent, id, title, options):
 
         wx.Frame.__init__(self, parent, -1, title, size = (1, 1),
@@ -139,21 +147,30 @@ class WilocateFrame(wx.Frame):
 
 	self.datahdl = dataHandler(self.options['LogPath'])
 	self.scanhdl = scanHandler(self.options,self.datahdl)
-	self.httphdl = httpHandler(self.datahdl,self.options['port'])
+	self.httphdl = httpHandler(self,self.datahdl,self.options['port'])
 
 	self.scannerTimer = self.options['sleep'][0]
+
+	self.timerweb = wx.Timer(self, -1)
+	self.timerscan = wx.Timer(self, -2)
+	self.Bind(wx.EVT_TIMER, self.StartWebDetached, self.timerweb)
+	self.Bind(wx.EVT_TIMER, self.StartScan, self.timerscan)
 
 	#Detach to renderize systray icon faster
 	if self.options['ScanOnStart']:
 	  self.scanRunning=True
-	  self.timers.append(Timer(0.2, self.StartScan, ['fakevent']))
-	  self.timers[-1].start()
+
+	  #self.timers.append(Timer(0.2, self.StartScan, ['fakevent']))
+	  #self.timers[-1].start()
+	  self.timerscan.Start(self.options['sleep'][0], oneShot=True)
 
 	if self.options['WebOnStart']:
 	  #t = Timer(0.1, self.StartWebDetached)
 	  #t.start()
-	  self.timers.append(Timer(0.1, self.StartWebDetached))
-	  self.timers[-1].start()
+
+	  #self.timers.append(Timer(0.1, self.StartWebDetached))
+	  #self.timers[-1].start()
+	  self.timerweb.Start(1, oneShot=True)
 
     def OpenBrowser(self,event):
 	webbrowser.get('x-www-browser').open('http://localhost:' + str(self.options['port']))
@@ -204,17 +221,26 @@ class WilocateFrame(wx.Frame):
 	  itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
 	  itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
 
-	if self.scanRunning:
-	  #t = Timer(self.scannerTimer, self.StartScan, ['falsevent'])
-	  #t.start()
-	  self.timers.append(Timer(self.scannerTimer, self.StartScan, ['falsevent']))
-	  self.timers[-1].start()
+	#if self.scanRunning:
+	  ##t = Timer(self.scannerTimer, self.StartScan, ['falsevent'])
+	  ##t.start()
+	  ##self.timers.append(Timer(self.scannerTimer, self.StartScan, ['falsevent']))
+	  ##self.timers[-1].start()
+
+	  #timer = wx.Timer(self, ID_TIMER_SCAN)
+	  #timer.Start(self.scannerTimer, oneShot=True)
+
+	if self.timerscan.IsRunning():
+	  self.timerscan.Stop()
+
+	self.timerscan.Start(self.scannerTimer*1000, oneShot=True)
 
 
     def StopScan(self,event):
       	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
       	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
 	itemmenustatus.SetText('Scan stopped')
+	self.timerscan.Stop()
         self.scanRunning=False
 
 	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(True)
@@ -271,11 +297,14 @@ class WilocateFrame(wx.Frame):
 
 	  #t = Timer(0.1, self.StartWebDetached)
 	  #t.start()
-	  self.timers.append(Timer(0.1, self.StartWebDetached))
-	  self.timers[-1].start()
+	  #self.timers.append(Timer(0.1, self.StartWebDetached))
+	  #self.timers[-1].start()
 
+	  if not self.timerweb.IsRunning():
+	    self.timerweb.Start(1, oneShot=True)
 
-    def StartWebDetached(self):
+    def StartWebDetached(self, event):
+
 
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_WEB)
 	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
@@ -292,31 +321,46 @@ class WilocateFrame(wx.Frame):
 	r=False
 	rnum=0
 
-	while not r:
-	  http_state = self.httphdl.isRunning()
-	  if http_state[0]:
+	#while not r:
+	  #print 'quanti giri fo?'
+	  #http_state = self.httphdl.isRunning()
+	  #if http_state[0]:
+	    #r=True
+	    #self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
+	    #itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Web interface started')
+	    #if self.options['BrowserOnWebStart']:
+	      #self.OpenBrowser(["fa"])
+
+	    ##print 'Chiudo il ciclo del prog, normalmente'
+	    #break
+
+	  #if http_state[2]:
+
+	    ##print 'Chiudo il ciclo del prog, forced'
+	    #break
+
+	  #else:
+	    #itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1] + ' (try #' + str(rnum) + ')')
+	    #rnum+=1
+	    #time.sleep(5)
+
+
+	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
+	itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(True)
+
+    def WebStarted(self):
+
+	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_WEB)
+	http_state = self.httphdl.isRunning()
+	if http_state[0]:
 	    r=True
 	    self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
 	    itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Web interface started')
 	    if self.options['BrowserOnWebStart']:
 	      self.OpenBrowser(["fa"])
+	else:
+	  itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1] + '\n(Please, retry in a few seconds)')
 
-	    #print 'Chiudo il ciclo del prog, normalmente'
-	    break
-
-	  if http_state[2]:
-
-	    #print 'Chiudo il ciclo del prog, forced'
-	    break
-
-	  else:
-	    itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1] + ' (try #' + str(rnum) + ')')
-	    rnum+=1
-	    time.sleep(5)
-
-
-	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
-	itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(True)
 
 
     def StopWeb(self,event):
@@ -373,8 +417,9 @@ class WilocateFrame(wx.Frame):
 
     def OnExit(self,event):
 
-      for t in self.timers:
-	t.cancel()
+      # Proviamo senza con i wx.Timer
+      #for t in self.timers:
+	#t.cancel()
 
       self.tbicon.RemoveIcon()
       self.tbicon.Destroy()

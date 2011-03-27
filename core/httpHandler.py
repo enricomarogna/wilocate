@@ -39,7 +39,7 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	self.wfile.write(data.getJson())
 
       elif self.path.endswith("control?quit"):
-	http_running=(False, 'Web interface stopped', True)
+	self.changeState(False, 'Web interface stopped', True)
 
       else:
 	if self.path=='/':
@@ -58,11 +58,12 @@ class httpHandler ( Thread ):
 
    port = -1
 
-   def __init__(self, jsondata, port=8000):
+   def __init__(self, parentApp, jsondata, port=8000):
 
      global data
      data=jsondata
      self.port=port
+     self.parent=parentApp
 
      Thread.__init__ ( self )
 
@@ -70,7 +71,7 @@ class httpHandler ( Thread ):
 
      global http_running
 
-     http_running=(False, 'Web interface stopped',True)
+     self.changeState(False, 'Web interface stopped',True)
 
      for n in range(3):
 	try:
@@ -80,6 +81,10 @@ class httpHandler ( Thread ):
 	else:
 	  break
 
+   def changeState(self,state, msg, forced_quit):
+      global http_running
+      http_running=(state,msg,forced_quit)
+      self.parent.WebStarted()
 
    def isRunning(self):
      global http_running
@@ -97,7 +102,7 @@ class httpHandler ( Thread ):
 	    httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	  except Exception, e:
 	    print '!', e
-	    http_running=(False, 'Port ' + str(self.port) + ' busy,\nretrying in 5s',False)
+	    self.changeState(False, 'Port ' + str(self.port) + ' busy,\nretrying in 5s',False)
 	    time.sleep(5)
 	  else:
 	    #print 'Chiudo il ciclo del thread, normalmente'
@@ -110,10 +115,10 @@ class httpHandler ( Thread ):
 
 
       if httpd:
-	http_running=(True, "Running on port " + str(self.port),False)
+	self.changeState(True, "Running on port " + str(self.port),False)
 	sa = httpd.socket.getsockname()
 	httpd.serve_forever()
 	httpd.socket.close()
 
-      http_running=(False, 'Web interface stopped', True)
+      self.changeState(False, 'Web interface stopped', True)
       #print 'Esco dal thread, credo'
