@@ -57,11 +57,25 @@
 }
 /*stili fine Wilocate Icon Text*/
 
-/*stili Wilocate Logo-----------------------------------------*/
-.wilocate_logo {
+/*stili Wilocate Logo Box -----------------------------------------*/
+.wilocate_logo_box {
 	float:left;
 	vertical-align:middle;
 	margin-left:10%;
+	background: url(../img/wilocate_logo3.png) no-repeat center ;
+	width:252px;
+	height:53px;
+	border: 0px solid transparent;
+}
+/*stili fine Wilocate Logo Box*/
+
+/*stili Wilocate Logo -----------------------------------------*/
+.wilocate_logo {
+	float:left;
+	vertical-align:middle;
+	/*margin-left:10%;*/
+	padding-top:10px;
+	padding-left:15px;
 }
 /*stili fine Wilocate Logo*/
 
