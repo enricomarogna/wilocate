@@ -105,7 +105,7 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
         self.menu.Append(ID_OPEN_BROWSER, "Open browser","This will open a new Browser")
 	self.menu.AppendSeparator()
 
-	self.menu.Append(wx.ID_EXIT, "Close App")
+	self.menu.Append(wx.ID_EXIT, "Quit")
 
 
 
