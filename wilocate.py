@@ -68,7 +68,7 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
         self.Bind(wx.EVT_MENU, self.parentApp.NotLocate, id=ID_NOT_LOC)
         self.Bind(wx.EVT_MENU, self.parentApp.LoadFile, id=ID_LOAD_FILE)
         self.Bind(wx.EVT_MENU, self.parentApp.OnExit, id=wx.ID_EXIT)
-	wx.EVT_TASKBAR_LEFT_DCLICK(self, self.parentApp.OpenBrowser)
+	wx.EVT_TASKBAR_LEFT_UP(self, self.parentApp.OpenBrowser)
 
         self.menu=wx.Menu()
         menuscan = wx.Menu()
