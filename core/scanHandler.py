@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import os, sys, time, re, wx
+import os, sys, time, re
 from subprocess import Popen, PIPE, STDOUT
+
 try: import json
 except ImportError: import simplejson as json
+
+try:
+  import wx
+except ImportError:
+  print '! Install wxPython library version 2.6 with \'sudo apt-get install python-wxgtk2.6\''
+  sys.exit(1)
+
 
 from locationHandler import *
 from dataHandler import *

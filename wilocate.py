@@ -173,7 +173,7 @@ class WilocateFrame(wx.Frame):
 	  self.timerweb.Start(1, oneShot=True)
 
     def OpenBrowser(self,event):
-	webbrowser.get('x-www-browser').open('http://localhost:' + str(self.options['port']))
+	webbrowser.open('http://localhost:' + str(self.options['port']))
 
     def TriggerScan(self,event):
       """Trigger a root scan.
@@ -336,7 +336,7 @@ class WilocateFrame(wx.Frame):
 	    if self.options['BrowserOnWebStart']:
 	      self.OpenBrowser(["fa"])
 	else:
-	  itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1] + '\n(Please, retry in a few seconds)')
+	  itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
 
 
 
