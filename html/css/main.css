@@ -6,35 +6,43 @@
 	position:relative;
 	width:100%;
 	height:60px;
-	background: #333333 url(../img/bh.png) repeat-x;
+	/*background: #333333 url(../img/bh.png) repeat-x;*/
+
+	background: #6F737A; /* old browsers */
+	background: -moz-linear-gradient(top, #6F737A 0%, #1A1C26 100%); /* firefox */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#6F737A), color-stop(100%,#1A1C26)); /* webkit */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6F737A', endColorstr='#1A1C26',GradientType=0 ); /* ie */
+}
+
+
+.header_bar, .header_bar_dx, .header_bar_sx{
+	/*background: #333333 url(../img/bh.png) repeat-x;*/
+	background: #6F737A; /* old browsers */
+	background: -moz-linear-gradient(top, #6F737A 0%, #1A1C26 100%); /* firefox */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#6F737A), color-stop(100%,#1A1C26)); /* webkit */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6F737A', endColorstr='#1A1C26',GradientType=0 ); /* ie */
 }
 /*fine stili Header Bar*/
 
-/*stili Header Bar Dx-----------------------------------------*/
-.header_bar_dx{
+/*stili Header Bar Dx Sx-----------------------------------------*/
+.header_bar_dx, .header_bar_sx{
 	position:relative;
 	margin-top:0px;
-	margin-right:-8px;
 	width:8px;
 	height:60px;
-	float:right;
 	border-bottom: 2px double #B0B0B0;
-	background: #333333 url(../img/bh.png) repeat-x;
 }
-/*fine stili Header Bar Dx*/
 
-/*stili Header Bar Sx-----------------------------------------*/
-.header_bar_sx{
-	position:relative;
-	margin-top:0px;
-	margin-left:-8px;
-	width:8px;
-	height:60px;
-	float:left;
-	border-bottom: 2px double #B0B0B0;
-	background: #333333 url(../img/bh.png) repeat-x;
+.header_bar_dx{
+	margin-right:-8px;
+	float:right;
 }
-/*fine stili Header Bar Sx*/
+
+.header_bar_sx{
+	margin-left:-8px;
+	float:left;
+}
+/*fine stili Header Bar Dx SX*/
 
 /*stili Wilocate Icon-----------------------------------------*/
 .wilocate_icon{
