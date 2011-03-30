@@ -6,14 +6,7 @@
 	position:relative;
 	width:100%;
 	height:60px;
-	/*background: #333333 url(../img/bh.png) repeat-x;*/
-
-	background: #6F737A; /* old browsers */
-	background: -moz-linear-gradient(top, #6F737A 0%, #1A1C26 100%); /* firefox */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#6F737A), color-stop(100%,#1A1C26)); /* webkit */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6F737A', endColorstr='#1A1C26',GradientType=0 ); /* ie */
 }
-
 
 .header_bar, .header_bar_dx, .header_bar_sx{
 	/*background: #333333 url(../img/bh.png) repeat-x;*/
