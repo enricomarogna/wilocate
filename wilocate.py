@@ -410,13 +410,15 @@ class PasswordDialog(wx.Dialog):
     pwd_textctrl = None
 
     def __init__(self, parent, id, title):
-        wx.Dialog.__init__(self, parent, id, title, size=(340,110))
+        wx.Dialog.__init__(self, parent, id, title, size=(350,110))
 
-        wx.StaticText(self,-1,'Insert \'sudo\' root password to run wifi scans as root.', (5, 5))
-        self.pwd_textctrl = wx.TextCtrl(self, -1, '',  (90, 30), (150, -1), style=wx.TE_PASSWORD)
+        wx.StaticText(self,-1,'Insert \'sudo\' root password to run wifi scans as root.', (25, 5))
+        self.pwd_textctrl = wx.TextCtrl(self, -1, '',  (100, 30), (150, -1), style=wx.TE_PASSWORD|wx.TE_PROCESS_ENTER )
         ID_PASS_BUTT = wx.NewId()
         wx.Button(self, ID_PASS_BUTT, 'Run', (130, 70))
 
+
+	self.Bind(wx.EVT_TEXT_ENTER, self.PassButtPressed, self.pwd_textctrl)
 	self.Bind(wx.EVT_BUTTON, self.PassButtPressed, id=ID_PASS_BUTT)
 	self.parentApp = parent
 
