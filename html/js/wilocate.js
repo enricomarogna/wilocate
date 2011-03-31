@@ -294,14 +294,8 @@
 
 	google.maps.event.addListener(marker, 'click', function(event) {
 	  wifiTable.fnFilter(m);
-// 	  window.scrollTo(0, $('#myTable').position().top);
-// 	  if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
-// 	    var p = new google.maps.LatLng(wifi[m]['location']['latitude'],wifi[m]['location']['longitude']);
-// 	    break;
-// 	  }
-// 	  map.setCenter(p);
 
-	  setClickToShowAll();
+	  setEventsToShowAll();
 	
 	});
 
@@ -509,7 +503,12 @@
  	  wifiTable.fnFilter('');
       });
 
-      $("#myTable tbody").delegate("tr", "click", function() {
+      $("#myTable tbody").delegate("tr", "click", eventToShowOneByTable);
+      
+    }
+    
+    function eventToShowOneByTable() {
+      
 	  var m = $("td:eq(1)", this).text();
 	  wifiTable.fnFilter(m);
 	  if(m in wifi && 'location' in wifi[m] && 'latitude' in wifi[m]['location'] && 'longitude' in wifi[m]['location']) {
@@ -517,35 +516,30 @@
 	  }
 	  map.setCenter(p);
 	   
-	  setClickToShowAll();
-
-      });
+	  setEventsToShowAll();
+	  $("#myTable tbody").undelegate("tr", "click", eventToShowOneByTable);
       
 
     }
     
-    function setClickToShowAll() {
+    
+    function setEventsToShowAll() {
       
-	  if(!onlyOneSelected) {
-	    onlyOneSelected = true;
 	
 	    google.maps.event.addListener(map, 'mouseup', function() {
-	      if (onlyOneSelected) {
-		wifiTable.fnFilter('');
-		google.maps.event.clearListeners(map, 'mouseup');
-		$("#myTable tbody").undelegate("tr", "mouseup");
-		onlyOneSelected=false;
-	      }
+	      wifiTable.fnFilter('');
+	      google.maps.event.clearListeners(map, 'mouseup');
+	      $("#myTable tbody").undelegate("tr", "click");
+	      
 	    });
 	    
-	    $("#myTable tbody").delegate("tr", "mouseup", function() {
-	      if (onlyOneSelected) {
-		wifiTable.fnFilter('');
-		$("#myTable tbody").undelegate("tr", "mouseup");
-		google.maps.event.clearListeners(map, 'mouseup');
-		onlyOneSelected=false;
-	      }
+	    $("#myTable tbody").delegate("tr", "click", function() {
+	      wifiTable.fnFilter('');
+	      $("#myTable tbody").undelegate("tr", "click");
+	      google.maps.event.clearListeners(map, 'mouseup');
+	      $("#myTable tbody").delegate("tr", "click", eventToShowOneByTable);
+      
 	    });
-	  }
+	
     }
 
