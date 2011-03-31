@@ -301,10 +301,7 @@
 // 	  }
 // 	  map.setCenter(p);
 
-	google.maps.event.addListener(map, 'mouseup', function() {
-	    wifiTable.fnFilter('');
-	    google.maps.event.clearListeners(map, 'mouseup');
-	});
+	  setClickToShowAll();
 	
 	});
 
@@ -368,7 +365,8 @@
 			      var marker = new google.maps.Marker({
 				  position: actual_pos,
 				  map: map,
-				  title:"Current position"
+				  title:"Current position",
+				  icon:'img/marker.png'
 			      });
 
 			      marker.setZIndex(0);
@@ -518,14 +516,36 @@
 	    var p = new google.maps.LatLng(wifi[m]['location']['latitude'],wifi[m]['location']['longitude']);
 	  }
 	  map.setCenter(p);
-	  
-	  google.maps.event.addListener(map, 'mouseup', function() {
-	    wifiTable.fnFilter('');
-	    google.maps.event.clearListeners(map, 'mouseup');
-	  });
+	   
+	  setClickToShowAll();
 
       });
       
 
+    }
+    
+    function setClickToShowAll() {
+      
+	  if(!onlyOneSelected) {
+	    onlyOneSelected = true;
+	
+	    google.maps.event.addListener(map, 'mouseup', function() {
+	      if (onlyOneSelected) {
+		wifiTable.fnFilter('');
+		google.maps.event.clearListeners(map, 'mouseup');
+		$("#myTable tbody").undelegate("tr", "mouseup");
+		onlyOneSelected=false;
+	      }
+	    });
+	    
+	    $("#myTable tbody").delegate("tr", "mouseup", function() {
+	      if (onlyOneSelected) {
+		wifiTable.fnFilter('');
+		$("#myTable tbody").undelegate("tr", "mouseup");
+		google.maps.event.clearListeners(map, 'mouseup');
+		onlyOneSelected=false;
+	      }
+	    });
+	  }
     }
 
