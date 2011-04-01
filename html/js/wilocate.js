@@ -362,8 +362,8 @@
 				  title:"Current position",
 				  icon:'img/marker.png'
 			      });
-
-			      marker.setZIndex(0);
+			      
+			      marker.setZIndex(1E9);
 
 			      lastpos=marker;
 			      tablepos = parsePosition(b);
