@@ -32,6 +32,8 @@ ID_BROWSER_ON_WEB_START=wx.NewId()
 ID_MENU_SCAN_STATUS=wx.NewId()
 ID_MENU_SCAN=wx.NewId()
 
+ID_MENU_OPT=wx.NewId()
+
 ID_MENU_WEB=wx.NewId()
 ID_MENU_WEB_STATUS=wx.NewId()
 
@@ -76,31 +78,39 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
 	menuscan.AppendSeparator()
         menuscan.Append(ID_START_SCAN, "Start Scan")
         menuscan.Append(ID_STOP_SCAN, "Stop Scan")
-	menuscan.AppendSeparator()
-        menuscan.Append(ID_TRIGGER_SCAN, "Trigger root scan")
-        menuscan.Append(ID_SCAN_TRIGGERED, "Triggered scan on start", 'Triggered scan on start', kind=wx.ITEM_CHECK)
-        menuscan.Check(ID_SCAN_TRIGGERED, self.options['TriggeredOnStart'])
         menuscan.AppendSeparator()
-        menuscan.Append(ID_SCAN_ON_START, 'Scanning on start', 'Start Scan on start', kind=wx.ITEM_CHECK)
-        menuscan.Check(ID_SCAN_ON_START, self.options['ScanOnStart'])
-	menuscan.Append(ID_NOT_LOC, 'Don\'t locate (offline mode)', 'Don\'t locate', kind=wx.ITEM_CHECK)
-        menuscan.Check(ID_NOT_LOC, self.options['NotLocate'])
-	menuscan.AppendSeparator()
-	menuscan.Append(ID_LOAD_FILE, "Load File")
+        menuscan.Append(ID_LOAD_FILE, "Load File")
 
         self.menu.AppendMenu(ID_MENU_SCAN, "Wifi Scan", menuscan)
+
 
         menuweb = wx.Menu()
         menuweb.Append(ID_MENU_WEB_STATUS,"")
 	menuweb.AppendSeparator()
 	menuweb.Append(ID_START_WEB, "Start web interface")
         menuweb.Append(ID_STOP_WEB, "Stop web interface")
-	menuweb.AppendSeparator()
-        menuweb.Append(ID_WEB_ON_START, 'Web interface on start', 'Start Web interface on start', kind=wx.ITEM_CHECK)
-        menuweb.Check(ID_WEB_ON_START, self.options['WebOnStart'])
-	menuweb.Append(ID_BROWSER_ON_WEB_START, 'Web browser on start', 'Start Web browser on start', kind=wx.ITEM_CHECK)
-        menuweb.Check(ID_WEB_ON_START, self.options['BrowserOnWebStart'])
 	self.menu.AppendMenu(ID_MENU_WEB, "Web Interface", menuweb)
+
+
+	self.menu.AppendSeparator()
+
+        menuopt = wx.Menu()
+        menuopt.Append(ID_SCAN_ON_START, 'Scanning on start', 'Start Scan on start', kind=wx.ITEM_CHECK)
+        menuopt.Check(ID_SCAN_ON_START, self.options['ScanOnStart'])
+	menuopt.Append(ID_NOT_LOC, 'Don\'t locate (offline mode)', 'Don\'t locate', kind=wx.ITEM_CHECK)
+        menuopt.Check(ID_NOT_LOC, self.options['NotLocate'])
+	menuopt.AppendSeparator()
+        menuopt.Append(ID_SCAN_TRIGGERED, "Triggered scan on start", 'Triggered scan on start', kind=wx.ITEM_CHECK)
+        menuopt.Check(ID_SCAN_TRIGGERED, self.options['TriggeredOnStart'])
+        menuopt.AppendSeparator()
+	menuopt.Append(ID_WEB_ON_START, 'Web interface on start', 'Start Web interface on start', kind=wx.ITEM_CHECK)
+        menuopt.Check(ID_WEB_ON_START, self.options['WebOnStart'])
+	menuopt.Append(ID_BROWSER_ON_WEB_START, 'Web browser on start', 'Start Web browser on start', kind=wx.ITEM_CHECK)
+        menuopt.Check(ID_BROWSER_ON_WEB_START, self.options['BrowserOnWebStart'])
+        self.menu.AppendMenu(ID_MENU_OPT, "Options", menuopt)
+
+	self.menu.AppendSeparator()
+        self.menu.Append(ID_TRIGGER_SCAN, "Trigger root scan")
 	self.menu.AppendSeparator()
         self.menu.Append(ID_OPEN_BROWSER, "Open browser","This will open a new Browser")
 	self.menu.AppendSeparator()
@@ -248,7 +258,7 @@ class WilocateFrame(wx.Frame):
 	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(False)
 
     def ScanOnStart(self,event):
-      if self.tbicon.menu.FindItemById(ID_MENU_SCAN).GetMenu().FindItemById(ID_SCAN_ON_START).IsChecked():
+      if self.tbicon.menu.FindItemById(ID_MENU_OPT).GetMenu().FindItemById(ID_SCAN_ON_START).IsChecked():
 	self.options['ScanOnStart']=True
       else:
 	self.options['ScanOnStart']=False
@@ -256,19 +266,19 @@ class WilocateFrame(wx.Frame):
       saveOptions()
 
     def WebOnStart(self,event):
-      if self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_WEB_ON_START).IsChecked():
+      if self.tbicon.menu.FindItemById(ID_MENU_OPT).GetMenu().FindItemById(ID_WEB_ON_START).IsChecked():
 	self.options['WebOnStart']=True
       else:
 	self.options['WebOnStart']=False
-	self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().Check(ID_BROWSER_ON_WEB_START, False)
+	self.tbicon.menu.FindItemById(ID_MENU_OPT).GetMenu().Check(ID_BROWSER_ON_WEB_START, False)
 	self.options['BrowserOnWebStart']=False
 
       saveOptions()
 
     def BrowserOnWebStart(self,event):
-      if self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_BROWSER_ON_WEB_START).IsChecked():
+      if self.tbicon.menu.FindItemById(ID_MENU_OPT).GetMenu().FindItemById(ID_BROWSER_ON_WEB_START).IsChecked():
 	self.options['BrowserOnWebStart']=True
-	self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().Check(ID_WEB_ON_START, True)
+	self.tbicon.menu.FindItemById(ID_MENU_OPT).GetMenu().Check(ID_WEB_ON_START, True)
 	self.options['WebOnStart']=True
       else:
 	self.options['BrowserOnWebStart']=False
@@ -277,7 +287,7 @@ class WilocateFrame(wx.Frame):
 
 
     def TriggeredOnStart(self,event):
-      if self.tbicon.menu.FindItemById(ID_MENU_SCAN).GetMenu().FindItemById(ID_SCAN_TRIGGERED).IsChecked():
+      if self.tbicon.menu.FindItemById(ID_MENU_OPT).GetMenu().FindItemById(ID_SCAN_TRIGGERED).IsChecked():
 	self.options['TriggeredOnStart']=True
       else:
 	self.options['TriggeredOnStart']=False
@@ -285,7 +295,7 @@ class WilocateFrame(wx.Frame):
       saveOptions()
 
     def NotLocate(self,event):
-      if self.tbicon.menu.FindItemById(ID_MENU_SCAN).GetMenu().FindItemById(ID_NOT_LOC).IsChecked():
+      if self.tbicon.menu.FindItemById(ID_MENU_OPT).GetMenu().FindItemById(ID_NOT_LOC).IsChecked():
 	self.options['NotLocate']=True
       else:
 	self.options['NotLocate']=False
