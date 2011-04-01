@@ -76,46 +76,46 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
         menuscan = wx.Menu()
 	menuscan.Append(ID_MENU_SCAN_STATUS,"")
 	menuscan.AppendSeparator()
-        menuscan.Append(ID_START_SCAN, "Start Scan")
-        menuscan.Append(ID_STOP_SCAN, "Stop Scan")
+        menuscan.Append(ID_START_SCAN, "&Start scan")
+        menuscan.Append(ID_STOP_SCAN, "S&top scan")
         menuscan.AppendSeparator()
-        menuscan.Append(ID_LOAD_FILE, "Load File")
+        menuscan.Append(ID_LOAD_FILE, "&Load scan from file")
 
-        self.menu.AppendMenu(ID_MENU_SCAN, "Wifi Scan", menuscan)
+        self.menu.AppendMenu(ID_MENU_SCAN, "Wifi &scan", menuscan)
 
 
         menuweb = wx.Menu()
         menuweb.Append(ID_MENU_WEB_STATUS,"")
 	menuweb.AppendSeparator()
-	menuweb.Append(ID_START_WEB, "Start web interface")
-        menuweb.Append(ID_STOP_WEB, "Stop web interface")
-	self.menu.AppendMenu(ID_MENU_WEB, "Web Interface", menuweb)
+	menuweb.Append(ID_START_WEB, "&Start web interface")
+        menuweb.Append(ID_STOP_WEB, "S&top web interface")
+	self.menu.AppendMenu(ID_MENU_WEB, "&Web interface", menuweb)
 
 
 	self.menu.AppendSeparator()
 
         menuopt = wx.Menu()
-        menuopt.Append(ID_SCAN_ON_START, 'Scanning on start', 'Start Scan on start', kind=wx.ITEM_CHECK)
+        menuopt.Append(ID_SCAN_ON_START, 'Run &scan at start', 'Scan at start', kind=wx.ITEM_CHECK)
         menuopt.Check(ID_SCAN_ON_START, self.options['ScanOnStart'])
-	menuopt.Append(ID_NOT_LOC, 'Don\'t locate (offline mode)', 'Don\'t locate', kind=wx.ITEM_CHECK)
+	menuopt.Append(ID_NOT_LOC, 'Don\'t &locate (offline mode)', 'Don\'t locate', kind=wx.ITEM_CHECK)
         menuopt.Check(ID_NOT_LOC, self.options['NotLocate'])
 	menuopt.AppendSeparator()
-        menuopt.Append(ID_SCAN_TRIGGERED, "Triggered scan on start", 'Triggered scan on start', kind=wx.ITEM_CHECK)
+        menuopt.Append(ID_SCAN_TRIGGERED, "Run scan as &root at start", 'Root scan at start', kind=wx.ITEM_CHECK)
         menuopt.Check(ID_SCAN_TRIGGERED, self.options['TriggeredOnStart'])
         menuopt.AppendSeparator()
-	menuopt.Append(ID_WEB_ON_START, 'Web interface on start', 'Start Web interface on start', kind=wx.ITEM_CHECK)
+	menuopt.Append(ID_WEB_ON_START, 'Run &web interface at start', 'Web interface at start', kind=wx.ITEM_CHECK)
         menuopt.Check(ID_WEB_ON_START, self.options['WebOnStart'])
-	menuopt.Append(ID_BROWSER_ON_WEB_START, 'Web browser on start', 'Start Web browser on start', kind=wx.ITEM_CHECK)
+	menuopt.Append(ID_BROWSER_ON_WEB_START, 'Run &browser at start', 'Browser at start', kind=wx.ITEM_CHECK)
         menuopt.Check(ID_BROWSER_ON_WEB_START, self.options['BrowserOnWebStart'])
-        self.menu.AppendMenu(ID_MENU_OPT, "Options", menuopt)
+        self.menu.AppendMenu(ID_MENU_OPT, "&Options", menuopt)
 
 	self.menu.AppendSeparator()
-        self.menu.Append(ID_TRIGGER_SCAN, "Trigger root scan")
+        self.menu.Append(ID_TRIGGER_SCAN, "Scan as &root")
 	self.menu.AppendSeparator()
-        self.menu.Append(ID_OPEN_BROWSER, "Open browser","This will open a new Browser")
+        self.menu.Append(ID_OPEN_BROWSER, "Open &browser","This will open a new Browser")
 	self.menu.AppendSeparator()
 
-	self.menu.Append(wx.ID_EXIT, "Quit")
+	self.menu.Append(wx.ID_EXIT, "&Quit")
 
 
 
