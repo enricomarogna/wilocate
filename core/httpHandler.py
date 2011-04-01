@@ -105,12 +105,10 @@ class httpHandler ( Thread ):
 	    self.changeState(False, 'Port ' + str(self.port) + ' busy,\nretrying in 5s',False)
 	    time.sleep(5)
 	  else:
-	    #print 'Chiudo il ciclo del thread, normalmente'
 	    break
 
 	if http_running[2]:
 
-	  #print 'Chiudo il ciclo del thread, forced'
 	  break
 
 
@@ -121,4 +119,3 @@ class httpHandler ( Thread ):
 	httpd.socket.close()
 
       self.changeState(False, 'Web interface stopped', True)
-      #print 'Esco dal thread, credo'

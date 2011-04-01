@@ -529,13 +529,14 @@
 	    google.maps.event.addListener(map, 'mouseup', function() {
 	      wifiTable.fnFilter('');
 	      google.maps.event.clearListeners(map, 'mouseup');
-	      $("#myTable tbody").undelegate("tr", "click");
+// 	      $("#myTable tbody").undelegate("tr", "click");
+	      $("#myTable tbody").delegate("tr", "click", eventToShowOneByTable);
 	      
 	    });
 	    
 	    $("#myTable tbody").delegate("tr", "click", function() {
 	      wifiTable.fnFilter('');
-	      $("#myTable tbody").undelegate("tr", "click");
+// 	      $("#myTable tbody").undelegate("tr", "click");
 	      google.maps.event.clearListeners(map, 'mouseup');
 	      $("#myTable tbody").delegate("tr", "click", eventToShowOneByTable);
       
