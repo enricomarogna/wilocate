@@ -129,7 +129,6 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
 class WilocateFrame(wx.Frame):
 
     scannerTimer=5
-    timers=[]
 
     scanRunning=False
 
@@ -141,6 +140,8 @@ class WilocateFrame(wx.Frame):
     options = {}
 
     dialog=None
+    
+    browserOnStartOpened=False
 
 
 
@@ -169,21 +170,14 @@ class WilocateFrame(wx.Frame):
 	#Detach to renderize systray icon faster
 	if self.options['ScanOnStart']:
 	  self.scanRunning=True
-
-	  #self.timers.append(Timer(0.2, self.StartScan, ['fakevent']))
-	  #self.timers[-1].start()
 	  self.timerscan.Start(self.options['sleep'][0], oneShot=True)
 
 	if self.options['WebOnStart']:
-	  #t = Timer(0.1, self.StartWebDetached)
-	  #t.start()
-
-	  #self.timers.append(Timer(0.1, self.StartWebDetached))
-	  #self.timers[-1].start()
 	  self.timerweb.Start(1, oneShot=True)
 
     def OpenBrowser(self,event):
-	webbrowser.open('http://localhost:' + str(self.options['port']))
+      webbrowser.open('http://localhost:' + str(self.options['port']))
+      self.browserOnStartOpened=True
 
     def TriggerScan(self,event):
       """Trigger a root scan.
@@ -211,17 +205,28 @@ class WilocateFrame(wx.Frame):
 	  triggered_info = ' Triggered'
 	  newscaninfo = self.scanhdl.wifiScan(self.options['TriggeredOnStart'])
 
+
 	newscaninfo = self.scanhdl.wifiScan()
 
+
 	if newscaninfo:
+	  
+	  	
+	  if not self.browserOnStartOpened and self.options['BrowserOnWebStart']:
+	    if self.options['TriggeredOnStart']:
+	      if self.options['password']:
+		self.OpenBrowser([''])
+		
+	    else:
+	      self.OpenBrowser([''])
+		
+	  
 	  if self.scannerTimer >= self.options['sleep'][0] and self.scannerTimer <= self.options['sleep'][1]:
 	    if newscaninfo['newscanned'] == '0':
 	      self.scannerTimer+=self.options['sleep'][2]
 	    else:
 	      self.scannerTimer=self.options['sleep'][0]
 
-	  #print '[' + newscaninfo['timestamp'] + '] [' + newscaninfo['latitude'] + ',' + newscaninfo['longitude'] + '] ' + newscaninfo['seen'] + ' APs seen, ' + newscaninfo['located'] + ' located, ' + '+' + newscaninfo['newscanned'] + ' APs, ' + '+' + newscaninfo['newreliable'] + ' reliable.',
-	  #print 'Next in ' + str(self.scannerTimer) + 's.'
 
 	  scan_info = newscaninfo['timestamp'] + triggered_info + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
 
@@ -231,15 +236,6 @@ class WilocateFrame(wx.Frame):
 
 	  itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
 	  itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
-
-	#if self.scanRunning:
-	  ##t = Timer(self.scannerTimer, self.StartScan, ['falsevent'])
-	  ##t.start()
-	  ##self.timers.append(Timer(self.scannerTimer, self.StartScan, ['falsevent']))
-	  ##self.timers[-1].start()
-
-	  #timer = wx.Timer(self, ID_TIMER_SCAN)
-	  #timer.Start(self.scannerTimer, oneShot=True)
 
 	if self.timerscan.IsRunning():
 	  self.timerscan.Stop()
@@ -306,11 +302,6 @@ class WilocateFrame(wx.Frame):
 
 	if not self.httphdl.isRunning()[0]:
 
-	  #t = Timer(0.1, self.StartWebDetached)
-	  #t.start()
-	  #self.timers.append(Timer(0.1, self.StartWebDetached))
-	  #self.timers[-1].start()
-
 	  if not self.timerweb.IsRunning():
 	    self.timerweb.Start(1, oneShot=True)
 
@@ -343,15 +334,21 @@ class WilocateFrame(wx.Frame):
 	    r=True
 	    self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
 	    itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Web interface started')
-	    if self.options['BrowserOnWebStart']:
-	      self.OpenBrowser(["fa"])
+	    
+	    if not self.browserOnStartOpened and self.options['BrowserOnWebStart']:
+	      if self.options['TriggeredOnStart']:
+		if self.options['password']:
+		  self.OpenBrowser([''])
+	      else:
+		self.OpenBrowser([''])
+		
 	else:
 	  itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
 
 
 
     def StopWeb(self,event):
-
+	"""Stop Web Interface"""
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_WEB)
 	itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Stopped')
 
@@ -395,24 +392,15 @@ class WilocateFrame(wx.Frame):
 
 	while self.scanRunning:
 	  pass
-	  #t = Timer(self.scannerTimer, self.StartScan, ['falsevent'])
-	  #t.start()
-	  #self.timers.append(Timer(self.scannerTimer, self.StartScan, ['falsevent']))
-	  #self.timers[-1].start()
 
       dlg.Destroy()
 
     def OnExit(self,event):
 
-      # Proviamo senza con i wx.Timer
-      #for t in self.timers:
-	#t.cancel()
-
       self.tbicon.RemoveIcon()
       self.tbicon.Destroy()
       self.StopWeb(["fakevent"])
       self.StopScan(["fakevent"])
-      #self.Close(True)
       sys.exit()
 
 class PasswordDialog(wx.Dialog):
