@@ -42,6 +42,7 @@ class scanHandler:
   command_su=''
 
   lastscan={}
+  lastscaninfo={}
 
   datahdl=None
 
@@ -74,10 +75,24 @@ class scanHandler:
     self.options=options
 
   def wifiScan(self,sudo=False):
-    self.getScan(sudo)
-    newscaninfo = self.locateScan()
-    self.datahdl.jsonDump()
-    return newscaninfo
+    """ Run wifi scan.
+    
+    Because it's blocking, method run in 3 steps.
+    
+    """
+    
+    if not self.lastscan:
+      self.lastscan = self.getScan(sudo)
+    elif self.lastscan and not self.lastscaninfo:
+      self.lastscaninfo = self.locateScan()
+    elif self.lastscan and self.lastscaninfo:
+      self.datahdl.jsonDump()
+      
+      self.lastscan={}
+      lastscaninfo = self.lastscaninfo.copy()
+      self.lastscaninfo={}
+      
+      return lastscaninfo
 
   def locateScan(self):
 
@@ -209,7 +224,7 @@ class scanHandler:
     except Exception, e:
       print '! Error parsing scan command output:', e
 
-    self.lastscan=data.copy()
+    return data.copy()
 
   def encodeAuth(self,string):
     if 'WPA ' in string and string.endswith('1'):

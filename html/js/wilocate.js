@@ -356,11 +356,13 @@
 			  if(lastpos == null || (lastpos && distance(actual_pos,lastpos.getPosition()) >= 0.04)) {
 
 			      map.setCenter(actual_pos, 18);
+			      //var image = new google.maps.MarkerImage('img/marker.png',new google.maps.Size(30, 35));
 			      var marker = new google.maps.Marker({
 				  position: actual_pos,
 				  map: map,
 				  title:"Current position",
 				  icon:'img/marker.png'
+				  //icon:image
 			      });
 			      
 			      marker.setZIndex(1E9);

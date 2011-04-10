@@ -26,8 +26,10 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
   def do_GET(self):
 
+
     global http_running
     global data
+
 
     try:
       if self.path.endswith(".json"):
@@ -43,9 +45,11 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
       else:
 	if self.path=='/':
-	  self.path='/wilocate.html'
-	self.path = os.curdir + os.sep + 'html' + self.path
-
+	  path='wilocate.html'
+	else:
+	  path = self.path
+	  
+	self.path = os.curdir + os.sep + 'html' + os.sep + path
 
 	return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
