@@ -40,6 +40,7 @@ ID_MENU_WEB_STATUS=wx.NewId()
 ID_TIMER_WEB=wx.NewId()
 ID_TIMER_SCAN=wx.NewId()
 
+WebStateUpdateEvent, WEB_STATE_EVENT = wx.lib.newevent.NewEvent()
 
 class WilocateTaskBarIcon(wx.TaskBarIcon):
 
@@ -50,7 +51,6 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
         self.parentApp = parent
         self.options=parent.options
         self.logoStandard = wx.Icon("html/img/logotray.png",wx.BITMAP_TYPE_PNG)
-        #self.youHaveMailIcon = wx.Icon("mail-message-new.png",wx.BITMAP_TYPE_PNG)
         self.CreateMenu()
         self.SetIconImage()
 
@@ -140,6 +140,7 @@ class WilocateFrame(wx.Frame):
     options = {}
 
     dialog=None
+    dialogError=None
     
     browserOnStartOpened=False
 
@@ -166,6 +167,8 @@ class WilocateFrame(wx.Frame):
 	self.timerscan = wx.Timer(self, -2)
 	self.Bind(wx.EVT_TIMER, self.StartWebDetached, self.timerweb)
 	self.Bind(wx.EVT_TIMER, self.StartScan, self.timerscan)
+	
+	self.Bind(WEB_STATE_EVENT,self.WebStateUpdate)
 
 	#Detach to renderize systray icon faster
 	if self.options['ScanOnStart']:
@@ -300,13 +303,12 @@ class WilocateFrame(wx.Frame):
 
     def StartWeb(self,event):
 
-	if not self.httphdl.isRunning()[0]:
+	if not self.httphdl.isRunning():
 
 	  if not self.timerweb.IsRunning():
 	    self.timerweb.Start(1, oneShot=True)
 
     def StartWebDetached(self, event):
-
 
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_WEB)
 	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
@@ -319,21 +321,34 @@ class WilocateFrame(wx.Frame):
 	else:
 	  self.httphdl.run()
 
+	#itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
+	#itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(True)
 
-	r=False
-	rnum=0
 
-	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
-	itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(True)
+    def WebState(self, newstate, newmsg, newdisplayerror = False):
+      wx.PostEvent(self, WebStateUpdateEvent(state=newstate, msg=newmsg, displayerror=newdisplayerror))
 
-    def WebStarted(self):
+    def WebStateUpdate(self, event):
+	""" Function to update webserver state .
+	
+	Called by httphdl.__changeState() to notify status and message state.
+	
+	"""
+	if event.displayerror:
+	    self.dialogError = wx.MessageDialog(None, event.msg, "Error", wx.OK)
+	    result = self.dialogError.ShowModal()
+	    self.dialogError.Destroy()
+
 
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_WEB)
-	http_state = self.httphdl.isRunning()
-	if http_state[0]:
-	    r=True
-	    self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
-	    itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Web interface started')
+	
+	if event.state:
+	    self.tbicon.menu.FindItemById(ID_MENU_WEB).GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(event.msg)
+	    itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(event.msg)
+	    
+	    itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
+	    itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(True)
+	    
 	    
 	    if not self.browserOnStartOpened and self.options['BrowserOnWebStart']:
 	      if self.options['TriggeredOnStart']:
@@ -343,18 +358,13 @@ class WilocateFrame(wx.Frame):
 		self.OpenBrowser([''])
 		
 	else:
-	  itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(http_state[1])
-
+	  itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText(event.msg)
+	  itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(True)
+	  itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(False)
 
 
     def StopWeb(self,event):
 	"""Stop Web Interface"""
-	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_WEB)
-	itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Stopped')
-
-	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(True)
-	itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(False)
-
 	if self.httphdl:
 	  self.httphdl.stop()
 
