@@ -2,6 +2,7 @@
 
 import os, sys, time, re
 from subprocess import Popen, PIPE, STDOUT
+from threading import Thread, Lock
 
 try: import json
 except ImportError: import simplejson as json
@@ -36,17 +37,40 @@ def which(program, moredirs = []):
     return None
 
 
+class Scan(Thread):
+    def __init__(self,parent,sudo=False):
+      self.parent = parent
+      self.sudo = sudo
+      Thread.__init__(self)
+    def run(self):
+      """ Run wifi scan.
+      
+      """
+      print 'Il thread è run'
+      self.parent.getScan(self.sudo)
+      self.parent.locateScan()
+      self.parent.datahdl.jsonDump()
+      
+      self.parent.changeState()
+      print 'Il thread è stop'
+
+
 class scanHandler:
+
+  parent = None
 
   command=''
   command_su=''
 
   lastscan={}
   lastscaninfo={}
+  lastsudo=False
 
   datahdl=None
 
-  def __init__(self,options,data):
+  scanisrunning = False
+  
+  def __init__(self,parent,options,data):
 
 
     bin_iwlist = 'iwlist'
@@ -73,26 +97,34 @@ class scanHandler:
 
     self.datahdl=data
     self.options=options
+    self.parent=parent
 
-  def wifiScan(self,sudo=False):
-    """ Run wifi scan.
-    
-    Because it's blocking, method run in 3 steps.
-    
-    """
-    
-    if not self.lastscan:
-      self.lastscan = self.getScan(sudo)
-    elif self.lastscan and not self.lastscaninfo:
-      self.lastscaninfo = self.locateScan()
-    elif self.lastscan and self.lastscaninfo:
-      self.datahdl.jsonDump()
+  #def wifiScan(self,sudo=False):
+      #""" Run wifi scan.
       
-      self.lastscan={}
-      lastscaninfo = self.lastscaninfo.copy()
-      self.lastscaninfo={}
+      #"""
+    
+      #self.lastscan = self.getScan(sudo)
+      #self.lastscaninfo = self.locateScan()
+      #self.datahdl.jsonDump()
       
-      return lastscaninfo
+      #return self.lastscaninfo.copy()
+
+
+  def launchScan(self,sudo=False):
+      self.lastsudo = sudo
+      
+      
+      scanthread = Scan(self,sudo)
+      scanthread.start()
+      #scanthread.run()
+      #self.scanisrunning = True
+
+  def changeState(self):
+    
+    if self.lastscaninfo:
+      self.parent.ScanState(self.lastscaninfo)
+      
 
   def locateScan(self):
 
@@ -112,7 +144,7 @@ class scanHandler:
 
 	newscanned,newreliable,newbest = self.datahdl.saveScan(self.lastscan, pos, tm)
 
-	return {
+	self.lastscaninfo = {
 	  'timestamp' : time.strftime("%H:%M:%S", time.localtime(tm)),
 	  'seen' : str(len(self.lastscan)),
 	  'located' : str(nl),
@@ -120,7 +152,8 @@ class scanHandler:
 	  'newreliable' : str(newreliable),
 	  'newbest' : str(newbest),
 	  'latitude' : str(lonpos),
-	  'longitude' : str(latpos)
+	  'longitude' : str(latpos),
+	  'sudo' : str(self.lastsudo)
 	}
 
   msgbox = None
@@ -224,7 +257,7 @@ class scanHandler:
     except Exception, e:
       print '! Error parsing scan command output:', e
 
-    return data.copy()
+    self.lastscan = data.copy()
 
   def encodeAuth(self,string):
     if 'WPA ' in string and string.endswith('1'):

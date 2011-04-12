@@ -41,6 +41,7 @@ ID_TIMER_WEB=wx.NewId()
 ID_TIMER_SCAN=wx.NewId()
 
 WebStateUpdateEvent, WEB_STATE_EVENT = wx.lib.newevent.NewEvent()
+ScanStateUpdateEvent, SCAN_STATE_EVENT = wx.lib.newevent.NewEvent()
 
 class WilocateTaskBarIcon(wx.TaskBarIcon):
 
@@ -158,7 +159,7 @@ class WilocateFrame(wx.Frame):
 
 
 	self.datahdl = dataHandler(self.options['LogPath'])
-	self.scanhdl = scanHandler(self.options,self.datahdl)
+	self.scanhdl = scanHandler(self,self.options,self.datahdl)
 	self.httphdl = httpHandler(self,self.datahdl,self.options['port'])
 
 	self.scannerTimer = self.options['sleep'][0]
@@ -169,6 +170,7 @@ class WilocateFrame(wx.Frame):
 	self.Bind(wx.EVT_TIMER, self.StartScan, self.timerscan)
 	
 	self.Bind(WEB_STATE_EVENT,self.WebStateUpdate)
+	self.Bind(SCAN_STATE_EVENT,self.ScanStateUpdate)
 
 	#Detach to renderize systray icon faster
 	if self.options['ScanOnStart']:
@@ -190,60 +192,50 @@ class WilocateFrame(wx.Frame):
 
       self.GetSudoPwd()
 
-      newscaninfo = self.scanhdl.wifiScan(True)
-      if newscaninfo:
-	scan_info = newscaninfo['timestamp'] + ' Triggered\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
+      #newscaninfo = self.scanhdl.wifiScan(True)
+      #scanthread = self.scanhdl.Scan(True)
+      #scanthread.start()
+      #scanthread.run()
+      
+      self.scanhdl.launchScan(True)
+      
+      #if newscaninfo:
+	#scan_info = newscaninfo['timestamp'] + ' Triggered\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
 
-	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
-	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
-	itemmenustatus.SetText(scan_info)
+	#itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
+	#itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
+	#itemmenustatus.SetText(scan_info)
 
 
     def StartScan(self,event):
 	"""Start main scan loop."""
 
-	triggered_info = ''
-	if self.options['TriggeredOnStart']:
-	  self.GetSudoPwd()
-	  triggered_info = ' Triggered'
-	  newscaninfo = self.scanhdl.wifiScan(self.options['TriggeredOnStart'])
+	
+	if not self.scanhdl.scanisrunning:
+    
+	  print 'Nuovo StartScan' 
+	  self.scanhdl.scanisrunning = True
+	  if self.options['TriggeredOnStart']:
+	    self.GetSudoPwd()
+	    #newscaninfo = self.scanhdl.
+	    self.scanhdl.launchScan(self.options['TriggeredOnStart'])
 
 
-	newscaninfo = self.scanhdl.wifiScan()
+	  else:
+	    self.scanhdl.launchScan()
+	    
+	    
+	    
+	else:
+	  print 'ANCORA NON HA FINITO'
 
-
-	if newscaninfo:
-	  
-	  	
-	  if not self.browserOnStartOpened and self.options['BrowserOnWebStart']:
-	    if self.options['TriggeredOnStart']:
-	      if self.options['password']:
-		self.OpenBrowser([''])
-		
-	    else:
-	      self.OpenBrowser([''])
-		
-	  
-	  if self.scannerTimer >= self.options['sleep'][0] and self.scannerTimer <= self.options['sleep'][1]:
-	    if newscaninfo['newscanned'] == '0':
-	      self.scannerTimer+=self.options['sleep'][2]
-	    else:
-	      self.scannerTimer=self.options['sleep'][0]
-
-
-	  scan_info = newscaninfo['timestamp'] + triggered_info + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
-
-	  itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
-	  itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
-	  itemmenustatus.SetText(scan_info)
-
-	  itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
-	  itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
 
 	if self.timerscan.IsRunning():
 	  self.timerscan.Stop()
 
 	self.timerscan.Start(self.scannerTimer*1000, oneShot=True)
+	print 'ASPETTO', str(self.scannerTimer*1000)
+	  
 
 
     def StopScan(self,event):
@@ -324,6 +316,41 @@ class WilocateFrame(wx.Frame):
 	#itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
 	#itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(True)
 
+    def ScanState(self,scaninfo):
+      wx.PostEvent(self, ScanStateUpdateEvent(lastscaninfo = scaninfo))
+
+    def ScanStateUpdate(self,event):
+      
+      
+	newscaninfo = event.lastscaninfo
+	
+      
+	if not self.browserOnStartOpened and self.options['BrowserOnWebStart']:
+	  if self.options['TriggeredOnStart']:
+	    if self.options['password']:
+	      self.OpenBrowser([''])
+	      
+	  else:
+	    self.OpenBrowser([''])
+	  
+	scan_info = newscaninfo['timestamp'] + ' ' + newscaninfo['sudo'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
+
+	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
+	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
+	itemmenustatus.SetText(scan_info)
+
+	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
+	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
+
+	if self.scannerTimer >= self.options['sleep'][0] and self.scannerTimer <= self.options['sleep'][1]:
+	  if newscaninfo['newscanned'] == '0':
+	    self.scannerTimer+=self.options['sleep'][2]
+	  else:
+	    self.scannerTimer=self.options['sleep'][0]
+
+	self.scanhdl.scanisrunning = False
+	print 'ok, il campo è libero'
+
 
     def WebState(self, newstate, newmsg, newdisplayerror = False):
       wx.PostEvent(self, WebStateUpdateEvent(state=newstate, msg=newmsg, displayerror=newdisplayerror))
@@ -386,10 +413,6 @@ class WilocateFrame(wx.Frame):
 	filename=dlg.GetFilename()
 	dirname=dlg.GetDirectory()
 	self.StopScan(["fakeevent"])
-
-	#newscaninfo = self.scanhdl.wifiScan()
-
-	#scan_info = newscaninfo['timestamp'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
 
 	scan_info="Loading file"
 
