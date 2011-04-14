@@ -43,6 +43,9 @@ ID_TIMER_SCAN=wx.NewId()
 WebStateUpdateEvent, WEB_STATE_EVENT = wx.lib.newevent.NewEvent()
 ScanStateUpdateEvent, SCAN_STATE_EVENT = wx.lib.newevent.NewEvent()
 
+def log(*args):
+    print ' '.join(map(str, args))
+
 class WilocateTaskBarIcon(wx.TaskBarIcon):
 
     options = {}
@@ -129,7 +132,8 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
 
 class WilocateFrame(wx.Frame):
 
-    scannerTimer=5
+    remainingTime=5
+    nextScanTime=5
 
     scanRunning=False
 
@@ -191,20 +195,8 @@ class WilocateFrame(wx.Frame):
       """
 
       self.GetSudoPwd()
-
-      #newscaninfo = self.scanhdl.wifiScan(True)
-      #scanthread = self.scanhdl.Scan(True)
-      #scanthread.start()
-      #scanthread.run()
-      
       self.scanhdl.launchScan(True)
       
-      #if newscaninfo:
-	#scan_info = newscaninfo['timestamp'] + ' Triggered\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
-
-	#itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
-	#itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
-	#itemmenustatus.SetText(scan_info)
 
 
     def StartScan(self,event):
@@ -213,7 +205,6 @@ class WilocateFrame(wx.Frame):
 	
 	if not self.scanhdl.scanisrunning:
     
-	  print 'Nuovo StartScan' 
 	  self.scanhdl.scanisrunning = True
 	  if self.options['TriggeredOnStart']:
 	    self.GetSudoPwd()
@@ -224,19 +215,50 @@ class WilocateFrame(wx.Frame):
 	  else:
 	    self.scanhdl.launchScan()
 	    
+	  timeToWait=self.getRemainingTime(False)
 	    
 	    
 	else:
-	  print 'ANCORA NON HA FINITO'
+	  timeToWait = self.getRemainingTime(True)
 
 
 	if self.timerscan.IsRunning():
 	  self.timerscan.Stop()
 
-	self.timerscan.Start(self.scannerTimer*1000, oneShot=True)
-	print 'ASPETTO', str(self.scannerTimer*1000)
+	self.timerscan.Start(timeToWait, oneShot=True)
 	  
 
+
+    def setNextScanTime(self, newWifiOnFinish = False):
+      	if not newWifiOnFinish:
+	  
+	  if self.nextScanTime < (self.options['sleep'][1]-self.options['sleep'][2]):
+	    self.nextScanTime += self.options['sleep'][2]
+	    
+	  log('! New nextScanTime + (' + str(self.nextScanTime) + ')')
+	    
+	else:
+	  self.nextScanTime = self.options['sleep'][0]
+	  log('! New nextScanTime ! (' + str(self.nextScanTime) + ')')
+      
+      
+
+    def getRemainingTime(self, finished = False):
+      
+      if not finished:
+	if self.remainingTime > self.options['sleep'][0]:
+	  self.remainingTime -= self.options['sleep'][2]
+	  log('! Waiting.. - (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
+	else:
+	  self.remainingTime = self.nextScanTime
+	  log('! Waiting.. ! (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
+	
+      else:
+	self.remainingTime = 1
+	log('! Finished.. ! (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
+	
+    
+      return self.remainingTime*1000
 
     def StopScan(self,event):
       	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
@@ -333,7 +355,7 @@ class WilocateFrame(wx.Frame):
 	  else:
 	    self.OpenBrowser([''])
 	  
-	scan_info = newscaninfo['timestamp'] + ' ' + newscaninfo['sudo'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.scannerTimer) + 's.'
+	scan_info = newscaninfo['timestamp'] + ' ' + newscaninfo['sudo'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.remainingTime) + 's.'
 
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
 	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
@@ -342,14 +364,13 @@ class WilocateFrame(wx.Frame):
 	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
 	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
 
-	if self.scannerTimer >= self.options['sleep'][0] and self.scannerTimer <= self.options['sleep'][1]:
-	  if newscaninfo['newscanned'] == '0':
-	    self.scannerTimer+=self.options['sleep'][2]
-	  else:
-	    self.scannerTimer=self.options['sleep'][0]
+	newwifi=False
+	if newscaninfo['newscanned'] != '0':
+	  newwifi=True
+	  
+	self.setNextScanTime(newwifi)
 
 	self.scanhdl.scanisrunning = False
-	print 'ok, il campo è libero'
 
 
     def WebState(self, newstate, newmsg, newdisplayerror = False):

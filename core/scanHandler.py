@@ -46,13 +46,11 @@ class Scan(Thread):
       """ Run wifi scan.
       
       """
-      print 'Il thread è run'
       self.parent.getScan(self.sudo)
       self.parent.locateScan()
       self.parent.datahdl.jsonDump()
       
       self.parent.changeState()
-      print 'Il thread è stop'
 
 
 class scanHandler:
@@ -138,6 +136,10 @@ class scanHandler:
 	rel = 0
 	if not self.options['NotLocate']:
 	  nl, pos = addPosition(self.lastscan,self.datahdl,self.options['lang'],self.options['always-loc'])
+	  
+	  if not 'latitude' in pos and 'longitude' in pos:
+	    return
+	  
 	  rel = setReliable(self.lastscan)
 	  lonpos=pos['longitude']
 	  latpos=pos['latitude']
