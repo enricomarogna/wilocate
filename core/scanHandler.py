@@ -10,7 +10,7 @@ except ImportError: import simplejson as json
 try:
   import wx
 except ImportError:
-  print '! Install wxPython library version 2.6 with \'sudo apt-get install python-wxgtk2.6\''
+  log('! Install wxPython library version 2.6 with \'sudo apt-get install python-wxgtk2.6\'')
   sys.exit(1)
 
 
@@ -74,7 +74,7 @@ class scanHandler:
     bin_iwlist = 'iwlist'
     path_iwlist = which(bin_iwlist, ['/sbin/', '/usr/sbin/'])
     if not path_iwlist:
-      print '! Error, no', bin_iwlist, 'founded in $PATH'
+      log('! Error, no', bin_iwlist, 'founded in $PATH')
     else:
       self.command=path_iwlist
 
@@ -83,30 +83,12 @@ class scanHandler:
     if path_su:
       self.command_su=path_su
     else:
-      print '! No sudo program founded, triggered scan is disabled.'
-
-    #bin_kdesu = 'kdesudo'
-    #path_su = which(bin_kdesu, ['/sbin/', '/usr/sbin/'])
-    #if not path_su:
-      #self.command_su=path_su
-      #print '! No gtksu or kdesudo founded, triggered scan is disabled.'
-    #else:
-      #self.command_su=path_su
+      log('! No sudo program founded, triggered scan is disabled.')
 
     self.datahdl=data
     self.options=options
     self.parent=parent
 
-  #def wifiScan(self,sudo=False):
-      #""" Run wifi scan.
-      
-      #"""
-    
-      #self.lastscan = self.getScan(sudo)
-      #self.lastscaninfo = self.locateScan()
-      #self.datahdl.jsonDump()
-      
-      #return self.lastscaninfo.copy()
 
 
   def launchScan(self,sudo=False):
@@ -115,8 +97,6 @@ class scanHandler:
       
       scanthread = Scan(self,sudo)
       scanthread.start()
-      #scanthread.run()
-      #self.scanisrunning = True
 
   def changeState(self):
     
@@ -257,7 +237,7 @@ class scanHandler:
 	  data[lastcell]['Encryption'][lastauth][sp[0]]=value
 
     except Exception, e:
-      print '! Error parsing scan command output:', e
+      log('! Error parsing scan command output:', e)
 
     self.lastscan = data.copy()
 

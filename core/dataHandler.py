@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import time, os, pprint
+import time, os
 from threading import Lock
 try: import json
 except ImportError: import simplejson as json
 lock=Lock()
-
 
 
 class dataHandler:

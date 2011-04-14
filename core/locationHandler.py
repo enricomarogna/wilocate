@@ -77,13 +77,13 @@ def httpQuery(headers,params):
     conn.request("POST", "/loc/json", json.dumps(params), headers)
     response = conn.getresponse()
   except Exception, e:
-    print '! Error on HTTP request:', e, '. Are you connected to Internet? Try offline scan with \'-l\'.'
+    log('! Error on HTTP request:', e, '. Are you connected to Internet? Try offline scan with \'-l\'.')
   else:
     jtext = response.read()
     try:
       j = json.loads(jtext)
     except ValueError, e:
-      print '! Error parsing JSON:', e, '.',
+      log('! Error parsing JSON:', e, '.')
 
   return j
 
@@ -124,7 +124,7 @@ def setReliable(scan):
 
 
     if scan[a]['location']['accuracy'] > 22000:
-      #print '(' + str(scan[a]['location']['accuracy']) + ' accuracy rejected)',
+      log(1,'(' + str(scan[a]['location']['accuracy']) + ' accuracy rejected)')
       scan[a]['location']['reliable']=0
 
   return summ_num

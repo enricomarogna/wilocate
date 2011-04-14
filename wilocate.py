@@ -5,6 +5,7 @@ import sys, time, webbrowser
 from core.scanHandler import *
 from core.httpHandler import *
 from core.optionsHandler import *
+from core.commons import *
 from threading import Timer
 
 
@@ -12,7 +13,7 @@ try:
   import wx
   import wx.lib.newevent
 except ImportError:
-  print '! Install wxPython library version 2.6 with \'sudo apt-get install python-wxgtk2.6\''
+  log('! Install wxPython library version 2.6 with \'sudo apt-get install python-wxgtk2.6\'')
   sys.exit(1)
 
 ID_ICON_TIMER = wx.NewId()
@@ -43,8 +44,6 @@ ID_TIMER_SCAN=wx.NewId()
 WebStateUpdateEvent, WEB_STATE_EVENT = wx.lib.newevent.NewEvent()
 ScanStateUpdateEvent, SCAN_STATE_EVENT = wx.lib.newevent.NewEvent()
 
-def log(*args):
-    print ' '.join(map(str, args))
 
 class WilocateTaskBarIcon(wx.TaskBarIcon):
 
@@ -235,11 +234,11 @@ class WilocateFrame(wx.Frame):
 	  if self.nextScanTime < (self.options['sleep'][1]-self.options['sleep'][2]):
 	    self.nextScanTime += self.options['sleep'][2]
 	    
-	  log('! New nextScanTime + (' + str(self.nextScanTime) + ')')
+	  log(0,'! New nextScanTime + (' + str(self.nextScanTime) + ')')
 	    
 	else:
 	  self.nextScanTime = self.options['sleep'][0]
-	  log('! New nextScanTime ! (' + str(self.nextScanTime) + ')')
+	  log(0,'! New nextScanTime ! (' + str(self.nextScanTime) + ')')
       
       
 
@@ -248,14 +247,14 @@ class WilocateFrame(wx.Frame):
       if not finished:
 	if self.remainingTime > self.options['sleep'][0]:
 	  self.remainingTime -= self.options['sleep'][2]
-	  log('! Waiting.. - (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
+	  log(0,'! Waiting.. - (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
 	else:
 	  self.remainingTime = self.nextScanTime
-	  log('! Waiting.. ! (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
+	  log(0,'! Waiting.. ! (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
 	
       else:
 	self.remainingTime = 1
-	log('! Finished.. ! (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
+	log(0,'! Finished.. ! (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
 	
     
       return self.remainingTime*1000
@@ -355,7 +354,13 @@ class WilocateFrame(wx.Frame):
 	  else:
 	    self.OpenBrowser([''])
 	  
-	scan_info = newscaninfo['timestamp'] + ' ' + newscaninfo['sudo'] + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.remainingTime) + 's.'
+	  
+	root_info = ''
+	if newscaninfo['sudo'] == 'True':
+	  root_info = ' (as root) '
+	  
+	  
+	scan_info = newscaninfo['timestamp'] + ' ' + root_info + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.remainingTime) + 's.'
 
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
 	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)

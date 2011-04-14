@@ -2,19 +2,22 @@
 
 from threading import Thread, Lock
 import SimpleHTTPServer, SocketServer, os, sys, urllib2, socket, mimetypes, time
+from commons import log
+
 try: import json
 except ImportError: import simplejson as json
 try:
   import wx
   #import wx.lib.newevent
 except ImportError:
-  print '! Install wxPython library version 2.6 with \'sudo apt-get install python-wxgtk2.6\''
+  log('! Install wxPython library version 2.6 with \'sudo apt-get install python-wxgtk2.6\'')
   sys.exit(1)
 
 
 #WebStateUpdateEvent, WEB_STATE_EVENT = wx.lib.newevent.NewEvent()
 
 data = None
+
 
 class ExitableSocketServer(SocketServer.TCPServer):
   allow_reuse_address = True
@@ -108,7 +111,7 @@ class httpHandler ( Thread ):
 	try:
 	  self.httpd = ExitableSocketServer(('127.0.0.1', self.port), httpRequestHandler)
 	except Exception, e:
-	  print '!', e
+	  log('!', e)
 	  self.__changeState(False, 'Port ' + str(self.port) + ' unavailable,\nplease shutdown any other process that keep port open.\nRetry in 10s.',True)
 	  time.sleep(10)
 	else:

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import os, time
+from sys import argv
+from commons import log
+
 try: import json
 except ImportError: import simplejson as json
 
@@ -59,22 +62,22 @@ def loadOptions():
 
   global options
 
+
   if not os.path.exists(confdir):
     os.makedirs(confdir)
 
   if not os.path.exists(confdir + 'wilocate.conf'):
     setDefaultOptions()
-    print 'No config founded, loaded default options.'
+    log('No config founded, loaded default options.')
     saveOptions()
 
   else:
-    f = open(confdir + 'wilocate.conf','r')
-
     try:
+      f = open(confdir + 'wilocate.conf','r')
       options = json.loads(f.read())
     except Exception, e:
       setDefaultOptions()
-      print 'Invalid config founded, loaded default options.'
+      log('Error loading or parsing config file, loaded default options.')
 
   options['password']=''
   return options
