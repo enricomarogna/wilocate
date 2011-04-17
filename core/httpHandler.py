@@ -61,7 +61,7 @@ class httpRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 
     except IOError:
-      self.send_error(404, 'File not found: %s' % self.path)
+      log('Error ' + 404 + ' File not found: %s' % self.path)
 
 
 class httpHandler ( Thread ):

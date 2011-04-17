@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys, httplib, math
+
+from commons import *
 try: import json
 except ImportError: import simplejson as json
 
@@ -49,6 +51,7 @@ def addPosition(scan, data, lang, alwaysRelocate=False, retrysingle = 1, retryto
 	if 'location' in position:
 	  if 'address' in position['location']:
 	    position = position['location'].copy()
+	    print position
 	    break
 	  elif not position:
 	    position = position['location'].copy()

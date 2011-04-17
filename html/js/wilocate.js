@@ -13,6 +13,8 @@
     var map;
     var geoXml;
     var onlyOneSelected = false;
+    
+    var checkbox_follow = false;
 
     var zoomed=true; //To avoid first autozoom
 
@@ -355,6 +357,7 @@
 
 			  if(lastpos == null || (lastpos && distance(actual_pos,lastpos.getPosition()) >= 0.04)) {
 
+
 			      map.setCenter(actual_pos, 18);
 			      //var image = new google.maps.MarkerImage('img/marker.png',new google.maps.Size(30, 35));
 			      var marker = new google.maps.Marker({
@@ -373,14 +376,23 @@
 
 			  }
 			  else if ((lastpos && distance(actual_pos,lastpos.getPosition()) < 0.04) || ('address' in locs[b]['position'] && lastposaddr==false) ) {
+			   
+			    map.setCenter(actual_pos,18);
 
-// 			    map.setCenter(actual_pos,18);
 			    lastpos.setPosition(actual_pos);
+			    
+// 			    if(checkbox_follow) {
+// 			      alert(lastpos.getPosition() + " " + actual);
+// 			    }
+			    
 			    tablepos = parsePosition(b);
 			    if('address' in locs[b]['position'])
 			      lastposaddr=true;
 			    else
 			      lastposaddr=false;
+			  }
+			  else { 
+			   alert('entratoqua!'); 
 			  }
 
 		    }
@@ -506,6 +518,10 @@
       });
 
       $("#myTable tbody").delegate("tr", "click", eventToShowOneByTable);
+      
+      $("#checkbox_follow").click(function() {
+	  checkbox_follow = $('#checkbox_follow').is(':checked');
+      });
       
     }
     

@@ -5,6 +5,7 @@ import sys, time, webbrowser
 from core.scanHandler import *
 from core.httpHandler import *
 from core.optionsHandler import *
+from core.loadScanHandler import *
 from core.commons import *
 from threading import Timer
 
@@ -24,7 +25,6 @@ ID_TRIGGER_SCAN=wx.NewId()
 ID_SCAN_TRIGGERED=wx.NewId()
 ID_SCAN_ON_START=wx.NewId()
 ID_NOT_LOC=wx.NewId()
-ID_LOAD_FILE=wx.NewId()
 
 ID_START_WEB=wx.NewId()
 ID_STOP_WEB=wx.NewId()
@@ -32,6 +32,10 @@ ID_WEB_ON_START=wx.NewId()
 ID_BROWSER_ON_WEB_START=wx.NewId()
 ID_MENU_SCAN_STATUS=wx.NewId()
 ID_MENU_SCAN=wx.NewId()
+
+ID_CLEAN_LOAD=wx.NewId()
+ID_START_LOAD=wx.NewId()
+
 
 ID_MENU_OPT=wx.NewId()
 
@@ -71,24 +75,28 @@ class WilocateTaskBarIcon(wx.TaskBarIcon):
         self.Bind(wx.EVT_MENU, self.parentApp.TriggeredOnStart, id=ID_SCAN_TRIGGERED)
         self.Bind(wx.EVT_MENU, self.parentApp.ScanOnStart, id=ID_SCAN_ON_START)
         self.Bind(wx.EVT_MENU, self.parentApp.NotLocate, id=ID_NOT_LOC)
-        self.Bind(wx.EVT_MENU, self.parentApp.LoadFile, id=ID_LOAD_FILE)
+        self.Bind(wx.EVT_MENU, self.parentApp.StartLoad, id=ID_START_LOAD)
+        self.Bind(wx.EVT_MENU, self.parentApp.CleanLogs, id=ID_CLEAN_LOAD)
         self.Bind(wx.EVT_MENU, self.parentApp.OnExit, id=wx.ID_EXIT)
 	wx.EVT_TASKBAR_LEFT_UP(self, self.parentApp.OpenBrowser)
 
         self.menu=wx.Menu()
+	self.menu.Append(ID_MENU_SCAN_STATUS,"")
+	self.menu.FindItemById(ID_MENU_SCAN_STATUS).Enable(False)
+	self.menu.AppendSeparator()
         menuscan = wx.Menu()
-	menuscan.Append(ID_MENU_SCAN_STATUS,"")
-	menuscan.AppendSeparator()
         menuscan.Append(ID_START_SCAN, "&Start scan")
         menuscan.Append(ID_STOP_SCAN, "S&top scan")
-        menuscan.AppendSeparator()
-        menuscan.Append(ID_LOAD_FILE, "&Load scan from file")
+	menuscan.AppendSeparator()
+	menuscan.Append(ID_START_LOAD, "&Load scan from log")
+	menuscan.AppendSeparator()
+	menuscan.Append(ID_CLEAN_LOAD, "&Clean all logs")
 
         self.menu.AppendMenu(ID_MENU_SCAN, "Wifi &scan", menuscan)
 
-
         menuweb = wx.Menu()
         menuweb.Append(ID_MENU_WEB_STATUS,"")
+	menuweb.FindItemById(ID_MENU_WEB_STATUS).Enable(False)
 	menuweb.AppendSeparator()
 	menuweb.Append(ID_START_WEB, "&Start web interface")
         menuweb.Append(ID_STOP_WEB, "S&top web interface")
@@ -134,11 +142,13 @@ class WilocateFrame(wx.Frame):
     remainingTime=5
     nextScanTime=5
 
-    scanRunning=False
+    scanLoopRunning=False
+    loadLoopRunning=False
 
     datahdl=None
     scanhdl=None
     httphdl=None
+    loadhdl=None
     httphdlfirstrun=True
 
     options = {}
@@ -164,20 +174,23 @@ class WilocateFrame(wx.Frame):
 	self.datahdl = dataHandler(self.options['LogPath'])
 	self.scanhdl = scanHandler(self,self.options,self.datahdl)
 	self.httphdl = httpHandler(self,self.datahdl,self.options['port'])
+	self.loadhdl = loadScanHandler(self,self.options,self.datahdl)
 
 	self.scannerTimer = self.options['sleep'][0]
 
 	self.timerweb = wx.Timer(self, -1)
 	self.timerscan = wx.Timer(self, -2)
+	self.timerload = wx.Timer(self, -3)
 	self.Bind(wx.EVT_TIMER, self.StartWebDetached, self.timerweb)
 	self.Bind(wx.EVT_TIMER, self.StartScan, self.timerscan)
+	self.Bind(wx.EVT_TIMER, self.StartLoad, self.timerload)
 	
 	self.Bind(WEB_STATE_EVENT,self.WebStateUpdate)
 	self.Bind(SCAN_STATE_EVENT,self.ScanStateUpdate)
 
 	#Detach to renderize systray icon faster
 	if self.options['ScanOnStart']:
-	  self.scanRunning=True
+	  self.scanLoopRunning=True
 	  self.timerscan.Start(self.options['sleep'][0], oneShot=True)
 
 	if self.options['WebOnStart']:
@@ -201,9 +214,12 @@ class WilocateFrame(wx.Frame):
     def StartScan(self,event):
 	"""Start main scan loop."""
 
-	
-	if not self.scanhdl.scanisrunning:
+	if self.loadLoopRunning:
+	  self.StopScan([])
+
+	if not self.scanLoopRunning or not self.scanhdl.scanisrunning:
     
+	  self.scanLoopRunning=True
 	  self.scanhdl.scanisrunning = True
 	  if self.options['TriggeredOnStart']:
 	    self.GetSudoPwd()
@@ -220,6 +236,11 @@ class WilocateFrame(wx.Frame):
 	else:
 	  timeToWait = self.getRemainingTime(True)
 
+
+      	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
+	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
+	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
+	
 
 	if self.timerscan.IsRunning():
 	  self.timerscan.Stop()
@@ -254,7 +275,7 @@ class WilocateFrame(wx.Frame):
 	
       else:
 	self.remainingTime = 1
-	log(0,'! Finished.. ! (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
+	log(0,'! Time Finished.. ! (' + str(self.nextScanTime) + '/' + str(self.remainingTime) + ')')
 	
     
       return self.remainingTime*1000
@@ -264,9 +285,12 @@ class WilocateFrame(wx.Frame):
       	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
 	itemmenustatus.SetText('Scan stopped')
 	self.timerscan.Stop()
-        self.scanRunning=False
+	self.timerload.Stop()
+        self.scanLoopRunning=False
+        self.loadLoopRunning=False
 
 	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(True)
+	itemmenu.GetMenu().FindItemById(ID_START_LOAD).Enable(True)
 	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(False)
 
     def ScanOnStart(self,event):
@@ -327,20 +351,23 @@ class WilocateFrame(wx.Frame):
 	itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
 	itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(False)
 	itemmenu.GetMenu().FindItemById(ID_MENU_WEB_STATUS).SetText('Starting Web interface')
-
+	
 	if self.httphdlfirstrun:
 	  self.httphdl.start()
 	  self.httphdlfirstrun=False
 	else:
 	  self.httphdl.run()
 
-	#itemmenu.GetMenu().FindItemById(ID_START_WEB).Enable(False)
-	#itemmenu.GetMenu().FindItemById(ID_STOP_WEB).Enable(True)
 
     def ScanState(self,scaninfo):
       wx.PostEvent(self, ScanStateUpdateEvent(lastscaninfo = scaninfo))
 
     def ScanStateUpdate(self,event):
+      
+	""" This function update scan status. 
+	
+	Is called via wxPostEvent from Scan and Load threads.
+	"""
       
       
 	newscaninfo = event.lastscaninfo
@@ -355,28 +382,31 @@ class WilocateFrame(wx.Frame):
 	    self.OpenBrowser([''])
 	  
 	  
-	root_info = ''
+	info = ''
 	if newscaninfo['sudo'] == 'True':
-	  root_info = ' (as root) '
+	  info = ' (as root) '
+	if self.loadLoopRunning:
+	  info = ' (from file) '
 	  
 	  
-	scan_info = newscaninfo['timestamp'] + ' ' + root_info + '\nAPs seen ' + newscaninfo['seen'] + ', located ' + newscaninfo['located'] + '\n' + 'APs added ' + newscaninfo['newscanned'] + ', reliable ' + newscaninfo['newreliable'] + '\nNext Scan in ' + str(self.remainingTime) + 's.'
+	scan_info = 'Last scan: ' + newscaninfo['timestamp'] + ' ' + info + '\nNew ' + newscaninfo['seen'] + ' APs seen\nLocated ' + newscaninfo['located'] + ', added ' + newscaninfo['newscanned'] + '\nNext Scan in ' + str(self.remainingTime) + 's.\nLog: ' + os.sep.join(self.datahdl.jsonpath.split(os.sep)[-2:])
 
 	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
 	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
 	itemmenustatus.SetText(scan_info)
 
-	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
-	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
 
 	newwifi=False
 	if newscaninfo['newscanned'] != '0':
 	  newwifi=True
 	  
-	self.setNextScanTime(newwifi)
-
-	self.scanhdl.scanisrunning = False
-
+	if self.scanLoopRunning:
+	  self.setNextScanTime(newwifi)
+	  self.scanhdl.scanisrunning = False
+	if self.loadLoopRunning:
+	  # No need to set nextscantime, is always = 1
+	  self.loadhdl.scanisrunning = False
+	  
 
     def WebState(self, newstate, newmsg, newdisplayerror = False):
       wx.PostEvent(self, WebStateUpdateEvent(state=newstate, msg=newmsg, displayerror=newdisplayerror))
@@ -428,38 +458,60 @@ class WilocateFrame(wx.Frame):
         result = self.dialog.ShowModal()
         self.dialog.Destroy()
 
-    def LoadFile(self,event):
+
+    def CleanLogs(self,event):
+      pass
+      
+
+    def StartLoad(self,event):
 
       global confdir
+      
+      if not self.loadLoopRunning:
 
-      dirname = confdir
-      dlg = wx.FileDialog(self, "Choose a file", dirname,"", "*.*", wx.OPEN)
+	dirname = confdir
+	dlg = wx.FileDialog(self, "Choose a file", dirname,"", "*.*", wx.OPEN)
 
-      if dlg.ShowModal()==wx.ID_OK:
-	filename=dlg.GetFilename()
-	dirname=dlg.GetDirectory()
-	self.StopScan(["fakeevent"])
+	if dlg.ShowModal()==wx.ID_OK:
+	  filepath=dlg.GetFilename()
+	  dirpath=dlg.GetDirectory()
+	  self.StopScan([])
 
-	scan_info="Loading file"
+	  self.loadhdl.loadFile(dirpath + os.sep + filepath)
 
-	itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
-	itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
-	itemmenustatus.SetText(scan_info)
+	  scan_info='Loading file\n' + filepath
 
-	itemmenu.GetMenu().FindItemById(ID_START_SCAN).Enable(False)
-	itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
+	  itemmenu = self.tbicon.menu.FindItemById(ID_MENU_SCAN)
+	  itemmenustatus = itemmenu.GetMenu().FindItemById(ID_MENU_SCAN_STATUS)
+	  itemmenustatus.SetText(scan_info)
 
-	while self.scanRunning:
-	  pass
+	  itemmenu.GetMenu().FindItemById(ID_STOP_SCAN).Enable(True)
+	  itemmenu.GetMenu().FindItemById(ID_START_LOAD).Enable(False)
+	  
+	  self.loadLoopRunning=True
+	else:
+	  dlg.Destroy()
+	  return
+	  
+	dlg.Destroy()
 
-      dlg.Destroy()
+      if self.loadLoopRunning and not self.loadhdl.scanisrunning:
+	
+	self.loadhdl.scanisrunning = True
+	self.loadhdl.launchScan()
+	  
+      if self.timerload.IsRunning():
+	self.timerload.Stop()
+      
+      self.timerload.Start(1000, oneShot=True)
+
 
     def OnExit(self,event):
 
       self.tbicon.RemoveIcon()
       self.tbicon.Destroy()
-      self.StopWeb(["fakevent"])
-      self.StopScan(["fakevent"])
+      self.StopWeb([])
+      self.StopScan([])
       sys.exit()
 
 class PasswordDialog(wx.Dialog):

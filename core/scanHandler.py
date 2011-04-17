@@ -3,6 +3,7 @@
 import os, sys, time, re
 from subprocess import Popen, PIPE, STDOUT
 from threading import Thread, Lock
+from commons import *
 
 try: import json
 except ImportError: import simplejson as json
@@ -93,8 +94,6 @@ class scanHandler:
 
   def launchScan(self,sudo=False):
       self.lastsudo = sudo
-      
-      
       scanthread = Scan(self,sudo)
       scanthread.start()
 
