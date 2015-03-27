@@ -19,3 +19,7 @@ Execute
     ./wilocate.py 
 
 To open the menu and web browser interface. 
+
+
+    https://code.google.com/p/wilocate/
+    
