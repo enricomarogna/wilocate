@@ -12,3 +12,10 @@ The program can be used for
     Wardriving with geographic map support. 
 
 The program supports Linux and is currently under heavy development, help us to improve it and fix some bugs. Soon we'll publish Debian/Ubuntu packages. The georeferenced WiFi? data used to geocode your request was collected when Google was driving around taking pictures for StreetView?. 
+
+Execute
+
+    cd wilocate
+    ./wilocate.py 
+
+To open the menu and web browser interface. 
